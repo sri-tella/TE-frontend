@@ -1,0 +1,12 @@
+.navbar {
+    background-color: #2d4c41;
+}
+.nav-link-icon {
+  font-size: 1.5rem; /* Adjust the font size as needed */
+  display: flex;
+  align-items: center;
+}
+
+.nav-link-icon svg {
+  margin-right: 0.5rem; /* Adjust the margin between icon and text */
+}
