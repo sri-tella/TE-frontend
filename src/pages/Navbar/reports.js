@@ -2,10 +2,20 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Table, Button } from 'react-bootstrap';
 import Header from '../../components/Header/header';
+import { useNavigate } from 'react-router-dom';
 import './reports.css';
 
 const Reports = () => {
   const [reports, setReports] = useState([]);
+  const navigate = useNavigate();
+
+  const handleViewEditReport = (reportId) => {
+    navigate('/editReport', {
+      state: {
+        reportId: reportId,
+      },
+    });
+  };
 
   useEffect(() => {
     // Fetch all reports from API on component mount
@@ -56,6 +66,9 @@ const Reports = () => {
                       <Button className="btn-download-pdf" onClick={() => handleDownloadPDF(report.report_id)}>
                         Download PDF
                       </Button>
+                      <Button className="btn-vieworedit-pdf" onClick={() => handleViewEditReport(report.report_id)}>
+                                               View / Edit Report
+                                            </Button>
                     </td>
                   </tr>
                 ))}

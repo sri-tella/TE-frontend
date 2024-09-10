@@ -58,7 +58,7 @@ body, html {
 }
 
 /* Style for the Download PDF button */
-.btn-download-pdf {
+.btn-download-pdf,.btn-vieworedit-pdf {
   background-color: #2d4c41;
   color: white;
   border: none;
@@ -68,6 +68,6 @@ body, html {
   cursor: pointer;
 }
 
-.btn-download-pdf:hover {
+.btn-download-pdf:hover, .btn-vieworedit-pdf:hover {
   background-color: #ffc107;
 }
