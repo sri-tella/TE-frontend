@@ -53,7 +53,8 @@ const EditReport = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:8080/api/evaluations/save', {
+//    http://localhost:8080
+      const response = await fetch('https://te-backend-production.up.railway.app/api/evaluations/save', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

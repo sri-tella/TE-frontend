@@ -17,7 +17,7 @@ const SelectedRecommendations = () => {
 
   useEffect(() => {
     // Fetch selected recommendations from the backend
-    fetch('http://localhost:8080/api/options')
+    fetch('https://te-backend-production.up.railway.app/api/options')
       .then(response => response.json())
       .then(data => {
         console.log("fetched:", data);
@@ -79,7 +79,7 @@ const SelectedRecommendations = () => {
 
     console.log('Selected Data with Sections and Types:', selectedData);
 
-    fetch('http://localhost:8080/api/options/saveSelected', {
+    fetch('https://te-backend-production.up.railway.app/api/options/saveSelected', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

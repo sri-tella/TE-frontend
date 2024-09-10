@@ -42,7 +42,7 @@ const Signup = () => {
       })
       .then(data => {
         if (data.id) {
-          navigate('/login');
+          navigate('/');
         } else {
           alert('Signup failed');
         }
