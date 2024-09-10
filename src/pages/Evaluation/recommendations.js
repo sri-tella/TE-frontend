@@ -55,12 +55,29 @@ const SelectedRecommendations = () => {
   const handleSave = () => {
     const selectedData = selectedRecommendations
       .filter(rec => rec.selected)
-      .map(rec => ({
-        section_id: rec.sectionId,
-        feedback: feedbacks[rec.sectionTitle] || ''
-      }));
+      .map(rec => {
+        let sectionTitle = '';
+        let recommendationType = '';
 
-    console.log('Selected Data:', selectedData);
+        // Iterate over recommendationsMapping to find the sectionTitle and recommendationType
+        Object.entries(recommendationsMapping).forEach(([secTitle, recommendations]) => {
+          Object.entries(recommendations).forEach(([recType, recommendationArray]) => {
+            if (recommendationArray.includes(rec.description)) {
+              sectionTitle = secTitle;
+              recommendationType = recType;
+            }
+          });
+        });
+
+        return {
+          section_id: rec.sectionId,
+          sectionTitle,
+          recommendationType,
+          feedback: feedbacks[sectionTitle] || '',
+        };
+      });
+
+    console.log('Selected Data with Sections and Types:', selectedData);
 
     fetch('http://localhost:8080/api/options/saveSelected', {
       method: 'POST',

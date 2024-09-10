@@ -11,6 +11,7 @@ import Rec from "./pages/Evaluation/rec";
 import ReportViewer from './pages/Evaluation/reportviewer';
 import SelectedRecommendations from "./pages/Evaluation/recommendations";
 import ReviewRecommendations from "./pages/Evaluation/reviewrecommendations";
+import EditReport from "./pages/Evaluation/editreport";
 import Login from "./pages/Login/login";
 import Signup from "./pages/Login/register"
 
@@ -122,6 +123,7 @@ const [evaluation, setEvaluation] = useState({
            <Route path="/reports" element={<Reports />} />
            <Route path="/viewReport" element={<ReportViewer />} />
            <Route path="/help" element={<Help />} />
+           <Route path="/editreport" element={<EditReport />} />
            <Route path="/EvaluationIntro" element={<IntroForm nextStep={(data) => handleNextStep(data)} />} />
            <Route path="/Evaluate" element={<MainForm sections={evaluation.sections} saveSection={saveSection} />} />
            <Route path="/SelectedRecommendations" element={<SelectedRecommendations evaluation={evaluation} />} />
