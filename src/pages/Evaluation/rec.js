@@ -192,7 +192,7 @@
 
    useEffect(() => {
      // Fetch recommendations from the backend
-     fetch('http://localhost:8080/api/options')
+     fetch('https://te-backend-production.up.railway.app/api/options')
        .then(response => response.json())
        .then(data => {
          console.log('Fetched recommendations:', data);

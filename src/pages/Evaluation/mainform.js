@@ -46,7 +46,7 @@ const MainForm = ({ sections, saveSection }) => {
        console.log(selectedOptions)
 
       // Send POST request to save selected sections
-      fetch('http://localhost:8080/api/options/saveSelected', {
+      fetch('https://te-backend-production.up.railway.app/api/options/saveSelected', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

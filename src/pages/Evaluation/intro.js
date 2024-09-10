@@ -64,7 +64,7 @@ const CombinedForm = ({ nextStep }) => {
             courseDescription: formData.courseDescription
         };
       console.log(formDataToSend);
-      await axios.post('http://localhost:8080/api/form', formData);
+      await axios.post('https://te-backend-production.up.railway.app/api/form', formData);
       nextStep(formData);
       navigate('/Evaluate');
     } catch (error) {

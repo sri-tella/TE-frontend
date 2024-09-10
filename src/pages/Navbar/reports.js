@@ -19,7 +19,7 @@ const Reports = () => {
 
   useEffect(() => {
     // Fetch all reports from API on component mount
-    axios.get('http://localhost:8080/api/reports')
+    axios.get('https://te-backend-production.up.railway.app/api/reports')
       .then(response => {
         setReports(response.data);
       })
@@ -30,7 +30,7 @@ const Reports = () => {
 
   const handleDownloadPDF = async (reportId) => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/reports/${reportId}/pdf`, { responseType: 'blob' });
+      const response = await axios.get(`https://te-backend-production.up.railway.app/api/reports/${reportId}/pdf`, { responseType: 'blob' });
       const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
       const pdfUrl = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
