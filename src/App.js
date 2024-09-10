@@ -13,7 +13,7 @@ import SelectedRecommendations from "./pages/Evaluation/recommendations";
 import ReviewRecommendations from "./pages/Evaluation/reviewrecommendations";
 import EditReport from "./pages/Evaluation/editreport";
 import Login from "./pages/Login/login";
-import Signup from "./pages/Login/register"
+import Signup from "./register"
 
 function App() {
 
