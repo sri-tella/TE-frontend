@@ -2,11 +2,45 @@
     background-color: #2d4c41;
 }
 .nav-link-icon {
-  font-size: 1.5rem; /* Adjust the font size as needed */
+  font-size: 1.5rem;
   display: flex;
   align-items: center;
 }
 
 .nav-link-icon svg {
-  margin-right: 0.5rem; /* Adjust the margin between icon and text */
+  margin-right: 0.5rem;
+}
+
+.nav-logout-button {
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    color: #ccc;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    outline: none;
+    text-decoration: none;
+    }
+
+.nav-logout-button:hover {
+    color: white;
+}
+
+.nav-logout-button svg {
+    margin-right: 0.5rem;
+}
+
+.nav-username {
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    color: #ccc;
+    margin-right: 1rem;
+    text-decoration: none;
+}
+
+.nav-username strong {
+    margin-left: 0.5rem;
 }
