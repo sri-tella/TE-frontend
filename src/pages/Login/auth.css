@@ -47,6 +47,10 @@ body, html {
   border-radius: 5px;
 }
 
+.auth-button {
+  text-align: center;
+  }
+
 .auth-form button {
   padding: 10px;
   margin-bottom: 10px;
