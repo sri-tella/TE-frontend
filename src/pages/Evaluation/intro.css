@@ -51,10 +51,9 @@ button[type="submit"] {
   background-color: #ffc107;
   color: #2d4c41;
   font-size: 22px;
-  margin-left: 30px;
   margin-right: 30px;
   display: block;
-  width: 97%;
+  width: 100%;
   padding: 5px;
   border: none;
   border-radius: 4px;
