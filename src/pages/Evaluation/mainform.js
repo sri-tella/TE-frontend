@@ -96,7 +96,7 @@ const MainForm = ({ sections, saveSection }) => {
   <>
   <Header/>
   <div>
-    <h4>Select all that apply based on what you observed:</h4>
+    <h4>Select all observations that apply. Click on the headers to expand/collapse and use the search bar on the right to quickly find key words.</h4>
     <SearchBar searchQuery={searchQuery} handleSearchChange={setSearchQuery} />
     </div>
     <div>
