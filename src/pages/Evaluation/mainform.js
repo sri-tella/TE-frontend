@@ -75,7 +75,6 @@ const MainForm = ({ sections, saveSection }) => {
         type="button"
         variant="link"
         onClick={decoratedOnClick}
-        style={{ marginBottom: '1rem'}}
       >
         {children}
       </Button>

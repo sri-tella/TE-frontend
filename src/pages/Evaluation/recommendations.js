@@ -89,7 +89,7 @@ const SelectedRecommendations = () => {
       .then(response => response.json())
       .then(data => {
         console.log('Save successful:', data);
-        navigate('/ReviewRecommendations');
+        navigate('/viewReport');
       })
       .catch(error => console.error('Error saving selected recommendations:', error));
   };
@@ -108,7 +108,6 @@ const SelectedRecommendations = () => {
         type="button"
         variant="link"
         onClick={decoratedOnClick}
-        style={{ marginBottom: '1rem' }}
       >
         {children}
       </Button>
@@ -133,7 +132,7 @@ const SelectedRecommendations = () => {
     <>
       <Header />
       <div>
-        <h4>Here are the recommendations based on your previous selection</h4>
+        <h4>Here are possible recommendations. Some are selected based on your observations in the previous step. Click on the headers to expand/collapse and use the search bar on the right to quickly find key words.</h4>
         <SearchBar searchQuery={searchQuery} handleSearchChange={handleSearchChange} />
       </div>
       <div>
