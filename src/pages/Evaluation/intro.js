@@ -277,7 +277,7 @@ const CombinedForm = ({ nextStep }) => {
           <h2>Course Background Information</h2>
           <div className={`form-group ${formErrors.goal ? 'has-error' : ''}`}>
             <label>1. What are the learning objectives for today's session?</label>
-            <input
+            <textarea
               type="text"
               name="goal"
               onChange={handleChange}
@@ -287,7 +287,7 @@ const CombinedForm = ({ nextStep }) => {
           </div>
           <div className={`form-group ${formErrors.outline ? 'has-error' : ''}`}>
             <label>2. Please provide a brief outline or sketch of how the class session will proceed; for example, "mini-lecture; small group activity; mini-lecture; quiz; review."</label>
-            <input
+            <textarea
               type="text"
               name="outline"
               onChange={handleChange}
@@ -297,7 +297,7 @@ const CombinedForm = ({ nextStep }) => {
           </div>
           <div className={`form-group ${formErrors.help ? 'has-error' : ''}`}>
           <label>3. How might the observer be particularly helpful in the observation process?</label>
-            <input
+            <textarea
               type="text"
               name="help"
               onChange={handleChange}
@@ -306,8 +306,9 @@ const CombinedForm = ({ nextStep }) => {
           {formErrors.outline && <span className="error-message"> This field is required</span>}
           </div>
        </div>
-
+       <div>
      <button type="submit">Continue to Form</button>
+     </div>
    </form>
  </>
  );
