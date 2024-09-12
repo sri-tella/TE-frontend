@@ -307,7 +307,7 @@ const CombinedForm = ({ nextStep }) => {
           </div>
        </div>
        <div>
-     <button type="submit">Continue to Form</button>
+     <button type="submit" class= "introsubmit">Continue to Form</button>
      </div>
    </form>
  </>
