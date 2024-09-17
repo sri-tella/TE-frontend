@@ -58,16 +58,25 @@ body, html {
 }
 
 /* Style for the Download PDF button */
-.btn-download-pdf,.btn-vieworedit-pdf {
+.btn-download-pdf {
   background-color: #2d4c41;
+  width: 45%;
+  text-align: center;
   color: white;
   border: none;
   padding: 10px 20px;
   border-radius: 5px;
-  font-size: 1rem;
+  font-size: 1.2rem;
   cursor: pointer;
 }
 
 .btn-download-pdf:hover, .btn-vieworedit-pdf:hover {
   background-color: #ffc107;
+}
+
+.no-reports-message {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 25px;
+  color: #2d4c41;
 }

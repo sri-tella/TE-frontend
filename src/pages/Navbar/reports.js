@@ -43,38 +43,42 @@ const Reports = () => {
     }
   };
 
-  return (
+   return (
       <>
         <Header />
         <div className="reports-container">
-          <h2 className="reports-heading">Reports</h2>
-          <div className="reports-table">
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Created At</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {reports.map((report, index) => (
-                  <tr key={report.report_id}>
-                    <td>{index + 1}</td>
-                    <td>{new Date(report.createdAt).toLocaleDateString()}</td>
-                    <td className="reports-actions">
-                      <Button className="btn-download-pdf" onClick={() => handleDownloadPDF(report.report_id)}>
-                        Download PDF
-                      </Button>
-                      <Button className="btn-vieworedit-pdf" onClick={() => handleViewEditReport(report.report_id)}>
-                                               View / Edit Report
-                                            </Button>
-                    </td>
+          {reports.length === 0 ? (
+            // Display this message if the reports array is empty
+            <div className="no-reports-message">
+              <p>Currently, no reports are available.</p>
+            </div>
+          ) : (
+            // Display the table if reports are present
+            <div className="reports-table">
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Created At</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </Table>
-          </div>
+                </thead>
+                <tbody>
+                  {reports.map((report, index) => (
+                    <tr key={report.report_id}>
+                      <td>{index + 1}</td>
+                      <td>{new Date(report.createdAt).toLocaleDateString()}</td>
+                      <td className="reports-actions">
+                        <button className="btn-download-pdf" onClick={() => handleDownloadPDF(report.report_id)}>
+                          Download PDF
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          )}
         </div>
       </>
     );

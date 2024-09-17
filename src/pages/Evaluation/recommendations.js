@@ -89,7 +89,13 @@ const SelectedRecommendations = () => {
       .then(response => response.json())
       .then(data => {
         console.log('Save successful:', data);
-        navigate('/viewReport');
+        console.log(selectedRecommendations.filter(rec=>rec.selected), feedbacks)
+        navigate('/viewReport', {
+                state: {
+                  selectedRecommendations: selectedRecommendations.filter(rec => rec.selected),
+                  feedbacks,
+                },
+              });
       })
       .catch(error => console.error('Error saving selected recommendations:', error));
   };
@@ -190,7 +196,7 @@ const SelectedRecommendations = () => {
               Go Back
             </Button>
             <Button onClick={handleSave} className="button-custom mr-3">
-              Save and Review
+              Save and Edit
             </Button>
           </div>
         </Form>
