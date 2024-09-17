@@ -93,7 +93,7 @@ const ViewReports = () => {
         // Save PDF to the backend
         const formData = new FormData();
         formData.append('file', pdfBlob, 'report.pdf');
-        formData.append('evaluationId', 2); // Pass the evaluation ID
+        formData.append('evaluationId', 1); // Pass the evaluation ID
 
         const pdfResponse = await fetch('https://te-backend-production.up.railway.app/api/reports/save-pdf', {
           method: 'POST',
@@ -112,6 +112,7 @@ const ViewReports = () => {
     };
 
   const handleDownloadPDF = () => {
+    console.log("Downloading PDF...");
     const input = document.getElementById('report-content');
 
     html2canvas(input).then((canvas) => {
@@ -135,6 +136,9 @@ const ViewReports = () => {
       }
       pdf.save('report.pdf');
     });
+    setTimeout(() => {
+          navigate('/reports');
+        }, 10000);
   };
 
   return (
