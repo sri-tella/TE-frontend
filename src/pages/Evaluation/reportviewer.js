@@ -172,6 +172,9 @@ const ViewReports = () => {
           />
         </div>
         <div className="mt-3">
+          <Button onClick={() => navigate('/SelectedRecommendations')} className="button-custom mr-2">
+              Go Back
+            </Button>
           <Button onClick={handleSaveEvaluation} className="button-custom mr-2">
             Save Report
           </Button>
