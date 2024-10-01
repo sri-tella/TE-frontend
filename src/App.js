@@ -69,7 +69,7 @@ const [evaluation, setEvaluation] = useState({
         { section_id: 36, description: "Pace of speech or activities increases"},
         { section_id: 37, description: "Students doing single activity for more than 30 mins"},
         { section_id: 38, description: "students appear confused about what is expected of them or why they are being asked to do something"},
-        { section_id: 39, description: "Class starts with no explicit plan, no hook, no connection to course trajectory; students appear confused about what is expected of them or why they are being asked to do something"}
+        { section_id: 39, description: "Class starts with no explicit plan, no hook, no connection to course trajectory"}
       ] },
       { title: "6. Affect", options: [
         { section_id: 40, description: "Instructor clearly reading off notes, not speaking extemporaneously"},
