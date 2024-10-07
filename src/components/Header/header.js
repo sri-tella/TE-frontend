@@ -29,7 +29,7 @@ const navigate = useNavigate();
 
   return (
     <Navbar className="navbar" variant="dark" expand="lg">
-      <Navbar.Brand as={Link} to="/">
+      <Navbar.Brand as={Link} to="/home">
         <img
           src={logo}
           width="200"

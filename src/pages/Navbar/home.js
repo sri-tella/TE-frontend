@@ -8,9 +8,9 @@ const Home = () => {
     <>
       <Header />
       <div className="home-container">
-        <h1 className="home-heading">Welcome to Teaching Evaluation Application</h1>
+        <h1 className="home-heading">Welcome to Teaching Observation Application</h1>
         <div className="home-content">
-          <Link to="/EvaluationIntro" className="start-evaluation-link">Start New Evaluation</Link>
+          <Link to="/EvaluationIntro" className="start-evaluation-link">Start New Observation</Link>
         </div>
       </div>
     </>
