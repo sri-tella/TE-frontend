@@ -9,8 +9,10 @@ const Home = () => {
       <Header />
       <div className="home-container">
         <h1 className="home-heading">Welcome to Teaching Observation Application</h1>
+        <h2>  Please choose your role: </h2>
         <div className="home-content">
-          <Link to="/EvaluationIntro" className="start-evaluation-link">Start New Observation</Link>
+          <Link to="/obshome" className="obslink">Observer</Link>
+          <Link to="/InstructorIntro" className="inslink">Instructor</Link>
         </div>
       </div>
     </>

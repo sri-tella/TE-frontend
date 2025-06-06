@@ -5,70 +5,70 @@ import Header from '../../components/Header/header';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import './mainform.css';
+import axios from 'axios';
+import * as pdfjsLib from 'pdfjs-dist/webpack';
 
 const EditReport = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [reportContent, setReportContent] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [reportId, setReportId] = useState(null);
 
   useEffect(() => {
-    if (location.state) {
-      const { selectedRecommendations, feedbacks } = location.state;
+    if (location.state && location.state.reportId) {
+      const { reportId } = location.state;
+      setReportId(reportId);
 
-      let report = '<h2>Final Report</h2>';
+      // Fetch the PDF content by reportId from the backend
+      axios.get(`https://te-backend-production.up.railway.app/api/reports/${reportId}/pdf`, {
+        responseType: 'arraybuffer'
+      })
+      .then(response => {
+        const pdfContent = new Uint8Array(response.data);
 
-      if (selectedRecommendations.length > 0) {
-        report += '<h3>Selected Recommendations:</h3>';
-        selectedRecommendations.forEach((rec, index) => {
-          if (rec.selected) {
-            report += `<p>${index + 1}. ${rec.description}.</p>`;
-          }
+        // Convert PDF to HTML or plain text
+        convertPdfToHtml(pdfContent).then(html => {
+          setReportContent(html);  // Pre-fill the editor with existing report content
         });
-      }
-
-      if (Object.keys(feedbacks).length > 0) {
-        report += '<h3>Additional Feedback:</h3>';
-        Object.entries(feedbacks).forEach(([sectionTitle, feedback]) => {
-          if (feedback) {
-            report += `<p>${feedback}</p>`;
-          }
-        });
-      }
-
-      setReportContent(report);
+      })
+      .catch(error => {
+        console.error('Error fetching report content:', error);
+      });
     }
   }, [location.state]);
 
+  // Function to convert PDF to HTML
+  const convertPdfToHtml = async (pdfUint8Array) => {
+    const pdf = await pdfjsLib.getDocument({ data: pdfUint8Array }).promise;
+    let html = '';
+
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      const textContent = await page.getTextContent();
+      html += `<h2>Page ${pageNum}</h2>`;
+      textContent.items.forEach(item => {
+        html += `<p>${item.str}</p>`;
+      });
+    }
+
+    return html;
+  };
+
+  // Function to handle saving the updated report content
   const handleSaveEvaluation = async () => {
-    const currentDate = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
-    const { selectedRecommendations, evaluationId } = location.state;
-
-    const evaluationData = {
-      date: currentDate,
-      recommendations: selectedRecommendations.map(rec => ({
-        description: rec.description,
-        sectionTitle: rec.sectionTitle,
-      })),
-    };
-
     try {
-//    http://localhost:8080
-      const response = await fetch('https://te-backend-production.up.railway.app/api/evaluations/save', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(evaluationData),
+      const response = await axios.put(`https://te-backend-production.up.railway.app/api/reports/${reportId}/update`, {
+        reportContent
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to save evaluation');
+      if (response.status === 200) {
+        setSuccessMessage('Report saved successfully!');
+      } else {
+        throw new Error('Failed to save the report.');
       }
-
-      setSuccessMessage('Report saved successfully!');
     } catch (error) {
-      console.error('Error saving evaluation:', error);
+      console.error('Error saving report:', error);
       setSuccessMessage('Failed to save the report.');
     }
   };
@@ -100,9 +100,10 @@ const EditReport = () => {
               'list', 'bullet',
               'link', 'image', 'align'
             ]}
-            style={{ height: '400px', marginBottom: '5rem' }}  // Adjust the height here
+            style={{ height: '400px', marginBottom: '5rem' }}
           />
         </div>
+
         <div className="mt-3">
           <Button onClick={handleSaveEvaluation} className="button-custom mr-2">
             Save Report

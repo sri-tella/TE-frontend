@@ -12,10 +12,11 @@ const Header = () => {
 
 const navigate = useNavigate();
   const [username, setUsername] = useState('');
+//  console.log("Available localStorage keys:", Object.fromEntries(Object.entries(localStorage)));
 
-  // Assuming username is stored in local storage
   useEffect(() => {
-    const storedUsername = localStorage.getItem('username');
+    const storedUsername = localStorage.getItem('firstName');
+//    console.log(storedUsername)
     if (storedUsername) {
       setUsername(storedUsername);
     }
@@ -52,9 +53,9 @@ const navigate = useNavigate();
           </Nav.Link>
         </Nav>
         <Nav className="ml-auto">
-          {username && (
+          {localStorage.getItem('firstName') && (
             <Navbar.Text className="mr-3">
-              Hi, <strong>{username}</strong>
+              Hi, <strong>{localStorage.getItem('firstName')}</strong>
             </Navbar.Text>
           )}
           <button onClick={handleLogout} className="nav-logout-button">
