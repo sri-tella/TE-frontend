@@ -8,7 +8,7 @@
 //
 //  useEffect(() => {
 //    // Fetch recommendations from the backend
-//    fetch('https://te-backend-production.up.railway.app/api/options')
+//    fetch('http://localhost:8080/api/options')
 //      .then(response => response.json())
 //      .then(data => {
 //        console.log('Fetched recommendations:', data);
@@ -28,7 +28,7 @@
 //    // Implement logic to save selected recommendations
 //    // Example: Send selected recommendations to the backend
 //    const selectedRecommendations = recommendations.filter(rec => rec.selected);
-//    fetch('https://te-backend-production.up.railway.app/api/saveSelectedRecommendations', {
+//    fetch('http://localhost:8080/api/saveSelectedRecommendations', {
 //      method: 'POST',
 //      headers: {
 //        'Content-Type': 'application/json',
@@ -97,7 +97,7 @@
 //
 //  useEffect(() => {
 //    // Fetch recommendations from the backend
-//    fetch('https://te-backend-production.up.railway.app/api/options')
+//    fetch('http://localhost:8080/api/options')
 //      .then(response => response.json())
 //      .then(data => {
 //        console.log('Fetched recommendations:', data);
@@ -118,7 +118,7 @@
 //  const handleSave = () => {
 //    // Implement logic to save selected recommendations
 //    const selectedRecommendations = recommendations.filter(rec => rec.selected);
-//    fetch('https://te-backend-production.up.railway.app/api/saveSelectedRecommendations', {
+//    fetch('http://localhost:8080/api/saveSelectedRecommendations', {
 //      method: 'POST',
 //      headers: {
 //        'Content-Type': 'application/json',

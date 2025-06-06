@@ -14,52 +14,133 @@ const MainForm = ({ sections, saveSection }) => {
       options: section.options.map(option => ({ ...option, selected: false }))
     }))
   );
-
+  const [feedbacks, setFeedbacks] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-      // Initialize responses state based on sections received
-      const initialResponses = sections.map(section => ({
-        title: section.title,
-        options: section.options.map(option => ({ ...option, selected: false }))
-      }));
-      setResponses(initialResponses);
-    }, [sections]);
+  const normalizeTitle = (title) => title.replace(/^\d+\.\s*/, '');
+//  console.log("Available localStorage keys:", Object.fromEntries(Object.entries(localStorage)));
+//  useEffect(() => {
+//
+//    const storedOptions = JSON.parse(localStorage.getItem('selectedOptions') || '[]');
+//    const storedFeedbacks = JSON.parse(localStorage.getItem('sectionFeedbacks') || '{}');
+//      // Initialize responses state based on sections received
+//      const initialResponses = sections.map(section => ({
+//        title: section.title,
+//        options: section.options.map(option => ({ ...option, selected: false }))
+//      }));
+//      setResponses(initialResponses);
+//    }, [sections]);
+
+useEffect(() => {
+  const storedOptions = JSON.parse(localStorage.getItem('selectedOptions') || '[]');
+  const storedFeedbacks = JSON.parse(localStorage.getItem('sectionFeedbacks') || '{}');
+
+  const initialResponses = sections.map(section => {
+    const normalized = normalizeTitle(section.title);
+    const selectedDescriptions = storedOptions
+      .filter(opt => normalizeTitle(opt.sectionTitle) === normalized)
+      .map(opt => opt.description);
+
+    return {
+      title: section.title,
+      options: section.options.map(option => ({
+        ...option,
+        selected: selectedDescriptions.includes(option.description)
+      }))
+    };
+  });
+
+  setResponses(initialResponses);
+  setFeedbacks(storedFeedbacks);
+}, [sections]);
 
   const handleCheckboxChange = (sectionIndex, optionIndex) => {
     const updatedResponses = [...responses];
     updatedResponses[sectionIndex].options[optionIndex].selected = !updatedResponses[sectionIndex].options[optionIndex].selected;
     setResponses(updatedResponses);
+
+    const selectedOptions = updatedResponses.flatMap(section =>
+        section.options
+          .filter(option => option.selected)
+          .map(option => ({
+            section_id: option.section_id,
+            sectionTitle: normalizeTitle(section.title),
+            description: option.description,
+            feedback: feedbacks[normalizeTitle(section.title)] || ''
+          }))
+      );
+      localStorage.setItem('selectedOptions', JSON.stringify(selectedOptions));
   };
 
-  const handleSave = () => {
-      // Prepare data to send to backend
-      const selectedOptions = responses.flatMap((section, sectionIndex) =>
-            section.options
-              .filter(option => option.selected)
-              .map(option => ({
-                section_id: option.section_id
-              }))
-          );
+  const handleFeedbackChange = (sectionTitle, value) => {
+      const normalized = normalizeTitle(sectionTitle);
+//      setFeedbacks(prev => ({ ...prev, [normalized]: value }));
+      const updated = { ...feedbacks, [normalized]: value };
+      setFeedbacks(updated);
+      const selectedOptions = responses.flatMap(section =>
+          section.options
+            .filter(option => option.selected)
+            .map(option => ({
+              section_id: option.section_id,
+              sectionTitle: normalizeTitle(section.title),
+              description: option.description,
+              feedback: updated[normalizeTitle(section.title)] || ''
+            }))
+        );
+        localStorage.setItem('selectedOptions', JSON.stringify(selectedOptions));
+        localStorage.setItem('sectionFeedbacks', JSON.stringify(updated));
+    };
 
-       console.log(selectedOptions)
+
+  const handleSave = () => {
+  const evaluationId = localStorage.getItem('evaluationId');
+    if (!evaluationId) {
+      console.error("Evaluation ID not found in localStorage.");
+      return;
+    }
+
+       const selectedOptions = responses.flatMap((section) =>
+             section.options
+               .filter(option => option.selected)
+               .map(option => {
+                 const normalized = normalizeTitle(section.title);
+                 return {
+                   section_id: option.section_id,
+                   sectionTitle: normalized,
+                   description: option.description,
+                   feedback: feedbacks[normalized] || ''
+                 };
+               })
+           );
+
+       console.log("selected options:", selectedOptions)
+
+       navigate('/SelectedRecommendations', {
+           state: {
+             evaluationId,
+             selectedOptions,
+             feedbacks
+           }
+         });
+       };
+
 
       // Send POST request to save selected sections
-      fetch('https://te-backend-production.up.railway.app/api/options/saveSelected', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(selectedOptions),
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Save successful:', data);
-        navigate('/SelectedRecommendations');
-      })
-      .catch(error => console.error('Error saving selected sections:', error));
-    };
+//      fetch('http://localhost:8080/api/options/saveSelected', {
+//        method: 'POST',
+//        headers: {
+//          'Content-Type': 'application/json',
+//        },
+//        body: JSON.stringify(selectedOptions),
+//      })
+//      .then(response => response.json())
+//      .then(data => {
+//        console.log('Save successful:', data);
+//        navigate('/SelectedRecommendations');
+//      })
+//      .catch(error => console.error('Error saving selected sections:', error));
+//    };
 
     const handleSearchChange = (query) => {
         setSearchQuery(query);
@@ -119,7 +200,9 @@ const MainForm = ({ sections, saveSection }) => {
                     onChange={() => handleCheckboxChange(sectionIndex, optionIndex)}
                   />
                 ))}
-                <TextArea />
+                <TextArea
+                value={feedbacks[normalizeTitle(section.title)] || ''}
+                  onChange={(e) => handleFeedbackChange(section.title, e.target.value)}/>
               </Card.Body>
             </Accordion.Collapse>
           </Card>
@@ -132,15 +215,13 @@ const MainForm = ({ sections, saveSection }) => {
           </Card.Header>
           <Accordion.Collapse eventKey={String(responses.length)}>
             <Card.Body>
-              <TextArea />
+              <TextArea value={feedbacks['Additional Feedback'] || ''}
+                          onChange={(e) => handleFeedbackChange('Additional Feedback', e.target.value)}/>
             </Card.Body>
           </Accordion.Collapse>
         </Card>
       </Accordion>
-      <Button onClick={() => navigate('/EvaluationIntro')} className="button-custom mr-2">
-                  Go Back
-                </Button>
-      <Button type="submit" className="mr-3">Save and Continue</Button>
+      <Button type="submit" className="mt-3">Save and Continue</Button>
     </Form>
   </div>
  </>
