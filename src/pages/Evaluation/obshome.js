@@ -10,7 +10,7 @@ const ObsHome = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get("http://localhost:8080/api/classes/with-instructors")
+    axios.get("https://te-backend-production.up.railway.app/api/classes/with-instructors")
       .then(response => {
         console.log("Fetched class info with instructors:", response.data);
         setClassInfoList(response.data);
@@ -44,7 +44,7 @@ const ObsHome = () => {
 
     try {
       // Fetch observerId using the email
-      const observerRes = await axios.get(`http://localhost:8080/api/observers/email/${observerEmail}`);
+      const observerRes = await axios.get(`https://te-backend-production.up.railway.app/api/observers/email/${observerEmail}`);
       const observerId = observerRes.data.observer_id;
 
       // Create Evaluation
@@ -56,7 +56,7 @@ const ObsHome = () => {
         date: startDate
       };
 
-      const response = await axios.post("http://localhost:8080/api/evaluations/start", evaluationPayload);
+      const response = await axios.post("https://te-backend-production.up.railway.app/api/evaluations/start", evaluationPayload);
       const evaluationId = response.data.evaluation_id;
 
       // Store evaluationId in localStorage for use throughout the session
