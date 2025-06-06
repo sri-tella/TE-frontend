@@ -21,7 +21,7 @@ const EditReport = () => {
       setReportId(reportId);
 
       // Fetch the PDF content by reportId from the backend
-      axios.get(`http://localhost:8080/api/reports/${reportId}/pdf`, {
+      axios.get(`https://te-backend-production.up.railway.app/api/reports/${reportId}/pdf`, {
         responseType: 'arraybuffer'
       })
       .then(response => {
@@ -58,7 +58,7 @@ const EditReport = () => {
   // Function to handle saving the updated report content
   const handleSaveEvaluation = async () => {
     try {
-      const response = await axios.put(`http://localhost:8080/api/reports/${reportId}/update`, {
+      const response = await axios.put(`https://te-backend-production.up.railway.app/api/reports/${reportId}/update`, {
         reportContent
       });
 
