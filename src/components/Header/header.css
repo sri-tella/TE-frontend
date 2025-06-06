@@ -32,7 +32,7 @@
     margin-right: 0.5rem;
 }
 
-.nav-username {
+.mr-3 {
     font-size: 1.5rem;
     display: flex;
     align-items: center;
@@ -41,6 +41,6 @@
     text-decoration: none;
 }
 
-.nav-username strong {
+.mr-3 strong {
     margin-left: 0.5rem;
 }

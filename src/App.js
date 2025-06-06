@@ -14,6 +14,7 @@ import ReviewRecommendations from "./pages/Evaluation/reviewrecommendations";
 import EditReport from "./pages/Evaluation/editreport";
 import Login from "./pages/Login/login";
 import Signup from "./pages/Login/register"
+import Obshome from "./pages/Evaluation/obshome"
 
 function App() {
 
@@ -118,16 +119,17 @@ const [evaluation, setEvaluation] = useState({
     <BrowserRouter>
         <Routes>
            <Route path="/home" element={<Home />} />
+           <Route path="/obshome" element={<Obshome />} />
            <Route path="/" element={<Login />} />
            <Route path="/signup" element={<Signup />} />
            <Route path="/reports" element={<Reports />} />
            <Route path="/viewReport" element={<ReportViewer />} />
            <Route path="/help" element={<Help />} />
            <Route path="/editreport" element={<EditReport />} />
-           <Route path="/EvaluationIntro" element={<IntroForm nextStep={(data) => handleNextStep(data)} />} />
+           <Route path="/InstructorIntro" element={<IntroForm />} />
            <Route path="/Evaluate" element={<MainForm sections={evaluation.sections} saveSection={saveSection} />} />
            <Route path="/SelectedRecommendations" element={<SelectedRecommendations evaluation={evaluation} />} />
-           <Route path="/ReviewRecommendations" element={<ReviewRecommendations completeEvaluation={completeEvaluation} />} />
+//           <Route path="/ReviewRecommendations" element={<ReviewRecommendations completeEvaluation={completeEvaluation} />} />
         </Routes>
     </BrowserRouter>
   );

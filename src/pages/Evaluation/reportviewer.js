@@ -1,3 +1,234 @@
+//import React, { useEffect, useState } from 'react';
+//import { useLocation, useNavigate } from 'react-router-dom';
+//import { Button } from 'react-bootstrap';
+//import Header from '../../components/Header/header';
+//import ReactQuill from 'react-quill';
+//import 'react-quill/dist/quill.snow.css';
+//import jsPDF from 'jspdf';
+//import html2canvas from 'html2canvas';
+//import './mainform.css';
+//
+//const ViewReports = () => {
+//  const location = useLocation();
+//  const navigate = useNavigate();
+//  const [reportContent, setReportContent] = useState('');
+//  const [successMessage, setSuccessMessage] = useState('');
+//
+// useEffect(() => {
+//   if (location.state) {
+//     const { selectedRecommendations, feedbacks } = location.state;
+//
+//     let report = '<h2>Final Report</h2>';
+//
+//     if (selectedRecommendations.length > 0) {
+//       report += '<h3>Selected Recommendations:</h3>';
+//
+//       const groupedBySection = {};
+//
+//       selectedRecommendations.forEach((rec) => {
+//         if (rec.selected) {
+//           if (!groupedBySection[rec.sectionTitle]) {
+//             groupedBySection[rec.sectionTitle] = [];
+//           }
+//           groupedBySection[rec.sectionTitle].push(rec);
+//         }
+//       });
+//
+//       Object.entries(groupedBySection).forEach(([sectionTitle, recs]) => {
+//         report += `<h4>${sectionTitle}</h4>`;
+//         recs.forEach((rec, index) => {
+//           report += `<p><strong>Recommendation ${index + 1}:</strong> ${rec.description}</p>`;
+//         });
+//       });
+//     }
+//
+//     if (Object.keys(feedbacks).length > 0) {
+//       report += '<h3>Additional Feedback:</h3>';
+//       Object.entries(feedbacks).forEach(([sectionTitle, feedback]) => {
+//         if (feedback) {
+//           report += `<p><strong>${sectionTitle}:</strong> ${feedback}</p>`;
+//         }
+//       });
+//     }
+//
+//     setReportContent(report);
+//   }
+// }, [location.state]);
+//
+//  const handleSaveEvaluation = async () => {
+//      const currentDate = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+//      const { selectedRecommendations, evaluationId } = location.state;
+//
+//      const evaluationData = {
+//        date: currentDate,
+//        recommendations: selectedRecommendations.map(rec => ({
+//          description: rec.description,
+//          sectionTitle: rec.sectionTitle
+//        })),
+//      };
+//
+//      try {
+//        const response = await fetch('http://localhost:8080/api/evaluations/save', {
+//          method: 'POST',
+//          headers: {
+//            'Content-Type': 'application/json',
+//          },
+//          body: JSON.stringify(evaluationData),
+//        });
+//
+//        if (!response.ok) {
+//          throw new Error('Failed to save evaluation');
+//        }
+//
+//        // Generate the PDF
+//        const input = document.getElementById('printable-report');
+//        const canvas = await html2canvas(input);
+//        const imgData = canvas.toDataURL('image/png');
+//        const pdf = new jsPDF();
+//        const imgWidth = 190;
+//        const pageHeight = pdf.internal.pageSize.height;
+//        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+//        let heightLeft = imgHeight;
+//        let position = 0;
+//
+//        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+//        heightLeft -= pageHeight;
+//
+//        while (heightLeft >= 0) {
+//          position = heightLeft - imgHeight;
+//          pdf.addPage();
+//          pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+//          heightLeft -= pageHeight;
+//        }
+//
+//        const pdfBlob = pdf.output('blob');
+//
+//        // Save PDF to the backend
+//        const formData = new FormData();
+//        formData.append('file', pdfBlob, 'report.pdf');
+//        formData.append('evaluationId', 1); // Pass the evaluation ID
+//
+//        const pdfResponse = await fetch('http://localhost:8080/api/reports/save-pdf', {
+//          method: 'POST',
+//          body: formData,
+//        });
+//
+//        if (!pdfResponse.ok) {
+//          throw new Error('Failed to save PDF');
+//        }
+//
+//        setSuccessMessage('Report saved successfully!');
+//      } catch (error) {
+//        console.error('Error saving evaluation or PDF:', error);
+//        setSuccessMessage('Failed to save the report.');
+//      }
+//    };
+//
+//  const handleDownloadPDF = async () => {
+//    try {
+//      const input = document.getElementById('printable-report');
+//
+//      await new Promise(resolve => setTimeout(resolve, 300)); // Wait for layout
+//      const canvas = await html2canvas(input);
+//      const imgData = canvas.toDataURL('image/png');
+//
+//      const pdf = new jsPDF();
+//      const imgWidth = 190;
+//      const pageHeight = pdf.internal.pageSize.height;
+//      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+//      let heightLeft = imgHeight;
+//      let position = 0;
+//
+//      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+//      heightLeft -= pageHeight;
+//
+//      while (heightLeft >= 0) {
+//        position = heightLeft - imgHeight;
+//        pdf.addPage();
+//        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+//        heightLeft -= pageHeight;
+//      }
+//
+//      pdf.save('report.pdf');
+//
+//
+//      setTimeout(() => {
+//        navigate('/reports');
+//      }, 10000);
+//    } catch (error) {
+//      console.error("PDF generation failed:", error);
+//      alert("Failed to generate PDF. Please try again.");
+//    }
+//  };
+//
+//  return (
+//    <>
+//      <Header />
+//      <div className="container mt-4">
+//        <h4>Final Report</h4>
+//
+//        <div id="report-content" style={{ padding: '20px', backgroundColor: '#fff', marginBottom: '20px' }}>
+//          <ReactQuill
+//            value={reportContent}
+//            onChange={setReportContent}
+//            theme="snow"
+//            modules={{
+//              toolbar: [
+//                [{ 'header': '1'}, {'header': '2'}, { 'font': [] }],
+//                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+//                ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+//                [{'align': []}],
+//                ['link', 'image'],
+//                ['clean']
+//              ],
+//            }}
+//            formats={[
+//              'header', 'font',
+//              'bold', 'italic', 'underline', 'strike', 'blockquote',
+//              'list', 'bullet',
+//              'link', 'image', 'align'
+//            ]}
+//            style={{ minHeight: '300px', maxHeight: 'none', marginBottom: '5rem' }}
+//          />
+//        </div>
+//        <div
+//                  id="printable-report"
+//                  style={{
+//                    position: 'absolute',
+//                    left: '-9999px',
+//                    top: '0',
+//                    visibility: 'visible',
+//                    zIndex: -1,
+//                    width: '800px',
+//                    padding: '20px',
+//                    color: '#000',
+//                    fontSize: '14px'
+//                  }}
+//                  dangerouslySetInnerHTML={{ __html: reportContent }}
+//                />
+//        <div className="mt-3">
+//          <Button onClick={() => navigate('/SelectedRecommendations')} className="button-custom mr-2">
+//              Go Back
+//            </Button>
+//          <Button onClick={handleSaveEvaluation} className="button-custom mr-2">
+//            Save Report
+//          </Button>
+//          <Button onClick={handleDownloadPDF} className="button-custom mr-2">
+//            Download PDF
+//          </Button>
+//          {successMessage && (
+//            <div className="text-success-custom">
+//              Report saved successfully!
+//            </div>
+//          )}
+//        </div>
+//      </div>
+//    </>
+//  );
+//};
+//
+//export default ViewReports;
+
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
@@ -14,45 +245,65 @@ const ViewReports = () => {
   const [reportContent, setReportContent] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
- useEffect(() => {
-   if (location.state) {
-     const { selectedRecommendations, feedbacks } = location.state;
+  useEffect(() => {
+    if (location.state) {
+      const { selectedRecommendations, feedbacks } = location.state;
+      let report = '<h2>Evaluation Summary Report</h2>';
 
-     let report = '<h2>Final Report</h2>';
+      if (selectedRecommendations.length > 0) {
+        report += '<h3>Selected Observations & Recommendations</h3>';
 
-     if (selectedRecommendations.length > 0) {
-       report += '<h3>Selected Recommendations:</h3>';
-       selectedRecommendations.forEach((rec, index) => {
-         if (rec.selected) {
-           report += `<p>${index + 1}. ${rec.description}.</p>`;
-         }
-       });
-     }
+        const groupedBySection = {};
 
-     if (Object.keys(feedbacks).length > 0) {
-       report += '<h3>Additional Feedback:</h3>';
-       Object.entries(feedbacks).forEach(([sectionTitle, feedback]) => {
-         if (feedback) {
-           report += `<p>${feedback}</p>`;
-         }
-       });
-     }
+        // Group by section → then by observation → then recommendations
+        selectedRecommendations.forEach((rec) => {
+          if (!groupedBySection[rec.sectionTitle]) {
+            groupedBySection[rec.sectionTitle] = {};
+          }
+          if (!groupedBySection[rec.sectionTitle][rec.observedDescription]) {
+            groupedBySection[rec.sectionTitle][rec.observedDescription] = [];
+          }
+          groupedBySection[rec.sectionTitle][rec.observedDescription].push(rec.description);
+        });
 
-     setReportContent(report);
-   }
- }, [location.state]);
+        Object.entries(groupedBySection).forEach(([sectionTitle, observations]) => {
+          report += `<h3>${sectionTitle}</h3>`;
+          Object.entries(observations).forEach(([observation, recs], idx) => {
+            report += `<p><strong>Observation ${idx + 1}:</strong> ${observation}</p>`;
+            recs.forEach((rec, rIndex) => {
+              report += `<p style="margin-left:20px;">→ Recommendation: ${rec}</p>`;
+            });
+          });
+
+          const sectionFeedback = feedbacks[sectionTitle];
+          if (sectionFeedback && sectionFeedback.trim()) {
+            report += `<p style="margin-top:10px;"><em>Section Feedback:</em><br>${sectionFeedback}</p>`;
+          }
+        });
+      }
+
+      // If there's general "Additional Feedback", show it at the end
+      if (feedbacks['Additional Feedback']) {
+        report += '<h3>Additional Feedback</h3>';
+        report += `<p>${feedbacks['Additional Feedback']}</p>`;
+      }
+
+      setReportContent(report);
+    }
+  }, [location.state]);
 
   const handleSaveEvaluation = async () => {
-      const currentDate = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
-      const { selectedRecommendations, evaluationId } = location.state;
+    const currentDate = new Date().toISOString().split('T')[0];
+    const { selectedRecommendations, evaluationId } = location.state;
 
-      const evaluationData = {
-        date: currentDate,
-        recommendations: selectedRecommendations.map(rec => ({
-          description: rec.description,
-          sectionTitle: rec.sectionTitle
-        })),
-      };
+    const evaluationData = {
+      date: currentDate,
+      recommendations: selectedRecommendations.map(rec => ({
+        description: rec.description,
+        sectionTitle: rec.sectionTitle,
+        feedback: location.state.feedbacks?.[rec.sectionTitle] || ''
+      }))
+    };
 
       try {
         const response = await fetch('https://te-backend-production.up.railway.app/api/evaluations/save', {
@@ -63,66 +314,16 @@ const ViewReports = () => {
           body: JSON.stringify(evaluationData),
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to save evaluation');
-        }
+      if (!response.ok) throw new Error('Failed to save evaluation');
 
-        // Generate the PDF
-        const input = document.getElementById('report-content');
-        const canvas = await html2canvas(input);
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF();
-        const imgWidth = 190; // Set your desired width
-        const pageHeight = pdf.internal.pageSize.height;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-        }
-
-        const pdfBlob = pdf.output('blob');
-
-        // Save PDF to the backend
-        const formData = new FormData();
-        formData.append('file', pdfBlob, 'report.pdf');
-        formData.append('evaluationId', 1); // Pass the evaluation ID
-
-        const pdfResponse = await fetch('https://te-backend-production.up.railway.app/api/reports/save-pdf', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!pdfResponse.ok) {
-          throw new Error('Failed to save PDF');
-        }
-
-        setSuccessMessage('Report saved successfully!');
-      } catch (error) {
-        console.error('Error saving evaluation or PDF:', error);
-        setSuccessMessage('Failed to save the report.');
-      }
-    };
-
-  const handleDownloadPDF = () => {
-    console.log("Downloading PDF...");
-    const input = document.getElementById('report-content');
-
-    html2canvas(input).then((canvas) => {
+      const input = document.getElementById('printable-report');
+      const canvas = await html2canvas(input);
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF();
-      const imgWidth = 190; // Set your desired width
+      const imgWidth = 190;
       const pageHeight = pdf.internal.pageSize.height;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       let heightLeft = imgHeight;
-
       let position = 0;
 
       pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
@@ -134,11 +335,94 @@ const ViewReports = () => {
         pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
       }
+
+      const pdfBlob = pdf.output('blob');
+      const formData = new FormData();
+      formData.append('file', pdfBlob, 'report.pdf');
+      formData.append('evaluationId', evaluationId || 1);
+
+        const pdfResponse = await fetch('https://te-backend-production.up.railway.app/api/reports/save-pdf', {
+          method: 'POST',
+          body: formData,
+        });
+
+      if (!pdfResponse.ok) throw new Error('Failed to save PDF');
+
+      setSuccessMessage('Report saved successfully!');
+    } catch (error) {
+      console.error('Error saving evaluation or PDF:', error);
+      setSuccessMessage('Failed to save the report.');
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    try {
+      const input = document.getElementById('printable-report');
+      await new Promise(resolve => setTimeout(resolve, 300));
+      const canvas = await html2canvas(input);
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF();
+      const imgWidth = 190;
+      const pageHeight = pdf.internal.pageSize.height;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
       pdf.save('report.pdf');
+      //Clearing saved evaluation data from localStorage after PDF is downloaded
+      localStorage.removeItem('selectedRecommendations');
+      localStorage.removeItem('selectedRecFeedbacks');
+      localStorage.removeItem('selectedOptions');
+      localStorage.removeItem('evaluateFeedbacks');
+      setTimeout(() => {
+        navigate('/reports');
+      }, 10000);
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+      alert("Failed to generate PDF. Please try again.");
+    }
+  };
+
+  const handleDownloadDoc = () => {
+    const header = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office'
+            xmlns:w='urn:schemas-microsoft-com:office:word'
+            xmlns='http://www.w3.org/TR/REC-html40'>
+      <head><meta charset='utf-8'><title>Document</title></head><body>`;
+    const footer = `</body></html>`;
+    const fullHTML = header + reportContent + footer;
+
+    const blob = new Blob(['\ufeff', fullHTML], {
+      type: 'application/msword'
     });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'report.doc';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Clear localStorage after saving as DOC
+    localStorage.removeItem('selectedRecommendations');
+    localStorage.removeItem('selectedRecFeedbacks');
+    localStorage.removeItem('selectedOptions');
+    localStorage.removeItem('evaluateFeedbacks');
+
     setTimeout(() => {
-          navigate('/reports');
-        }, 10000);
+      navigate('/reports');
+    }, 3000);
   };
 
   return (
@@ -168,22 +452,35 @@ const ViewReports = () => {
               'list', 'bullet',
               'link', 'image', 'align'
             ]}
-            style={{ height: '400px', marginBottom: '5rem' }}  // Adjust the height here
+            style={{ minHeight: '300px', maxHeight: 'none', marginBottom: '5rem' }}
           />
         </div>
+
+        <div id="printable-report" style={{
+          position: 'absolute',
+          left: '-9999px',
+          top: '0',
+          visibility: 'visible',
+          zIndex: -1,
+          width: '800px',
+          padding: '20px',
+          color: '#000',
+          fontSize: '14px'
+        }} dangerouslySetInnerHTML={{ __html: reportContent }} />
+
         <div className="mt-3">
           <Button onClick={() => navigate('/SelectedRecommendations')} className="button-custom mr-2">
-              Go Back
-            </Button>
+            Go Back
+          </Button>
           <Button onClick={handleSaveEvaluation} className="button-custom mr-2">
             Save Report
           </Button>
-          <Button onClick={handleDownloadPDF} className="button-custom mr-2">
-            Download PDF
+          <Button onClick={handleDownloadDoc} className="button-custom mr-2">
+            Download Word Doc
           </Button>
           {successMessage && (
             <div className="text-success-custom">
-              Report saved successfully!
+              {successMessage}
             </div>
           )}
         </div>
@@ -193,3 +490,4 @@ const ViewReports = () => {
 };
 
 export default ViewReports;
+

@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Accordion, Card, Button, Form, useAccordionToggle } from 'react-bootstrap';
 import Header from '../../components/Header/header';
 import SearchBar from '../../components/Searchbar/searchbar';
@@ -9,22 +8,52 @@ import TextArea from '../../components/Textarea/textarea';
 import './mainform.css';
 
 const SelectedRecommendations = () => {
-  const [selectedRecommendations, setSelectedRecommendations] = useState([]);
-  const [allRecommendations, setAllRecommendations] = useState([]);
-  const [feedbacks, setFeedbacks] = useState({});
-  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const { selectedOptions = [], feedbacks = {} } = location.state || {};
+
+  const [selectedRecommendations, setSelectedRecommendations] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [localFeedbacks, setLocalFeedbacks] = useState(feedbacks);
 
   useEffect(() => {
-    // Fetch selected recommendations from the backend
-    fetch('https://te-backend-production.up.railway.app/api/options')
-      .then(response => response.json())
-      .then(data => {
-        console.log("fetched:", data);
-        setAllRecommendations(data); // Store all recommendations fetched from API
-        setSelectedRecommendations(data.filter(rec => rec.selected)); // Set initially selected recommendations
-      })
-      .catch(error => console.error('Error fetching recommendations:', error));
+    const savedRecs = localStorage.getItem('selectedRecommendations');
+    const savedFeedbacks = localStorage.getItem('selectedRecFeedbacks');
+
+    if (savedRecs) {
+      setSelectedRecommendations(JSON.parse(savedRecs));
+    } else {
+      // fallback: populate from selectedOptions if not already saved
+      const recs = [];
+
+      selectedOptions.forEach(option => {
+        Object.entries(recommendationsMapping).forEach(([sectionTitle, recGroups]) => {
+          Object.entries(recGroups).forEach(([observation, recommendations]) => {
+            if (observation === option.description) {
+              recommendations.forEach(rec => {
+                recs.push({
+                  description: rec,
+                  sectionTitle,
+                  observedDescription: observation,
+                  selected: true
+                });
+              });
+            }
+          });
+        });
+      });
+
+      setSelectedRecommendations(recs);
+      localStorage.setItem('selectedRecommendations', JSON.stringify(recs));
+    }
+
+    if (savedFeedbacks) {
+      setLocalFeedbacks(JSON.parse(savedFeedbacks));
+    }
+  }, [selectedOptions]);
+
+  useEffect(() => {
+    console.log("Loaded feedbacks:", feedbacks);
   }, []);
 
   const isSelected = (recommendation) => {
@@ -34,100 +63,52 @@ const SelectedRecommendations = () => {
   };
 
   const handleCheckboxChange = (recommendation) => {
-    const recommendationIndex = selectedRecommendations.findIndex(rec => rec.description === recommendation);
-    if (recommendationIndex !== -1) {
-      const updatedRecommendations = [...selectedRecommendations];
-      updatedRecommendations[recommendationIndex].selected = !updatedRecommendations[recommendationIndex].selected;
-      setSelectedRecommendations(updatedRecommendations);
-    } else {
-      const selectedRecommendation = allRecommendations.find(rec => rec.description === recommendation);
-      setSelectedRecommendations([...selectedRecommendations, { ...selectedRecommendation, selected: true }]);
-    }
+    const updated = selectedRecommendations.map(rec =>
+        rec.description === recommendation
+          ? { ...rec, selected: !rec.selected }
+          : rec
+      );
+    setSelectedRecommendations(updated);
+    localStorage.setItem('selectedRecommendations', JSON.stringify(updated));
   };
 
   const handleFeedbackChange = (sectionTitle, value) => {
-    setFeedbacks(prevFeedbacks => ({
-      ...prevFeedbacks,
-      [sectionTitle]: value
-    }));
+    const updated = {
+        ...localFeedbacks,
+        [sectionTitle]: value
+      };
+    setLocalFeedbacks(updated);
+    localStorage.setItem('selectedRecFeedbacks', JSON.stringify(updated));
   };
 
   const handleSave = () => {
-    const selectedData = selectedRecommendations
-      .filter(rec => rec.selected)
-      .map(rec => {
-        let sectionTitle = '';
-        let recommendationType = '';
+    const filtered = selectedRecommendations.filter(rec => rec.selected);
 
-        // Iterate over recommendationsMapping to find the sectionTitle and recommendationType
-        Object.entries(recommendationsMapping).forEach(([secTitle, recommendations]) => {
-          Object.entries(recommendations).forEach(([recType, recommendationArray]) => {
-            if (recommendationArray.includes(rec.description)) {
-              sectionTitle = secTitle;
-              recommendationType = recType;
-            }
-          });
-        });
-
-        return {
-          section_id: rec.sectionId,
-          sectionTitle,
-          recommendationType,
-          feedback: feedbacks[sectionTitle] || '',
-        };
-      });
-
-    console.log('Selected Data with Sections and Types:', selectedData);
-
-    fetch('https://te-backend-production.up.railway.app/api/options/saveSelected', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(selectedData),
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Save successful:', data);
-        console.log(selectedRecommendations.filter(rec=>rec.selected), feedbacks)
-        navigate('/viewReport', {
-                state: {
-                  selectedRecommendations: selectedRecommendations.filter(rec => rec.selected),
-                  feedbacks,
-                },
-              });
-      })
-      .catch(error => console.error('Error saving selected recommendations:', error));
-  };
-
-  const handleSearchChange = (query) => {
-    setSearchQuery(query);
+    navigate('/viewReport', {
+      state: {
+        selectedRecommendations: filtered,
+        feedbacks: localFeedbacks
+      }
+    });
   };
 
   const CustomToggle = ({ children, eventKey }) => {
-    const decoratedOnClick = useAccordionToggle(eventKey, () => {
-      console.log('custom toggle', eventKey);
-    });
-
+    const decoratedOnClick = useAccordionToggle(eventKey, () => {});
     return (
-      <Button
-        type="button"
-        variant="link"
-        onClick={decoratedOnClick}
-      >
+      <Button type="button" variant="link" onClick={decoratedOnClick}>
         {children}
       </Button>
     );
   };
 
   const filteredRecommendationsMapping = Object.fromEntries(
-    Object.entries(recommendationsMapping).map(([sectionTitle, recommendations]) => [
+    Object.entries(recommendationsMapping).map(([sectionTitle, recs]) => [
       sectionTitle,
       Object.fromEntries(
-        Object.entries(recommendations).map(([recommendationType, recommendationArray]) => [
-          recommendationType,
-          recommendationArray.filter((recommendation) =>
-            recommendation.toLowerCase().includes(searchQuery.toLowerCase())
+        Object.entries(recs).map(([obs, recArr]) => [
+          obs,
+          recArr.filter(rec =>
+            rec.toLowerCase().includes(searchQuery.toLowerCase())
           ),
         ])
       ),
@@ -139,71 +120,68 @@ const SelectedRecommendations = () => {
       <Header />
       <div>
         <h4>Here are possible recommendations. Some are selected based on your observations in the previous step. Click on the headers to expand/collapse and use the search bar on the right to quickly find key words.</h4>
-        <SearchBar searchQuery={searchQuery} handleSearchChange={handleSearchChange} />
+        <SearchBar searchQuery={searchQuery} handleSearchChange={setSearchQuery} />
       </div>
-      <div>
-        <Form>
-          <Accordion defaultActiveKey="0">
-            {Object.entries(filteredRecommendationsMapping).map(([sectionTitle, recommendations], sectionIndex) => (
-              <Card key={sectionIndex}>
-                <Card.Header>
-                  <CustomToggle eventKey={String(sectionIndex)}>
-                    {sectionTitle}
-                  </CustomToggle>
-                </Card.Header>
-                <Accordion.Collapse eventKey={String(sectionIndex)}>
-                  <Card.Body>
-                    {Object.entries(recommendations).map(([recommendationType, recommendationArray]) => (
-                      <div key={recommendationType} className="mb-3">
-                        <h5>{recommendationType}</h5>
-                        {recommendationArray.map((recommendation, index) => (
-                          <Form.Check
-                            key={index}
-                            type="checkbox"
-                            label={recommendation}
-                            checked={isSelected(recommendation)} // Check if the recommendation is selected
-                            onChange={() => handleCheckboxChange(recommendation)} // Call checkbox change handler
-                          />
-                        ))}
-                      </div>
-                    ))}
-                    <TextArea
-                      value={feedbacks[sectionTitle] || ''}
-                      onChange={(e) => handleFeedbackChange(sectionTitle, e.target.value)}
-                    />
-                  </Card.Body>
-                </Accordion.Collapse>
-              </Card>
-            ))}
-            <Card>
+      <Form>
+        <Accordion defaultActiveKey="0">
+          {Object.entries(filteredRecommendationsMapping).map(([sectionTitle, recs], sectionIndex) => (
+            <Card key={sectionIndex}>
               <Card.Header>
-                <CustomToggle eventKey={String(Object.keys(filteredRecommendationsMapping).length)}>
-                  Additional Feedback
+                <CustomToggle eventKey={String(sectionIndex)}>
+                  {sectionTitle}
                 </CustomToggle>
               </Card.Header>
-              <Accordion.Collapse eventKey={String(Object.keys(filteredRecommendationsMapping).length)}>
+              <Accordion.Collapse eventKey={String(sectionIndex)}>
                 <Card.Body>
+                  {Object.entries(recs).map(([obs, recArr]) => (
+                    <div key={obs} className="mb-3">
+                      <h5>{obs}</h5>
+                      {recArr.map((rec, index) => (
+                        <Form.Check
+                          key={index}
+                          type="checkbox"
+                          label={rec}
+                          checked={isSelected(rec)}
+                          onChange={() => handleCheckboxChange(rec)}
+                        />
+                      ))}
+                    </div>
+                  ))}
                   <TextArea
-                    value={feedbacks['Additional Feedback'] || ''}
-                    onChange={(e) => handleFeedbackChange('Additional Feedback', e.target.value)}
+                    value={localFeedbacks[sectionTitle] || ''}
+                    onChange={(e) => handleFeedbackChange(sectionTitle, e.target.value)}
                   />
                 </Card.Body>
               </Accordion.Collapse>
             </Card>
-          </Accordion>
-          <div className="mt-3">
-            <Button onClick={() => navigate('/Evaluate')} className="button-custom mr-2">
-              Go Back
-            </Button>
-            <Button onClick={handleSave} className="button-custom mr-3">
-              Save and Edit
-            </Button>
-          </div>
-        </Form>
-      </div>
+          ))}
+          <Card>
+            <Card.Header>
+              <CustomToggle eventKey={String(Object.keys(filteredRecommendationsMapping).length)}>
+                Additional Feedback
+              </CustomToggle>
+            </Card.Header>
+            <Accordion.Collapse eventKey={String(Object.keys(filteredRecommendationsMapping).length)}>
+              <Card.Body>
+                <TextArea
+                  value={localFeedbacks['Additional Feedback'] || ''}
+                  onChange={(e) => handleFeedbackChange('Additional Feedback', e.target.value)}
+                />
+              </Card.Body>
+            </Accordion.Collapse>
+          </Card>
+        </Accordion>
+        <div className="mt-3">
+          <Button onClick={() => navigate('/Evaluate')} className="button-custom mr-2">
+            Go Back
+          </Button>
+          <Button onClick={handleSave} className="button-custom mr-3">
+            Save and Edit Report
+          </Button>
+        </div>
+      </Form>
     </>
   );
 };
 
 export default SelectedRecommendations;
-

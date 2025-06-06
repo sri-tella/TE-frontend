@@ -17,10 +17,21 @@ const Login = () => {
       .then(response => response.json())
       .then(data => {
         if (data.message === 'Login successful') {
+//            console.log(data);
             localStorage.setItem('observerId', data.observerId);
-            console.log(data.observerId);
-//            localStorage.setItem('token', data.token);
-            navigate('/home');
+            localStorage.setItem('firstName', data.firstName);
+            localStorage.setItem('lastName', data.lastName);
+            localStorage.setItem('email', data.email);
+            const role = data.roles.replace('[', '').replace(']', '');
+            console.log(role)
+            localStorage.setItem('role', role);
+            if (role === 'OBSERVER') {
+              navigate('/obshome');
+            } else if (role === 'INSTRUCTOR') {
+              navigate('/InstructorIntro');
+            } else {
+              navigate('/home'); // Fallback to admin page
+            }
         } else {
           alert('Invalid credentials');
         }
