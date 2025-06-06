@@ -87,3 +87,43 @@ button[type="submit"]:hover {
   margin-right: 5px;
   font-weight: bold;
 }
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.half-width {
+  width: 48%;
+}
+
+.third-width {
+  width: 32%;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+  }
+
+  .half-width {
+    width: 100%;
+  }
+}
+
+.form-instructions {
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.form-instructions h2 {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.form-instructions p {
+  font-size: 18px;
+  color: #333;
+}
