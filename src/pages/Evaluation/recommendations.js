@@ -16,41 +16,112 @@ const SelectedRecommendations = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [localFeedbacks, setLocalFeedbacks] = useState(feedbacks);
 
-  useEffect(() => {
-    const savedRecs = localStorage.getItem('selectedRecommendations');
-    const savedFeedbacks = localStorage.getItem('selectedRecFeedbacks');
+  const observerId = localStorage.getItem('observerId');
+  const instructorInfo = JSON.parse(localStorage.getItem("selectedInstructor"));
+  const instructorId = instructorInfo?.instructorId;
+  const classId = instructorInfo?.classId;
+  const evaluationId = parseInt(localStorage.getItem('evaluationId'), 10);
 
-    if (savedRecs) {
-      setSelectedRecommendations(JSON.parse(savedRecs));
-    } else {
-      // fallback: populate from selectedOptions if not already saved
+//  useEffect(() => {
+//    const savedRecs = localStorage.getItem('selectedRecommendations');
+//    const savedFeedbacks = localStorage.getItem('selectedRecFeedbacks');
+//
+//    if (savedRecs) {
+//      setSelectedRecommendations(JSON.parse(savedRecs));
+//    } else {
+//      // fallback: populate from selectedOptions if not already saved
+//      const recs = [];
+//
+//      selectedOptions.forEach(option => {
+//        Object.entries(recommendationsMapping).forEach(([sectionTitle, recGroups]) => {
+//          Object.entries(recGroups).forEach(([observation, recommendations]) => {
+//            if (observation === option.description) {
+//              recommendations.forEach(rec => {
+//                recs.push({
+//                  description: rec,
+//                  sectionTitle,
+//                  observedDescription: observation,
+//                  selected: true
+//                });
+//              });
+//            }
+//          });
+//        });
+//      });
+//
+//      setSelectedRecommendations(recs);
+//      localStorage.setItem('selectedRecommendations', JSON.stringify(recs));
+//    }
+//
+//    if (savedFeedbacks) {
+//      setLocalFeedbacks(JSON.parse(savedFeedbacks));
+//    }
+//  }, [selectedOptions]);
+
+//    useEffect(() => {
+//      const savedRecs = localStorage.getItem('selectedRecommendations');
+//      const savedFeedbacks = localStorage.getItem('selectedRecFeedbacks');
+//
+//      const hasSavedRecs = savedRecs && JSON.parse(savedRecs).length > 0;
+//      const hasFreshState = selectedOptions && selectedOptions.length > 0;
+//
+//      if (hasFreshState) {
+//        // Always prioritize newly selected options from /evaluate
+//        const recs = [];
+//
+//        selectedOptions.forEach(option => {
+//          Object.entries(recommendationsMapping).forEach(([sectionTitle, recGroups]) => {
+//            Object.entries(recGroups).forEach(([observation, recommendations]) => {
+//              if (observation === option.description) {
+//                recommendations.forEach(rec => {
+//                  recs.push({
+//                    description: rec,
+//                    sectionTitle,
+//                    observedDescription: observation,
+//                    selected: true
+//                  });
+//                });
+//              }
+//            });
+//          });
+//        });
+//
+//        setSelectedRecommendations(recs);
+//        localStorage.setItem('selectedRecommendations', JSON.stringify(recs));
+//      } else if (hasSavedRecs) {
+//        setSelectedRecommendations(JSON.parse(savedRecs));
+//      }
+//
+//      if (savedFeedbacks) {
+//        setLocalFeedbacks(JSON.parse(savedFeedbacks));
+//      }
+//    }, [selectedOptions]);
+
+    useEffect(() => {
+      const savedFeedbacks = localStorage.getItem('selectedRecFeedbacks');
       const recs = [];
 
-      selectedOptions.forEach(option => {
-        Object.entries(recommendationsMapping).forEach(([sectionTitle, recGroups]) => {
-          Object.entries(recGroups).forEach(([observation, recommendations]) => {
-            if (observation === option.description) {
-              recommendations.forEach(rec => {
-                recs.push({
-                  description: rec,
-                  sectionTitle,
-                  observedDescription: observation,
-                  selected: true
-                });
-              });
-            }
+      Object.entries(recommendationsMapping).forEach(([sectionTitle, recGroups]) => {
+        Object.entries(recGroups).forEach(([observation, recommendations]) => {
+          recommendations.forEach(rec => {
+            const isSelected = selectedOptions.some(opt => opt.description === observation);
+            recs.push({
+              description: rec,
+              sectionTitle,
+              observedDescription: observation,
+              selected: isSelected
+            });
           });
         });
       });
 
       setSelectedRecommendations(recs);
       localStorage.setItem('selectedRecommendations', JSON.stringify(recs));
-    }
 
-    if (savedFeedbacks) {
-      setLocalFeedbacks(JSON.parse(savedFeedbacks));
-    }
-  }, [selectedOptions]);
+      if (savedFeedbacks) {
+        setLocalFeedbacks(JSON.parse(savedFeedbacks));
+      }
+    }, [selectedOptions]);
 
   useEffect(() => {
     console.log("Loaded feedbacks:", feedbacks);
@@ -87,7 +158,11 @@ const SelectedRecommendations = () => {
     navigate('/viewReport', {
       state: {
         selectedRecommendations: filtered,
-        feedbacks: localFeedbacks
+        feedbacks: localFeedbacks,
+        observerId,
+        instructorId,
+        classId,
+        evaluationId
       }
     });
   };
