@@ -15,6 +15,7 @@ import EditReport from "./pages/Evaluation/editreport";
 import Login from "./pages/Login/login";
 import Signup from "./pages/Login/register"
 import Obshome from "./pages/Evaluation/obshome"
+import Inshome from "./pages/Evaluation/inshome"
 
 function App() {
 
@@ -120,6 +121,7 @@ const [evaluation, setEvaluation] = useState({
         <Routes>
            <Route path="/home" element={<Home />} />
            <Route path="/obshome" element={<Obshome />} />
+           <Route path="/inshome" element={<Inshome />} />
            <Route path="/" element={<Login />} />
            <Route path="/signup" element={<Signup />} />
            <Route path="/reports" element={<Reports />} />
