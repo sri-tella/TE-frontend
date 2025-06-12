@@ -55,7 +55,7 @@ const CombinedForm = () => {
 
     try {
           console.log(formData);
-          await axios.post('http://localhost:8080/api/form/instructor', formData);
+          await axios.post('https://te-backend-production.up.railway.app/api/form/instructor', formData);
 //          alert("Instructor information saved successfully!");
           localStorage.setItem('instructorFormSubmitted', 'true');
           navigate('/inshome');
