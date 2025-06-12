@@ -294,14 +294,18 @@ const ViewReports = () => {
 
   const handleSaveEvaluation = async () => {
     const currentDate = new Date().toISOString().split('T')[0];
-    const { selectedRecommendations, evaluationId } = location.state;
+    const { selectedRecommendations, evaluationId, observerId, instructorId, classId, feedbacks } = location.state;
 
     const evaluationData = {
       date: currentDate,
+      observerId,
+      instructorId,
+      classId,
       recommendations: selectedRecommendations.map(rec => ({
         description: rec.description,
         sectionTitle: rec.sectionTitle,
-        feedback: location.state.feedbacks?.[rec.sectionTitle] || ''
+        feedback: location.state.feedbacks?.[rec.sectionTitle] || '',
+        selected: true
       }))
     };
 
@@ -347,6 +351,10 @@ const ViewReports = () => {
         });
 
       if (!pdfResponse.ok) throw new Error('Failed to save PDF');
+      localStorage.removeItem('selectedRecommendations');
+      localStorage.removeItem('selectedRecFeedbacks');
+      localStorage.removeItem('evaluateFeedbacks');
+      localStorage.removeItem('selectedOptions');
 
       setSuccessMessage('Report saved successfully!');
     } catch (error) {

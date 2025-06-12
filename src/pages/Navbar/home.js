@@ -1,9 +1,24 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/header';
 import './home.css';
 
 const Home = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const role = localStorage.getItem('role');
+
+    if (role === 'OBSERVER') {
+      navigate('/obshome');
+    } else if (role === 'INSTRUCTOR') {
+      navigate('/inshome');
+    }
+    // You can add more roles like ADMIN if needed
+  }, [navigate]);
+
   return (
     <>
       <Header />

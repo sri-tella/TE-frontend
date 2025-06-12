@@ -28,7 +28,7 @@ const Login = () => {
             if (role === 'OBSERVER') {
               navigate('/obshome');
             } else if (role === 'INSTRUCTOR') {
-              navigate('/InstructorIntro');
+              navigate('/inshome');
             } else {
               navigate('/home'); // Fallback to admin page
             }
