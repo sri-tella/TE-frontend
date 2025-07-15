@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import { Link } from 'react-router-dom';
-import { House, FileText, QuestionCircle, BoxArrowRight } from 'react-bootstrap-icons';
+import { House, FileText, QuestionCircle, BoxArrowRight, Gear, Person, Bell } from 'react-bootstrap-icons';
 import logo from "../../images/Baylor-University-Logo.jpg";
 import './header.css';
 
@@ -51,6 +51,9 @@ const navigate = useNavigate();
           <Nav.Link as={Link} to="/help" className="nav-link-icon">
             <QuestionCircle size={40} className="mr-1" /> Help
           </Nav.Link>
+          <Nav.Link as={Link} to="/settings" className="nav-link-icon">
+            <Gear size={40} className="mr-1" /> Settings
+          </Nav.Link>
         </Nav>
         <Nav className="ml-auto">
           {localStorage.getItem('firstName') && (
@@ -58,6 +61,12 @@ const navigate = useNavigate();
               Hi, <strong>{localStorage.getItem('firstName')}</strong>
             </Navbar.Text>
           )}
+          <Nav.Link as={Link} to="/notifications" className="nav-link-icon">
+           <Bell size={40} className="mr-1" /> Notifications
+          </Nav.Link>
+          <Nav.Link as={Link} to="/myprofile" className="nav-link-icon">
+             <Person size={40} className="mr-1" /> Profile
+          </Nav.Link>
           <button onClick={handleLogout} className="nav-logout-button">
             <BoxArrowRight size={40} className="mr-1" /> Logout
           </button>

@@ -16,6 +16,8 @@ import Login from "./pages/Login/login";
 import Signup from "./pages/Login/register"
 import Obshome from "./pages/Evaluation/obshome"
 import Inshome from "./pages/Evaluation/inshome"
+import Admhome from "./pages/Evaluation/adminhome"
+import Settings from "./pages/Evaluation/accountsettings";
 
 function App() {
 
@@ -43,7 +45,6 @@ const [evaluation, setEvaluation] = useState({
           { section_id: 14, description: "Lecture dominates, with lots of facts, no indication of student comprehension" },
           { section_id: 15, description: "A few students dominate discussion, many not speaking/students distracted" },
           { section_id: 16, description: "Instructor asks questions that leave little room for student explanation or error" },
-          { section_id: 17, description: "Lecture dominates, with lots of facts, no indication of student comprehension" },
           { section_id: 18, description: "Few students dominate, many not speaking/instructor moves on after single response" },
           { section_id: 19, description: "Little indication of student understanding/a few “bright” students dominate" },
           { section_id: 20, description: "Students offered unsupported or erroneous claims, instructor quickly affirmed or corrected student responses"},
@@ -53,9 +54,9 @@ const [evaluation, setEvaluation] = useState({
         { section_id: 22, description: "Learning activities had unclear or tenuous connection to learning objectives"},
         { section_id: 23, description: "Most questions are fact-focused/memory" },
         { section_id: 24, description: "Little or no time spent correcting errors or misunderstandings" },
-        { section_id: 25, description: "Lecture dominates, especially with fact- based content" },
+        { section_id: 25, description: "Lecture dominates, especially with fact-based content" },
         { section_id: 26, description: "Students confused or uncooperative/an activity is abrupt or novel" },
-        { section_id: 27, description: "Instructor identifies correct and incorrect answers but offer little help for improvement" },
+        { section_id: 27, description: "Instructor identifies correct and incorrect answers but offers little help for improvement" },
         { section_id: 28, description: "Class ends abruptly, class ends early, class session incorporated many disparate ideas" },
         { section_id: 29, description: "Student understanding is not clear, misunderstandings possible" },
         { section_id: 30, description: "Class session rife with facts, disconnected, meaning or import of material not explicit" }
@@ -70,8 +71,7 @@ const [evaluation, setEvaluation] = useState({
         { section_id: 35, description: "Facts dominate, students are confused or show no indication of deep understanding"},
         { section_id: 36, description: "Pace of speech or activities increases"},
         { section_id: 37, description: "Students doing single activity for more than 30 mins"},
-        { section_id: 38, description: "students appear confused about what is expected of them or why they are being asked to do something"},
-        { section_id: 39, description: "Class starts with no explicit plan, no hook, no connection to course trajectory"}
+        { section_id: 38, description: "students appear confused about what is expected of them or why they are being asked to do something"}
       ] },
       { title: "6. Affect", options: [
         { section_id: 40, description: "Instructor clearly reading off notes, not speaking extemporaneously"},
@@ -122,11 +122,13 @@ const [evaluation, setEvaluation] = useState({
            <Route path="/home" element={<Home />} />
            <Route path="/obshome" element={<Obshome />} />
            <Route path="/inshome" element={<Inshome />} />
+           <Route path="/admhome" element={<Admhome />} />
            <Route path="/" element={<Login />} />
            <Route path="/signup" element={<Signup />} />
            <Route path="/reports" element={<Reports />} />
            <Route path="/viewReport" element={<ReportViewer />} />
            <Route path="/help" element={<Help />} />
+           <Route path="/settings" element={<Settings />} />
            <Route path="/editreport" element={<EditReport />} />
            <Route path="/InstructorIntro" element={<IntroForm />} />
            <Route path="/Evaluate" element={<MainForm sections={evaluation.sections} saveSection={saveSection} />} />
