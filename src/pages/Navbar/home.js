@@ -15,8 +15,9 @@ const Home = () => {
       navigate('/obshome');
     } else if (role === 'INSTRUCTOR') {
       navigate('/inshome');
+    } else if (role === 'ADMIN') {
+            navigate('/admhome');
     }
-    // You can add more roles like ADMIN if needed
   }, [navigate]);
 
   return (
