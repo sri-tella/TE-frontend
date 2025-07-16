@@ -12,13 +12,18 @@ const Header = () => {
 
 const navigate = useNavigate();
   const [username, setUsername] = useState('');
+  const [role, setRole] = useState('');
 //  console.log("Available localStorage keys:", Object.fromEntries(Object.entries(localStorage)));
 
   useEffect(() => {
     const storedUsername = localStorage.getItem('firstName');
+    const storedRole = localStorage.getItem('role');
 //    console.log(storedUsername)
     if (storedUsername) {
       setUsername(storedUsername);
+    }
+    if (storedRole) {
+      setRole(storedRole);
     }
   }, []);
 
@@ -51,9 +56,11 @@ const navigate = useNavigate();
           <Nav.Link as={Link} to="/help" className="nav-link-icon">
             <QuestionCircle size={40} className="mr-1" /> Help
           </Nav.Link>
+          {role === 'ADMIN' && (
           <Nav.Link as={Link} to="/settings" className="nav-link-icon">
-            <Gear size={40} className="mr-1" /> Settings
+          <Gear size={40} className="mr-1" /> Settings
           </Nav.Link>
+          )}
         </Nav>
         <Nav className="ml-auto">
           {localStorage.getItem('firstName') && (
