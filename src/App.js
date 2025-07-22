@@ -18,6 +18,7 @@ import Obshome from "./pages/Evaluation/obshome"
 import Inshome from "./pages/Evaluation/inshome"
 import Admhome from "./pages/Evaluation/adminhome"
 import Settings from "./pages/Evaluation/accountsettings";
+import Profile from "./pages/Evaluation/userprofile";
 
 function App() {
 
@@ -133,6 +134,7 @@ const [evaluation, setEvaluation] = useState({
            <Route path="/InstructorIntro" element={<IntroForm />} />
            <Route path="/Evaluate" element={<MainForm sections={evaluation.sections} saveSection={saveSection} />} />
            <Route path="/SelectedRecommendations" element={<SelectedRecommendations evaluation={evaluation} />} />
+           <Route path="/myprofile" element = {<Profile />} />
 //           <Route path="/ReviewRecommendations" element={<ReviewRecommendations completeEvaluation={completeEvaluation} />} />
         </Routes>
     </BrowserRouter>
