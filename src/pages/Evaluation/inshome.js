@@ -6,10 +6,21 @@ import '../Navbar/home.css';
 const InsHome = () => {
   const navigate = useNavigate();
   const [formFilled, setFormFilled] = useState(false);
+  const [roles, setRoles] = useState([]);
+  const [currentRole, setCurrentRole] = useState('INSTRUCTOR');
 
   useEffect(() => {
     const hasSubmitted = localStorage.getItem('instructorFormSubmitted') === 'true';
     setFormFilled(hasSubmitted);
+
+    const storedRoles = localStorage.getItem('role');
+        if (storedRoles) {
+          const parsedRoles = storedRoles.split(',').map(role => role.trim().toUpperCase());
+          setRoles(parsedRoles);
+        }
+
+    const activeRole = localStorage.getItem('activeRole') || 'INSTRUCTOR';
+    setCurrentRole(activeRole);
   }, []);
 
   const handleFillForm = () => {

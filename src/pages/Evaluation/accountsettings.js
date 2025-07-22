@@ -7,12 +7,20 @@ const AccountManagement = () => {
   const [newAdminFirstName, setNewAdminFirstName] = useState('');
   const [newAdminLastName, setNewAdminLastName] = useState('');
   const [newAdminEmail, setNewAdminEmail] = useState('');
+  const [roleRequests, setRoleRequests] = useState('');
 
   useEffect(() => {
+  // Fetching the current admins from backend
     fetch('https://te-backend-production.up.railway.app/api/admins')
       .then(res => res.json())
       .then(data => setAdmins(data))
       .catch(err => console.error('Error fetching admins:', err));
+
+  // Fetching the current roleRequests from backend
+    fetch('https://te-backend-production.up.railway.app/api/admins/roleRequests')
+       .then(res => res.json())
+       .then(data => setRoleRequests(data))
+       .catch(err => console.error('Error fetching roleRequests:', err))
   }, []);
 
   const handleAddAdmin = () => {
@@ -57,6 +65,17 @@ const AccountManagement = () => {
       .then(res => res.json())
       .then(data => setAdmins(data))
       .catch(err => alert('Error deleting admin: ' + err));
+  };
+
+  const handleApproveRequest = (requestId) => {
+    fetch(`https://te-backend-production.up.railway.app/api/admins/roleRequests/${requestId}/approve`, {
+      method: 'POST'
+    })
+      .then(() => {
+        alert('Request approved successfully');
+        setRoleRequests(prev => prev.filter(r => r.id !== requestId));
+      })
+      .catch(err => alert('Error approving request: ' + err));
   };
 
   return (
@@ -105,6 +124,26 @@ const AccountManagement = () => {
               </li>
             ))}
           </ul>
+        </div>
+
+        <div className="admin-list">
+          <h4>Pending Role Requests</h4>
+          {roleRequests.length === 0 ? (
+            <p>No pending requests.</p>
+          ) : (
+            <ul>
+              {roleRequests.map(request => (
+                <li key={request.id} className="admin-item">
+                  <span className="admin-info">
+                    <strong>{request.firstName} {request.lastName}</strong> - {request.email}
+                  </span>
+                  <button className="approve-button" onClick={() => handleApproveRequest(request.id)}>
+                    Approve Observer Role
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
       </div>

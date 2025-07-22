@@ -28,7 +28,7 @@ const Home = () => {
         <h2>  Please choose your role: </h2>
         <div className="home-content">
           <Link to="/obshome" className="obslink">Observer</Link>
-          <Link to="/InstructorIntro" className="inslink">Instructor</Link>
+          <Link to="/inshome" className="inslink">Instructor</Link>
         </div>
       </div>
     </>

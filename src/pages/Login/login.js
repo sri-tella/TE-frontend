@@ -17,8 +17,8 @@ const Login = () => {
       .then(response => response.json())
       .then(data => {
         if (data.message === 'Login successful') {
-//            console.log(data);
-            localStorage.setItem('observerId', data.observerId);
+//            console.log("the data is", data);
+            localStorage.setItem('userId', data.id);
             localStorage.setItem('firstName', data.firstName);
             localStorage.setItem('lastName', data.lastName);
             localStorage.setItem('email', data.email);

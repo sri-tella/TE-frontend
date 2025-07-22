@@ -83,8 +83,20 @@
   width: auto;
 }
 
-.admin-list li button:hover {
+.delete-button {
+    background-color: #dc3545;
+}
+
+.approve-button {
+    background-color: #4CAF50;
+}
+
+.delete-button:hover {
   background-color: #c82333;
+}
+
+.approve-button:hover {
+  background-color: #275c29;
 }
 
 h2, h4 {
