@@ -13,7 +13,9 @@ const Header = () => {
 const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [role, setRole] = useState('');
-//  console.log("Available localStorage keys:", Object.fromEntries(Object.entries(localStorage)));
+  const [notifications, setNotifications] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const storedRole = localStorage.getItem('role');
 
   useEffect(() => {
     const storedUsername = localStorage.getItem('firstName');
@@ -25,12 +27,33 @@ const navigate = useNavigate();
     if (storedRole) {
       setRole(storedRole);
     }
-  }, []);
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 10000);
+    return () => clearInterval(interval);
+  }, [storedRole]);
 
   // Handle logout
   const handleLogout = () => {
     localStorage.removeItem('username');
     navigate('/');
+  };
+
+  const fetchNotifications = () => {
+//    console.log(storedRole);
+    const roleArray = storedRole.split(',').map(r => r.trim());
+    const allNotifications = [];
+    for (const role of roleArray) {
+        fetch(`https://te-backend-production.up.railway.app/api/notifications/role/${role}`)
+                .then(res => res.json())
+                .then(data => setNotifications(data))
+                .catch(err => console.error("Error fetching notifications:", err));
+        }
+    };
+
+  const handleMarkAsRead = (id) => {
+    fetch(`https://te-backend-production.up.railway.app/api/notifications/notifications/${id}/read`, { method: 'PATCH' })
+      .then(() => setNotifications(prev => prev.filter(n => n.id !== id)))
+      .catch(err => console.error("Error marking notification as read:", err));
   };
 
   return (
@@ -68,9 +91,30 @@ const navigate = useNavigate();
               Hi, <strong>{localStorage.getItem('firstName')}</strong>
             </Navbar.Text>
           )}
-          <Nav.Link as={Link} to="/notifications" className="nav-link-icon">
-           <Bell size={40} className="mr-1" /> Notifications
-          </Nav.Link>
+          {(
+            <div className="nav-link-icon notification-container" style={{ position: 'relative' }}>
+              <Bell
+                size={40}
+                className="notification-bell"
+                onClick={() => setShowDropdown(!showDropdown)}
+              />
+              {notifications.length > 0 && <span className="notification-count">{notifications.length}</span>}
+              {showDropdown && (
+                <div className="notification-dropdown">
+                  {notifications.length === 0 ? (
+                    <p>No new notifications</p>
+                  ) : (
+                    notifications.map(n => (
+                      <div key={n.id} className="notification-item">
+                        <span>{n.message}</span>
+                        <button onClick={() => handleMarkAsRead(n.id)} className="delete-notification">X</button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          )}
           <Nav.Link as={Link} to="/myprofile" className="nav-link-icon">
              <Person size={40} className="mr-1" /> Profile
           </Nav.Link>
