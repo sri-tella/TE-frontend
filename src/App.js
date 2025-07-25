@@ -14,11 +14,11 @@ import ReviewRecommendations from "./pages/Evaluation/reviewrecommendations";
 import EditReport from "./pages/Evaluation/editreport";
 import Login from "./pages/Login/login";
 import Signup from "./pages/Login/register"
-import Obshome from "./pages/Evaluation/obshome"
-import Inshome from "./pages/Evaluation/inshome"
-import Admhome from "./pages/Evaluation/adminhome"
-import Settings from "./pages/Evaluation/accountsettings";
-import Profile from "./pages/Evaluation/userprofile";
+import Obshome from "./pages/Navbar/obshome"
+import Inshome from "./pages/Navbar/inshome"
+import Admhome from "./pages/Navbar/adminhome"
+import Settings from "./pages/Navbar/accountsettings";
+import Profile from "./pages/Navbar/userprofile";
 
 function App() {
 

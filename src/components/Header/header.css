@@ -5,6 +5,7 @@
   font-size: 1.5rem;
   display: flex;
   align-items: center;
+  color: rgba(255, 255, 255, .5);
 }
 
 .nav-link-icon svg {
@@ -27,6 +28,104 @@
 .nav-logout-button:hover {
     color: white;
 }
+
+.notification-wrapper {
+  position: relative;
+  margin-right: 15px;
+  cursor: pointer;
+}
+
+.notification-container {
+  position: relative;
+}
+
+.notification-container:hover {
+  color:white;
+}
+
+.notification-count {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  background: red;
+  color: white;
+  font-size: 0.8rem;
+  padding: 2px 6px;
+  border-radius: 50%;
+  font-weight: bold;
+  min-width: 18px;
+  min-height: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.notification-dropdown {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  width: 300px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  z-index: 3000;
+  padding: 10px;
+}
+
+.notification-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 10px;
+  border-bottom: 1px solid #f1f1f1;
+  background: #fafafa;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.notification-item:hover {
+  background: #f0f0f0;
+}
+
+.notification-item.unread {
+  background: #e9f5ff;
+  font-weight: bold;
+}
+
+.notification-item span {
+  flex: 1;
+  padding-right: 10px;
+  color: #333;
+}
+
+p {
+  color: black;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.delete-notification {
+  background: #ff4d4d;
+  text-align: center;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.delete-notification:hover {
+  background: #e60000;
+}
+
 
 .nav-logout-button svg {
     margin-right: 0.5rem;
