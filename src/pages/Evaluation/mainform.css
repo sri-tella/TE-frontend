@@ -138,3 +138,29 @@ h5 {
   font-size: 23px;
 }
 
+#report-content h3 {
+  text-align: left;
+  margin-top: 2.5rem;
+  font-size: 22px;
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 5px;
+}
+
+#report-content h4 {
+  text-align: left;
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 20px;
+  color: #2d4c41;
+}
+
+#report-content p {
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+#report-content ul {
+  padding-left: 20px;
+  margin-bottom: 15px;
+}
+
