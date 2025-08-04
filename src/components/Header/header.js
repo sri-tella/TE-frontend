@@ -19,8 +19,7 @@ const navigate = useNavigate();
 
   useEffect(() => {
     const storedUsername = localStorage.getItem('firstName');
-    const storedRole = localStorage.getItem('role');
-//    console.log(storedUsername)
+//    console.log(storedRole)
     if (storedUsername) {
       setUsername(storedUsername);
     }
@@ -28,7 +27,7 @@ const navigate = useNavigate();
       setRole(storedRole);
     }
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 10000);
+    const interval = setInterval(fetchNotifications, 3 * 60 * 60 * 1000);
     return () => clearInterval(interval);
   }, [storedRole]);
 
