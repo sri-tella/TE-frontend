@@ -16,6 +16,7 @@ const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const storedRole = localStorage.getItem('role');
+  const roles = storedRole ? storedRole.split(',').map(r => r.trim().toUpperCase()) : [];
 
   useEffect(() => {
     const storedUsername = localStorage.getItem('firstName');
@@ -72,9 +73,11 @@ const navigate = useNavigate();
           <Nav.Link as={Link} to="/home" className="nav-link-icon">
             <House size={40} className="mr-1" /> Home
           </Nav.Link>
-          <Nav.Link as={Link} to="/reports" className="nav-link-icon">
-            <FileText size={40} className="mr-1" /> Reports
-          </Nav.Link>
+          {(roles.includes('OBSERVER') || roles.includes('ADMIN')) && (
+            <Nav.Link as={Link} to="/reports" className="nav-link-icon">
+              <FileText size={40} className="mr-1" /> Reports
+            </Nav.Link>
+          )}
           <Nav.Link as={Link} to="/help" className="nav-link-icon">
             <QuestionCircle size={40} className="mr-1" /> Help
           </Nav.Link>

@@ -55,6 +55,9 @@ const Reports = () => {
         <div className="reports-container">
         {loading ? (
                 <div className="loading">
+                <div className="spinner-border text-success" role="status">
+                      <span className="sr-only">Loading...</span>
+                    </div>
                   <p>Loading reports...</p>
                 </div>
               ) : reports.length === 0 ? (
