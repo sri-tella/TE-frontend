@@ -47,7 +47,7 @@ const ViewReports = () => {
         const formattedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
         if (classId) {
-            fetch(`http://localhost:8080/api/classes/${classId}`)
+            fetch(`https://te-backend-production.up.railway.app/api/classes/${classId}`)
                 .then(res => {
                     if (!res.ok) throw new Error("Failed to fetch background info");
                     return res.json();
@@ -272,7 +272,7 @@ const ViewReports = () => {
                 }))
             };
 
-            const response = await fetch(`http://localhost:8080/api/evaluations/save`, {
+            const response = await fetch(`https://te-backend-production.up.railway.app/api/evaluations/save`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -314,7 +314,7 @@ const ViewReports = () => {
             formData.append('file', pdfBlob, 'report.pdf');
             formData.append('evaluationId', evaluationId || '1');
 
-            const pdfResponse = await fetch(`http://localhost:8080/api/reports/save-pdf`, {
+            const pdfResponse = await fetch(`https://te-backend-production.up.railway.app/api/reports/save-pdf`, {
                 method: 'POST',
                 body: formData,
             });
