@@ -146,6 +146,10 @@ h5 {
   padding-bottom: 5px;
 }
 
+#report-content h5 {
+  font-size: 22px;
+}
+
 #report-content h4 {
   text-align: left;
   font-size: 18px;
@@ -158,9 +162,18 @@ h5 {
   text-align: left;
   margin-bottom: 10px;
 }
-
+#report-content span{
+  font-size: 20px !important;
+}
 #report-content ul {
   padding-left: 20px;
   margin-bottom: 15px;
 }
 
+li {
+    list-style-type: none; /* Убираем маркеры у списка */
+   }
+   li::before {
+    content: "►"; /* Маркер списка */
+    padding-right: 0.5em; /* Расстояние от маркера до текста */
+   }
