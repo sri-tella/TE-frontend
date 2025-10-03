@@ -255,7 +255,7 @@ const ViewReports = () => {
             const facultySpecialistRole = `You are a faculty development specialist with two decades of experience and an expert in effective teaching strategies. You are also a faculty member yourself, with empathy and understanding for the full context, rewards, and challenges of teaching in higher education.`;
             const { sections, feedbacks } = structuredData;
             const model = genAI.getGenerativeModel({
-                model: "gemini-1.5-flash",
+                model: "gemini-2.0-flash-lite",
                 systemInstruction: facultySpecialistRole,
             });
             const sectionTitles = Object.keys(sections);
