@@ -8,196 +8,279 @@ import TextArea from '../../components/Textarea/textarea';
 import './mainform.css';
 
 const SelectedRecommendations = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { selectedOptions = [] } = location.state || {};
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { selectedOptions = [] } = location.state || {};
 
-    const [selectedRecommendations, setSelectedRecommendations] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [additionalFeedback, setAdditionalFeedback] = useState('');
+  const [responses, setResponses] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [localFeedbacks, setLocalFeedbacks] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    const observerId = localStorage.getItem('observerId');
-    const instructorInfo = JSON.parse(localStorage.getItem("selectedInstructor"));
-    const instructorId = instructorInfo?.instructorId;
-    const classId = instructorInfo?.classId;
-    const evaluationId = parseInt(localStorage.getItem('evaluationId'), 10);
+  const observerId = localStorage.getItem('observerId');
+  const instructorInfoRaw = localStorage.getItem('selectedInstructor');
+  const instructorInfo = instructorInfoRaw ? JSON.parse(instructorInfoRaw) : null;
+  const instructorId = instructorInfo?.instructorId;
+  const classId = instructorInfo?.classId;
+  const evaluationIdRaw = localStorage.getItem('evaluationId');
+  const evaluationId = evaluationIdRaw && !isNaN(parseInt(evaluationIdRaw, 10)) ? parseInt(evaluationIdRaw, 10) : null;
 
-    useEffect(() => {
-        const savedRecs = JSON.parse(localStorage.getItem('selectedRecommendations') || '[]');
-        const savedAdditionalFeedback = localStorage.getItem('additionalFeedback') || '';
+  const normalizeTitle = (title) => title.replace(/^\d+\.\s*/, '');
+
+  useEffect(() => {
+    try {
+      setIsLoading(true);
+      
+      const savedFeedbacks = localStorage.getItem('selectedRecFeedbacks');
+      if (savedFeedbacks) {
+        try {
+          const parsedFeedbacks = JSON.parse(savedFeedbacks);
+          setLocalFeedbacks(parsedFeedbacks);
+        } catch (parseError) {
+          console.error('Error parsing savedFeedbacks:', parseError);
+        }
+      }
+
+      const storedRecommendations = JSON.parse(localStorage.getItem('selectedRecommendations') || '[]');
+      let initialResponses = [];
+
+      Object.entries(recommendationsMapping).forEach(([sectionTitle, recGroups]) => {
+        const storedSection = storedRecommendations.find(res => normalizeTitle(res.title) === normalizeTitle(sectionTitle)) || {};
         
-        const recs = [];
-        Object.entries(recommendationsMapping).forEach(([sectionTitle, recGroups]) => {
-            Object.entries(recGroups).forEach(([observation, recommendations]) => {
-                recommendations.forEach(rec => {
-                    const isSelected = selectedOptions.some(opt => opt.description === observation);
-                    
-                    const savedRec = savedRecs.find(saved => saved.description === rec);
-                    
-                    recs.push({
-                        description: rec,
-                        sectionTitle,
-                        observedDescription: observation,
-                        selected: savedRec ? savedRec.selected : isSelected,
-                        feedbackText: savedRec?.feedbackText || '',
-                    });
-                });
-            });
-        });
-
-        setSelectedRecommendations(recs);
-        setAdditionalFeedback(savedAdditionalFeedback);
-    }, [selectedOptions]);
-
-    const handleCheckboxChange = (recommendation) => {
-        const updated = selectedRecommendations.map(rec =>
-            rec.description === recommendation
-                ? { ...rec, selected: !rec.selected, feedbackText: !rec.selected ? rec.feedbackText : '' } : rec
-        );
-        setSelectedRecommendations(updated);
-        localStorage.setItem('selectedRecommendations', JSON.stringify(updated));
-    };
-
-    const handleFeedbackChange = (recommendation, value) => {
-        const updated = selectedRecommendations.map(rec =>
-            rec.description === recommendation
-                ? { ...rec, feedbackText: value }
-                : rec
-        );
-        setSelectedRecommendations(updated);
-        localStorage.setItem('selectedRecommendations', JSON.stringify(updated));
-    };
-
-    const handleAdditionalFeedbackChange = (value) => {
-      setAdditionalFeedback(value);
-      localStorage.setItem('additionalFeedback', value);
-    };
-
-    const handleSave = () => {
-        const filteredRecommendations = selectedRecommendations.filter(rec => rec.selected);
-        const reportData = {
-          selectedRecommendations: filteredRecommendations,
-          additionalFeedback,
-          observerId,
-          instructorId,
-          classId,
-          evaluationId
+        const section = {
+          title: sectionTitle,
+          options: [],
         };
-        
-        console.log("Saving final report data:", reportData);
 
-        navigate('/viewReport', {
-            state: reportData
+        Object.entries(recGroups).forEach(([observation, recommendations]) => {
+          recommendations.forEach(rec => {
+            const storedOption = storedSection.options?.find(opt => opt.description === rec);
+            
+            const isObservationSelected = selectedOptions.some(opt => opt.description === observation);
+            const feedbackFromOptions = selectedOptions.find(opt => opt.description === observation)?.feedbackText || '';
+            
+            section.options.push({
+              description: rec,
+              observedDescription: observation,
+              selected: storedOption?.selected || isObservationSelected,
+              showFeedback: storedOption?.showFeedback || isObservationSelected,
+              feedbackText: storedOption?.feedbackText || feedbackFromOptions || '',
+            });
+          });
         });
-    };
 
-    const CustomToggle = ({ children, eventKey }) => {
-        const decoratedOnClick = useAccordionToggle(eventKey, () => {});
-        return (
-            <Button type="button" variant="link" onClick={decoratedOnClick}>
-                {children}
-            </Button>
-        );
-    };
+        initialResponses.push(section);
+      });
 
-    const filteredRecommendationsMapping = Object.fromEntries(
-        Object.entries(recommendationsMapping).map(([sectionTitle, recs]) => [
-            sectionTitle,
-            Object.fromEntries(
-                Object.entries(recs).map(([obs, recArr]) => [
-                    obs,
-                    recArr.filter(rec =>
-                        rec.toLowerCase().includes(searchQuery.toLowerCase())
-                    ),
-                ])
-            ),
-        ])
-    );
-    
-    const groupedRecommendations = selectedRecommendations.reduce((acc, rec) => {
-      if (!acc[rec.sectionTitle]) {
-        acc[rec.sectionTitle] = {};
+      const additionalFeedbackTitle = 'Additional Feedback';
+      const hasAdditionalFeedback = initialResponses.some(sec => normalizeTitle(sec.title) === 'Additional Feedback');
+
+      if (!hasAdditionalFeedback) {
+        const storedAdditional = storedRecommendations.find(res => normalizeTitle(res.title) === 'Additional Feedback');
+        const selectedAdditional = selectedOptions.find(opt => normalizeTitle(opt.sectionTitle) === 'Additional Feedback');
+        
+        initialResponses.push({
+          title: additionalFeedbackTitle,
+          options: [{
+            description: 'Please type in any additional feedback or comments.',
+            feedbackText: storedAdditional?.options[0]?.feedbackText || selectedAdditional?.feedbackText || '',
+            selected: true,
+            showFeedback: true,
+          }],
+        });
       }
-      if (!acc[rec.sectionTitle][rec.observedDescription]) {
-        acc[rec.sectionTitle][rec.observedDescription] = [];
+
+      setResponses(initialResponses);
+    } catch (error) {
+      setError('Failed to load recommendations');
+      console.error('Error in useEffect:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedOptions]);
+
+  const handleCheckboxChange = (sectionIndex, optionIndex) => {
+    const updatedResponses = [...responses];
+    const option = updatedResponses[sectionIndex].options[optionIndex];
+
+    if (normalizeTitle(updatedResponses[sectionIndex].title) === 'Additional Feedback') {
+      return;
+    }
+
+    option.selected = !option.selected;
+    option.showFeedback = option.selected;
+
+    if (!option.selected) {
+      option.feedbackText = '';
+    }
+
+    setResponses(updatedResponses);
+    localStorage.setItem('selectedRecommendations', JSON.stringify(updatedResponses));
+  };
+
+  const handleFeedbackChange = (sectionIndex, optionIndex, value) => {
+    const updatedResponses = [...responses];
+    updatedResponses[sectionIndex].options[optionIndex].feedbackText = value;
+
+    setResponses(updatedResponses);
+    localStorage.setItem('selectedRecommendations', JSON.stringify(updatedResponses));
+  };
+
+  const handleSectionFeedbackChange = (sectionTitle, value) => {
+    const updated = { ...localFeedbacks, [sectionTitle]: value };
+    setLocalFeedbacks(updated);
+    localStorage.setItem('selectedRecFeedbacks', JSON.stringify(updated));
+  };
+
+  const handleSave = () => {
+    if (!observerId || !instructorId || !classId || !evaluationId) {
+      console.error('Missing required fields for navigation');
+      navigate('/error');
+      return;
+    }
+
+    const selectedRecommendations = responses.flatMap(section => {
+      if (normalizeTitle(section.title) === 'Additional Feedback') {
+        return section.options[0].feedbackText ? [{
+          ...section.options[0],
+          sectionTitle: 'Additional Feedback',
+        }] : [];
       }
-      acc[rec.sectionTitle][rec.observedDescription].push(rec);
-      return acc;
-    }, {});
+      return section.options
+        .filter(option => option.selected)
+        .map(option => ({
+          ...option,
+          sectionTitle: normalizeTitle(section.title),
+        }));
+    });
 
+    navigate('/viewReport', {
+      state: {
+        selectedRecommendations,
+        feedbacks: localFeedbacks,
+        observerId,
+        instructorId,
+        classId,
+        evaluationId,
+      },
+    });
+  };
 
+  const CustomToggle = ({ children, eventKey }) => {
+    const decoratedOnClick = useAccordionToggle(eventKey, () => {});
     return (
-        <>
-            <Header />
-            <div>
-                <h4>Here are possible recommendations. Some are selected based on your observations in the previous step. Click on the headers to expand/collapse and use the search bar on the right to quickly find key words.</h4>
-                <SearchBar searchQuery={searchQuery} handleSearchChange={setSearchQuery} />
-            </div>
-            <Form>
-                <Accordion defaultActiveKey="0">
-                    {Object.entries(groupedRecommendations).map(([sectionTitle, recGroups], sectionIndex) => (
-                        <Card key={sectionIndex}>
-                            <Card.Header>
-                                <CustomToggle eventKey={String(sectionIndex)}>
-                                    {sectionTitle}
-                                </CustomToggle>
-                            </Card.Header>
-                            <Accordion.Collapse eventKey={String(sectionIndex)}>
-                                <Card.Body>
-                                    {Object.entries(recGroups).map(([obs, recArr]) => (
-                                        <div key={obs} className="mb-3">
-                                            <h5>{obs}</h5>
-                                            {recArr.filter(rec => 
-                                                rec.description.toLowerCase().includes(searchQuery.toLowerCase())
-                                            ).map((rec, index) => (
-                                                <div key={index}>
-                                                    <Form.Check
-                                                        type="checkbox"
-                                                        label={rec.description}
-                                                        checked={rec.selected}
-                                                        onChange={() => handleCheckboxChange(rec.description)}
-                                                    />
-                                                    {rec.selected && (
-                                                        <TextArea
-                                                            value={rec.feedbackText}
-                                                            onChange={(e) => handleFeedbackChange(rec.description, e.target.value)}
-                                                        />
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ))}
-                                </Card.Body>
-                            </Accordion.Collapse>
-                        </Card>
-                    ))}
-                    <Card>
-                        <Card.Header>
-                            <CustomToggle eventKey={String(Object.keys(groupedRecommendations).length)}>
-                                Additional Feedback
-                            </CustomToggle>
-                        </Card.Header>
-                        <Accordion.Collapse eventKey={String(Object.keys(groupedRecommendations).length)}>
-                            <Card.Body>
-                                <TextArea
-                                    value={additionalFeedback}
-                                    onChange={(e) => handleAdditionalFeedbackChange(e.target.value)}
-                                />
-                            </Card.Body>
-                        </Accordion.Collapse>
-                    </Card>
-                </Accordion>
-                <div className="mt-3">
-                    <Button onClick={() => navigate('/Evaluate')} className="button-custom mr-2">
-                        Go Back
-                    </Button>
-                    <Button onClick={handleSave} className="button-custom mr-3">
-                        Save and Edit Report
-                    </Button>
-                </div>
-            </Form>
-        </>
+      <Button
+        type="button"
+        variant="link"
+        onClick={decoratedOnClick}
+      >
+        {children}
+      </Button>
     );
+  };
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+
+  return (
+    <>
+      <Header />
+      <div>
+        <h4>Here are possible recommendations. Some are selected based on your observations in the previous step. Click on the headers to expand/collapse and use the search bar on the right to quickly find key words.</h4>
+        <SearchBar searchQuery={searchQuery} handleSearchChange={setSearchQuery} />
+      </div>
+      <div>
+        <Form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+          <Accordion defaultActiveKey="0">
+            {responses.map((section, originalIndex) => {
+              const normalizedTitle = normalizeTitle(section.title);
+              
+              const matchesSearch = searchQuery === '' ||
+                section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                section.options.some(option => {
+                  const descriptionMatch = option.description.toLowerCase().includes(searchQuery.toLowerCase());
+                  const feedbackMatch = normalizedTitle !== 'Additional Feedback' &&
+                    (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase());
+                  return descriptionMatch || feedbackMatch;
+                });
+
+              if (!matchesSearch && (normalizedTitle !== 'Additional Feedback' ||
+                (normalizedTitle === 'Additional Feedback' && !section.options[0].feedbackText.toLowerCase().includes(searchQuery.toLowerCase())))) {
+                return null;
+              }
+
+              return (
+                <Card key={originalIndex}>
+                  <Card.Header>
+                    <CustomToggle eventKey={String(originalIndex)}>
+                      {section.title}
+                    </CustomToggle>
+                  </Card.Header>
+                  <Accordion.Collapse eventKey={String(originalIndex)}>
+                    <Card.Body>
+                      {section.options.map((option, optionIndex) => {
+                        const showOption = searchQuery === '' ||
+                          option.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (normalizedTitle !== 'Additional Feedback' && (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase()));
+
+                        if (!showOption && normalizedTitle !== 'Additional Feedback') {
+                          return null;
+                        }
+
+                        return (
+                          <div key={optionIndex}>
+                            {normalizedTitle !== 'Additional Feedback' ? (
+                              <>
+                                <Form.Check
+                                  type="checkbox"
+                                  label={`${option.observedDescription}: ${option.description}`}
+                                  checked={option.selected}
+                                  onChange={() => handleCheckboxChange(originalIndex, optionIndex)}
+                                />
+                                {option.showFeedback && (
+                                  <TextArea
+                                    value={option.feedbackText || ''}
+                                    onChange={(e) => handleFeedbackChange(originalIndex, optionIndex, e.target.value)}
+                                  />
+                                )}
+                              </>
+                            ) : (
+                              <>
+                                <p>{option.description}</p>
+                                <TextArea
+                                  value={option.feedbackText || ''}
+                                  onChange={(e) => handleFeedbackChange(originalIndex, optionIndex, e.target.value)}
+                                />
+                              </>
+                            )}
+                          </div>
+                        );
+                      })}
+                      {normalizedTitle !== 'Additional Feedback' && (
+                        <TextArea
+                          value={localFeedbacks[normalizedTitle] || ''}
+                          onChange={(e) => handleSectionFeedbackChange(normalizedTitle, e.target.value)}
+                        />
+                      )}
+                    </Card.Body>
+                  </Accordion.Collapse>
+                </Card>
+              );
+            })}
+          </Accordion>
+          <div className="mt-3">
+            <Button onClick={() => navigate('/Evaluate')} className="button-custom mr-2">
+              Go Back
+            </Button>
+            <Button type="submit" className="button-custom mr-3">
+              Save and Edit Report
+            </Button>
+          </div>
+        </Form>
+      </div>
+    </>
+  );
 };
 
 export default SelectedRecommendations;
