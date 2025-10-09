@@ -141,60 +141,65 @@ const MainForm = ({ sections, saveSection }) => {
           <Accordion defaultActiveKey="0">
             {/* Iterate over the full array to preserve stable indices */}
             {responses.map((section, originalIndex) => {
-              
-              // 4. Smart filtering: searches in title, description, AND TextArea text
-              const filteredOptions = section.options.filter(option =>
-                searchQuery === '' ||
-                section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                option.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase())
-              );
+  const normalizedTitle = normalizeTitle(section.title);
+  const matchesSearch = searchQuery === '' ||
+    section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    section.options.some(option => {
+      const descriptionMatch = option.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const feedbackMatch = normalizedTitle !== 'Additional Feedback' && 
+        (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase());
+      return descriptionMatch || feedbackMatch;
+    });
 
-              // Hide the section if it has no matches (except for "Additional Feedback")
-              if (filteredOptions.length === 0 && normalizeTitle(section.title) !== 'Additional Feedback') {
-                return null;
-              }
+  if (!matchesSearch && (normalizedTitle !== 'Additional Feedback' || 
+    (normalizedTitle === 'Additional Feedback' && !section.options[0].feedbackText.toLowerCase().includes(searchQuery.toLowerCase())))) {
+    return null;
+  }
 
-              return (
-              <Card key={originalIndex}>
-                <Card.Header>
-                  <CustomToggle eventKey={String(originalIndex)}>
-                    {section.title}
-                  </CustomToggle>
-                </Card.Header>
-                <Accordion.Collapse eventKey={String(originalIndex)}>
-                  <Card.Body>
-                    {/* Render the filtered options */}
-                    {filteredOptions.map((option) => {
-                      // 5. Find the original option index for correct state updates
-                      const originalOptionIndex = section.options.findIndex(o => o.description === option.description);
-                      if (originalOptionIndex === -1) return null;
+  return (
+    <Card key={originalIndex}>
+      <Card.Header>
+        <CustomToggle eventKey={String(originalIndex)}>
+          {section.title}
+        </CustomToggle>
+      </Card.Header>
+      <Accordion.Collapse eventKey={String(originalIndex)}>
+        <Card.Body>
+          {section.options.map((option, optionIndex) => {
+            const showOption = searchQuery === '' ||
+              option.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              (normalizedTitle !== 'Additional Feedback' && (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase()));
 
-                      return (
-                      <div key={originalOptionIndex}>
-                        {normalizeTitle(section.title) !== 'Additional Feedback' ? (
-                          <Form.Check
-                            type="checkbox"
-                            label={option.description}
-                            checked={option.selected}
-                            onChange={() => handleCheckboxChange(originalIndex, originalOptionIndex)}
-                          />
-                        ) : (
-                          <p>{option.description}</p>
-                        )}
-                        
-                        {option.showFeedback && (
-                          <TextArea
-                            value={option.feedbackText || ''}
-                            onChange={(e) => handleFeedbackChange(originalIndex, originalOptionIndex, e.target.value)}
-                          />
-                        )}
-                      </div>
-                    )})}
-                  </Card.Body>
-                </Accordion.Collapse>
-              </Card>
-            )})}
+            if (!showOption && normalizedTitle !== 'Additional Feedback') {
+              return null;
+            }
+
+            return (
+              <div key={optionIndex}>
+                {normalizedTitle !== 'Additional Feedback' ? (
+                  <Form.Check
+                    type="checkbox"
+                    label={option.description}
+                    checked={option.selected}
+                    onChange={() => handleCheckboxChange(originalIndex, optionIndex)}
+                  />
+                ) : (
+                  <p>{option.description}</p>
+                )}
+                {option.showFeedback && (
+                  <TextArea
+                    value={option.feedbackText || ''}
+                    onChange={(e) => handleFeedbackChange(originalIndex, optionIndex, e.target.value)}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </Card.Body>
+      </Accordion.Collapse>
+    </Card>
+  );
+})}
           </Accordion>
           <Button type="submit" className="mt-3">Save and Continue</Button>
         </Form>
