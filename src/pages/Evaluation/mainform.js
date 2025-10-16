@@ -178,15 +178,12 @@ const MainForm = ({ sections, saveSection }) => {
   const normalizedTitle = normalizeTitle(section.title);
   const matchesSearch = searchQuery === '' ||
     section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    section.options.some(option => {
-      const descriptionMatch = option.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const feedbackMatch = normalizedTitle !== 'Additional Feedback' && 
-        (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase());
-      return descriptionMatch || feedbackMatch;
-    });
+    section.options.some(option =>
+      option.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-  if (!matchesSearch && (normalizedTitle !== 'Additional Feedback' || 
-    (normalizedTitle === 'Additional Feedback' && !section.options[0].feedbackText.toLowerCase().includes(searchQuery.toLowerCase())))) {
+  if (!matchesSearch) {
     return null;
   }
 
