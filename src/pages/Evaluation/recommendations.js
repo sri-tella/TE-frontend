@@ -18,7 +18,7 @@ const SelectedRecommendations = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const observerId =   const observerId = localStorage.getItem('observerId') || localStorage.getItem('userId');;
+  const observerId = localStorage.getItem('observerId') || localStorage.getItem('userId');;
   const instructorInfoRaw = localStorage.getItem('selectedInstructor');
   const instructorInfo = instructorInfoRaw ? JSON.parse(instructorInfoRaw) : null;
   const instructorId = instructorInfo?.instructorId;
