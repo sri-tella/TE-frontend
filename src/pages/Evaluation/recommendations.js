@@ -10,24 +10,15 @@ import './mainform.css';
 const SelectedRecommendations = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { selectedOptions = [] } = location.state || {};
-
-  const [responses, setResponses] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const observerId = localStorage.getItem('observerId');
-  const instructorInfo = JSON.parse(localStorage.getItem("selectedInstructor"));
-  const instructorId = instructorInfo?.instructorId;
-  const classId = instructorInfo?.classId;
-  const evaluationId = parseInt(localStorage.getItem('evaluationId'), 10);
 
   const normalizeTitle = (title) => title.replace(/^\d+\.\s*/, '');
 
-  useEffect(() => {
-    // 1. Загрузка сохраненных ответов из localStorage
+  // --- ИЗМЕНЕНИЕ: Вся логика инициализации перенесена сюда ---
+  // Это гарантирует, что состояние будет полным до первого рендера.
+  const [responses, setResponses] = useState(() => {
+    const { selectedOptions = [] } = location.state || {};
     const storedResponses = JSON.parse(localStorage.getItem('selectedRecommendations') || '[]');
     
-    // 2. Инициализация состояния из recommendationsMapping
     let initialResponses = Object.entries(recommendationsMapping).map(([sectionTitle, recGroups]) => {
       const normalized = normalizeTitle(sectionTitle);
       const storedSection = storedResponses.find(res => normalizeTitle(res.title) === normalized) || {};
@@ -50,7 +41,6 @@ const SelectedRecommendations = () => {
       };
     });
 
-    // 3. Гарантированное добавление секции "Additional Feedback" в состояние
     const additionalFeedbackTitle = 'Additional Feedback';
     const hasAdditionalFeedback = initialResponses.some(sec => normalizeTitle(sec.title) === additionalFeedbackTitle);
 
@@ -66,11 +56,20 @@ const SelectedRecommendations = () => {
         }]
       });
     }
+    return initialResponses;
+  });
 
-    setResponses(initialResponses);
-  }, [selectedOptions]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeKey, setActiveKey] = useState('0');
 
-  // Обработчик для изменения текста в TextArea
+  const observerId = localStorage.getItem('observerId');
+  const instructorInfo = JSON.parse(localStorage.getItem("selectedInstructor"));
+  const instructorId = instructorInfo?.instructorId;
+  const classId = instructorInfo?.classId;
+  const evaluationId = parseInt(localStorage.getItem('evaluationId'), 10);
+
+  // --- ИЗМЕНЕНИЕ: Старый useEffect для установки responses удален ---
+
   const handleFeedbackChange = (sectionIndex, optionIndex, value) => {
     const updatedResponses = [...responses];
     updatedResponses[sectionIndex].options[optionIndex].feedbackText = value;
@@ -79,7 +78,6 @@ const SelectedRecommendations = () => {
     localStorage.setItem('selectedRecommendations', JSON.stringify(updatedResponses));
   };
   
-  // Обработчик для чекбоксов
   const handleCheckboxChange = (sectionIndex, optionIndex) => {
     const updatedResponses = [...responses];
     const option = updatedResponses[sectionIndex].options[optionIndex];
@@ -99,7 +97,6 @@ const SelectedRecommendations = () => {
     localStorage.setItem('selectedRecommendations', JSON.stringify(updatedResponses));
   };
 
-  // Обработчик сохранения
   const handleSave = () => {
     const selectedOptions = responses.flatMap((section) => {
       if (normalizeTitle(section.title) === 'Additional Feedback') {
@@ -130,7 +127,9 @@ const SelectedRecommendations = () => {
   };
 
   const CustomToggle = ({ children, eventKey }) => {
-    const decoratedOnClick = useAccordionToggle(eventKey, () => {});
+    const decoratedOnClick = useAccordionToggle(eventKey, () =>
+      setActiveKey(activeKey === eventKey ? null : eventKey)
+    );
     return (
       <Button type="button" variant="link" onClick={decoratedOnClick}>
         {children}
@@ -147,10 +146,9 @@ const SelectedRecommendations = () => {
       </div>
       <div>
         <Form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
-          <Accordion defaultActiveKey="0">
+          <Accordion activeKey={activeKey}>
             {responses.map((section, originalIndex) => {
               
-              // 4. Умная фильтрация: ищет в заголовке, описании И тексте TextArea
               const filteredOptions = section.options.filter(option =>
                 searchQuery === '' ||
                 section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -158,13 +156,12 @@ const SelectedRecommendations = () => {
                 (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
                 (option.observedDescription || '').toLowerCase().includes(searchQuery.toLowerCase())
               );
-
-              // Скрываем секцию, если в ней нет совпадений (кроме "Additional Feedback")
+              
+              // Исправленная логика фильтрации из предыдущего шага
               if (filteredOptions.length === 0) {
                 return null;
               }
 
-              // Группируем отфильтрованные опции по observedDescription для рендеринга
               const groupedOptions = filteredOptions.reduce((acc, option) => {
                 const obs = option.observedDescription || 'General';
                 if (!acc[obs]) {
@@ -187,7 +184,6 @@ const SelectedRecommendations = () => {
                         <div key={obs} className="mb-3">
                           <h5>{obs}</h5>
                           {opts.map((option) => {
-                            // 5. Находим оригинальный индекс опции для корректного обновления состояния
                             const originalOptionIndex = section.options.findIndex(o => o.description === option.description);
                             if (originalOptionIndex === -1) return null;
 
