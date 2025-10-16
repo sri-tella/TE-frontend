@@ -217,7 +217,7 @@ const ViewReports = () => {
         const selectedInstructor = JSON.parse(localStorage.getItem('selectedInstructor') || '{}');
         const classId = selectedInstructor?.classId;
         if (classId) {
-            fetch(`https://te-backend-production.up.railway.app/api/classes/${classId}`)
+            fetch(`https://teachingeval.netlify.app/api/classes/${classId}`)
                 .then(res => {
                     if (!res.ok) throw new Error("Failed to fetch background info");
                     return res.json();
@@ -367,7 +367,7 @@ const ViewReports = () => {
                 }))
             };
 
-            const response = await fetch(`https://te-backend-production.up.railway.app/api/evaluations/save`, {
+            const response = await fetch(`https://teachingeval.netlify.app/api/evaluations/save`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -409,7 +409,7 @@ const ViewReports = () => {
             formData.append('file', pdfBlob, 'report.pdf');
             formData.append('evaluationId', evaluationId || '1');
 
-            const pdfResponse = await fetch(`https://te-backend-production.up.railway.app/api/reports/save-pdf`, {
+            const pdfResponse = await fetch(`https://teachingeval.netlify.app/api/reports/save-pdf`, {
                 method: 'POST',
                 body: formData,
             });
