@@ -129,11 +129,6 @@ const SelectedRecommendations = () => {
     });
   };
 
-  const handleGoBack = () => {
-    localStorage.setItem('selectedRecommendations', JSON.stringify(responses));
-    navigate('/Evaluate');
-  };
-
   const CustomToggle = ({ children, eventKey }) => {
     const decoratedOnClick = useAccordionToggle(eventKey, () => {});
     return (
@@ -165,7 +160,7 @@ const SelectedRecommendations = () => {
               );
 
               // Скрываем секцию, если в ней нет совпадений (кроме "Additional Feedback")
-              if (filteredOptions.length === 0 && normalizeTitle(section.title) !== 'Additional Feedback') {
+              if (filteredOptions.length === 0) {
                 return null;
               }
 
@@ -227,7 +222,7 @@ const SelectedRecommendations = () => {
             })}
           </Accordion>
           <div className="mt-3">
-            <Button onClick={handleGoBack} className="button-custom mr-2">
+            <Button onClick={() => navigate('/Evaluate')} className="button-custom mr-2">
               Go Back
             </Button>
             <Button type="submit" className="button-custom mr-3">
