@@ -134,8 +134,8 @@ const ViewReports = () => {
             <p><strong>Class Session Topic or Course Subject:</strong> ${classTopic}</p>
             <p><strong>Observer:</strong> ${observerFirstName} ${observerLastName}</p>
             <h3>Background Information</h3>
-            <p><strong>What is the learning goal or objective for todays class session?/Objective:</strong><br>${bgInfo.goal || 'N/A'}</p>
-            <p><strong>Please provide a brief outline or sketch of how class session will proceed?</strong><br>${bgInfo.outline || 'N/A'}</p>
+            <p><strong>What is the learning goal or objective for today's class session?:</strong><br>${bgInfo.goal || 'N/A'}</p>
+            <p><strong>Please provide a brief outline or sketch of how class session will proceed</strong><br>${bgInfo.outline || 'N/A'}</p>
             <p><strong>How might the observer be particularly helpful in the observation process? Are there elements of the class session that might benefit from detailed feedback or focused attention?</strong><br>${bgInfo.help || 'N/A'}</p>
             <h3>Observation</h3>`;
 
