@@ -14,10 +14,10 @@ const MainForm = ({ sections, saveSection }) => {
   const normalizeTitle = (title) => title.replace(/^\d+\.\s*/, '');
 
   useEffect(() => {
-    // 1. Load saved responses from localStorage
+    // 1. Загрузка сохраненных ответов из localStorage
     const storedResponses = JSON.parse(localStorage.getItem('savedResponses') || '[]');
     
-    // 2. Initialize state from props
+    // 2. Инициализация состояния из props
     let initialResponses = sections.map(section => {
       const normalized = normalizeTitle(section.title);
       const storedSection = storedResponses.find(res => normalizeTitle(res.title) === normalized) || {};
@@ -36,7 +36,7 @@ const MainForm = ({ sections, saveSection }) => {
       };
     });
 
-    // 3. Ensure the "Additional Feedback" section is added to the state
+    // 3. Гарантированное добавление секции "Additional Feedback" в состояние
     const additionalFeedbackTitle = '9. Additional Feedback';
     const hasAdditionalFeedback = initialResponses.some(sec => sec.title === additionalFeedbackTitle);
 
@@ -56,7 +56,7 @@ const MainForm = ({ sections, saveSection }) => {
     setResponses(initialResponses);
   }, [sections]);
 
-  // Handler for text changes in the TextArea
+  // Обработчик для изменения текста в TextArea
   const handleFeedbackChange = (sectionIndex, optionIndex, value) => {
     const updatedResponses = [...responses];
     updatedResponses[sectionIndex].options[optionIndex].feedbackText = value;
@@ -65,7 +65,7 @@ const MainForm = ({ sections, saveSection }) => {
     localStorage.setItem('savedResponses', JSON.stringify(updatedResponses));
   };
   
-  // Handler for checkboxes
+  // Обработчик для чекбоксов
   const handleCheckboxChange = (sectionIndex, optionIndex) => {
     const updatedResponses = [...responses];
     const option = updatedResponses[sectionIndex].options[optionIndex];
@@ -85,7 +85,7 @@ const MainForm = ({ sections, saveSection }) => {
     localStorage.setItem('savedResponses', JSON.stringify(updatedResponses));
   };
 
-  // Save handler
+  // Обработчик сохранения
   const handleSave = () => {
     const evaluationId = localStorage.getItem('evaluationId');
     if (!evaluationId) {
@@ -118,7 +118,6 @@ const MainForm = ({ sections, saveSection }) => {
     });
   };
 
-  // Custom toggle for the accordion
   const CustomToggle = ({ children, eventKey }) => {
     const decoratedOnClick = useAccordionToggle(eventKey, () => {});
     return (
@@ -128,7 +127,6 @@ const MainForm = ({ sections, saveSection }) => {
     );
   };
 
-  // --- COMPONENT RENDER LOGIC ---
   return (
     <>
       <Header />
@@ -139,67 +137,61 @@ const MainForm = ({ sections, saveSection }) => {
       <div>
         <Form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
           <Accordion defaultActiveKey="0">
-            {/* Iterate over the full array to preserve stable indices */}
             {responses.map((section, originalIndex) => {
-  const normalizedTitle = normalizeTitle(section.title);
-  const matchesSearch = searchQuery === '' ||
-    section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    section.options.some(option => {
-      const descriptionMatch = option.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const feedbackMatch = normalizedTitle !== 'Additional Feedback' && 
-        (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase());
-      return descriptionMatch || feedbackMatch;
-    });
+              
+              // 4. Умная фильтрация: ищет в заголовке, описании И тексте TextArea
+              const filteredOptions = section.options.filter(option =>
+                searchQuery === '' ||
+                section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                option.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase())
+              );
 
-  if (!matchesSearch && (normalizedTitle !== 'Additional Feedback' || 
-    (normalizedTitle === 'Additional Feedback' && !section.options[0].feedbackText.toLowerCase().includes(searchQuery.toLowerCase())))) {
-    return null;
-  }
+              // Скрываем секцию, если в ней нет совпадений (кроме "Additional Feedback")
+              if (filteredOptions.length === 0 && normalizeTitle(section.title) !== 'Additional Feedback') {
+                return null;
+              }
 
-  return (
-    <Card key={originalIndex}>
-      <Card.Header>
-        <CustomToggle eventKey={String(originalIndex)}>
-          {section.title}
-        </CustomToggle>
-      </Card.Header>
-      <Accordion.Collapse eventKey={String(originalIndex)}>
-        <Card.Body>
-          {section.options.map((option, optionIndex) => {
-            const showOption = searchQuery === '' ||
-              option.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              (normalizedTitle !== 'Additional Feedback' && (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase()));
+              return (
+              <Card key={originalIndex}>
+                <Card.Header>
+                  <CustomToggle eventKey={String(originalIndex)}>
+                    {section.title}
+                  </CustomToggle>
+                </Card.Header>
+                <Accordion.Collapse eventKey={String(originalIndex)}>
+                  <Card.Body>
+                    {/* Рендеринг отфильтрованных опций */}
+                    {filteredOptions.map((option) => {
+                      // 5. Находим оригинальный индекс опции для корректного обновления состояния
+                      const originalOptionIndex = section.options.findIndex(o => o.description === option.description);
+                      if (originalOptionIndex === -1) return null;
 
-            if (!showOption && normalizedTitle !== 'Additional Feedback') {
-              return null;
-            }
-
-            return (
-              <div key={optionIndex}>
-                {normalizedTitle !== 'Additional Feedback' ? (
-                  <Form.Check
-                    type="checkbox"
-                    label={option.description}
-                    checked={option.selected}
-                    onChange={() => handleCheckboxChange(originalIndex, optionIndex)}
-                  />
-                ) : (
-                  <p>{option.description}</p>
-                )}
-                {option.showFeedback && (
-                  <TextArea
-                    value={option.feedbackText || ''}
-                    onChange={(e) => handleFeedbackChange(originalIndex, optionIndex, e.target.value)}
-                  />
-                )}
-              </div>
-            );
-          })}
-        </Card.Body>
-      </Accordion.Collapse>
-    </Card>
-  );
-})}
+                      return (
+                      <div key={originalOptionIndex}>
+                        {normalizeTitle(section.title) !== 'Additional Feedback' ? (
+                          <Form.Check
+                            type="checkbox"
+                            label={option.description}
+                            checked={option.selected}
+                            onChange={() => handleCheckboxChange(originalIndex, originalOptionIndex)}
+                          />
+                        ) : (
+                          <p>{option.description}</p>
+                        )}
+                        
+                        {option.showFeedback && (
+                          <TextArea
+                            value={option.feedbackText || ''}
+                            onChange={(e) => handleFeedbackChange(originalIndex, originalOptionIndex, e.target.value)}
+                          />
+                        )}
+                      </div>
+                    )})}
+                  </Card.Body>
+                </Accordion.Collapse>
+              </Card>
+            )})}
           </Accordion>
           <Button type="submit" className="mt-3">Save and Continue</Button>
         </Form>
