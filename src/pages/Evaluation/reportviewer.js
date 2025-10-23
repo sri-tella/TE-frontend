@@ -9,7 +9,6 @@ import html2canvas from 'html2canvas';
 import './mainform.css';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Вспомогательная функция для форматирования ответа AI (без изменений)
 const formatAiResponse = (text) => {
     if (!text) return '';
     const formatContent = (content) => {
@@ -135,137 +134,286 @@ const ViewReports = () => {
         }
     }, [structuredData, aiFeedbacks, backgroundInfo, generateReportContent]);
 
-    // --- НАДЕЖНАЯ ЛОГИКА ГЕНЕРАЦИИ PDF (без изменений) ---
     const generatePdf = async () => {
+    const pdf = new jsPDF('p', 'in', 'letter');
+    const pdfWidth = pdf.internal.pageSize.getWidth(); // 8.5 in
+    const pdfHeight = pdf.internal.pageSize.getHeight(); // 11 in
+    const margin = 1; // in
+    const contentWidth = pdfWidth - 2 * margin; // 6.5 in
+    const availableHeight = pdfHeight - margin - 1.5; // Увеличил буфер до 1.5 для большего отступа снизу и избежания пересечения с футером
+
+    // Global style (добавил margin: 0 и padding: 0 для body, чтобы избежать лишних отступов сверху)
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+        }
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            font-family: 'Times New Roman', serif !important;
+            font-size: 12pt !important;
+            line-height: 1.4 !important;
+        }
+        ul, ol { 
+            list-style-type: disc !important; 
+            padding-left: 20px !important; 
+            margin: 10px 0 !important;
+        } 
+        li { 
+            list-style-position: outside !important; 
+            margin-bottom: 5px !important;
+        }
+        h2, h3, h4, h5, h6 {
+            margin: 15px 0 10px 0 !important;
+        }
+        p {
+            margin: 8px 0 !important;
+        }
+    `;
+    const parserContainer = document.createElement('div');
+    parserContainer.innerHTML = reportContent;
+    const children = Array.from(parserContainer.children);
+
+    const blocks = [];
+    children.forEach((child) => {
+        const currentBlock = document.createElement('div');
+        currentBlock.appendChild(child.cloneNode(true));
+        blocks.push(currentBlock);
+    });
+
+    let currentY = 0;
+    let pageCount = 1;
+
+    for (const block of blocks) {
         const tempContainer = document.createElement('div');
-        const style = document.createElement('style');
-        style.innerHTML = `ul, ol { list-style-type: disc !important; padding-left: 20px !important; } li { list-style-position: inside !important; }`;
-        tempContainer.appendChild(style);
-        
-        const contentDiv = document.createElement('div');
-        contentDiv.innerHTML = reportContent;
-        tempContainer.appendChild(contentDiv);
-        
         Object.assign(tempContainer.style, {
-            position: 'absolute', left: '-9999px', top: '0px',
-            width: '8.5in', padding: '1in', backgroundColor: 'white',
-            fontFamily: 'Times New Roman, serif', fontSize: '12pt'
+            position: 'absolute',
+            left: '-9999px',
+            top: '0',
+            width: `${contentWidth * 72}pt`, // Precision: 1in = 72pt
+            backgroundColor: 'white',
+            fontFamily: 'Times New Roman, serif',
+            fontSize: '12pt',
+            lineHeight: '1.4',
+            margin: '0',
+            padding: '0' // Добавил padding: 0 для избежания лишних отступов
         });
-
+        tempContainer.appendChild(style.cloneNode(true));
+        tempContainer.appendChild(block);
         document.body.appendChild(tempContainer);
-        
+
         try {
-            const canvas = await html2canvas(tempContainer, { scale: 2 });
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const imgHeightInPdf = (canvas.height * pdfWidth) / canvas.width;
-            let heightLeft = imgHeightInPdf;
-            let position = 0;
+            const scale = 4; // High res for quality
+            const canvas = await html2canvas(tempContainer, {
+                scale: scale,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff'
+            });
 
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeightInPdf);
-            heightLeft -= pdf.internal.pageSize.getHeight();
+            const imgWidthPdf = contentWidth;
+            const imgAspect = canvas.height / canvas.width;
+            const imgFullHeightPdf = imgWidthPdf * imgAspect;
 
-            while (heightLeft > 0) {
-                position -= pdf.internal.pageSize.getHeight();
-                pdf.addPage();
-                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeightInPdf);
-                heightLeft -= pdf.internal.pageSize.getHeight();
+            // Проверяем, нужно ли разбивать блок (если блок больше страницы)
+            const needSplit = imgFullHeightPdf > availableHeight;
+
+            if (!needSplit) {
+                // Если блок помещается на страницу целиком, проверяем пространство на текущей странице
+                let spaceOnPage = availableHeight - currentY;
+                let positionY = margin + currentY;
+                if (imgFullHeightPdf > spaceOnPage) {
+                    pdf.addPage();
+                    pageCount++;
+                    currentY = 0;
+                    positionY = margin + currentY;
+                }
+                pdf.addImage(canvas.toDataURL('image/png', 1.0), 'PNG', margin, positionY, imgWidthPdf, imgFullHeightPdf);
+                currentY += imgFullHeightPdf;
+            } else {
+                // Если блок слишком большой, разбиваем с клиппингом (как раньше, но с большим буфером)
+                let blockRemaining = imgFullHeightPdf;
+                let srcOffset = 0;
+                while (blockRemaining > 0) {
+                    let spaceOnPage = availableHeight - currentY;
+                    if (spaceOnPage <= 0.1) {
+                        pdf.addPage();
+                        pageCount++;
+                        currentY = 0;
+                        spaceOnPage = availableHeight;
+                    }
+                    const addH = Math.min(spaceOnPage, blockRemaining);
+                    const srcH = (addH / imgFullHeightPdf) * canvas.height;
+
+                    // Create clipped canvas
+                    const clipCanvas = document.createElement('canvas');
+                    clipCanvas.width = canvas.width;
+                    clipCanvas.height = srcH;
+                    const ctx = clipCanvas.getContext('2d');
+                    ctx.drawImage(canvas, 0, srcOffset, canvas.width, srcH, 0, 0, canvas.width, srcH);
+
+                    pdf.addImage(clipCanvas.toDataURL('image/png', 1.0), 'PNG', margin, margin + currentY, imgWidthPdf, addH);
+
+                    currentY += addH;
+                    srcOffset += srcH;
+                    blockRemaining -= addH;
+                }
             }
-
-            const totalPages = pdf.internal.getNumberOfPages();
-            for (let i = 1; i <= totalPages; i++) {
-                pdf.setPage(i);
-                pdf.setFontSize(10);
-                pdf.setTextColor(150);
-                pdf.text(`Page ${i} of ${totalPages}`, pdf.internal.pageSize.getWidth() / 2, pdf.internal.pageSize.getHeight() - 10, { align: 'center' });
-            }
-            return pdf;
         } finally {
             document.body.removeChild(tempContainer);
         }
-    };
-    
-    // --- НОВАЯ ФУНКЦИЯ ОЧИСТКИ HTML ДЛЯ WORD ---
-    const cleanHtmlForWord = (html) => {
-        // Создаем временный элемент для работы с DOM
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = html;
+    }
 
-        // Удаляем все атрибуты стилей, кроме базовых
-        const elements = tempDiv.getElementsByTagName('*');
-        for (let i = 0; i < elements.length; i++) {
-            elements[i].removeAttribute('style');
-        }
+    // Add page numbers (переместил футер чуть ниже для большего буфера)
+    for (let i = 1; i <= pageCount; i++) {
+        pdf.setPage(i);
+        pdf.setFontSize(10);
+        pdf.setTextColor(100);
+        pdf.text(
+            `Page ${i} of ${pageCount}`,
+            pdfWidth / 2,
+            pdfHeight - 0.5, // Переместил футер ближе к底 (0.5in от низа вместо 0.75)
+            { align: 'center' }
+        );
+    }
 
-        // Заменяем Quill-списки на стандартные ul/li
-        const quillLists = tempDiv.querySelectorAll('ul.ql-indent-1, ol.ql-indent-1');
-        quillLists.forEach(list => {
-            const newUl = document.createElement('ul');
-            Array.from(list.children).forEach(li => {
-                newUl.appendChild(li.cloneNode(true));
-            });
-            list.parentNode.replaceChild(newUl, list);
-        });
+    return pdf;
+};  
 
-        return tempDiv.innerHTML;
-    };
-
-
-    // --- ОБНОВЛЕННАЯ ЛОГИКА ГЕНЕРАЦИИ DOC ---
     const handleDownloadDoc = () => {
         try {
-            // Применяем очистку перед созданием документа
             const cleanContent = cleanHtmlForWord(reportContent);
             
             const header = `
-                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-                <head><meta charset='utf-8'><title>Document</title>
-                <style>
-                    @page WordSection1 {
-                        size: 8.5in 11.0in;
-                        margin: 1.0in 1.0in 1.0in 1.0in;
-                        mso-header-margin: .5in;
-                        mso-footer-margin: .5in;
-                    }
-                    div.WordSection1 { page: WordSection1; }
-                    p.MsoFooter { text-align: center; font-family: "Times New Roman", serif; }
-                    ul, ol { margin-left: 20px; }
-                </style>
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' 
+                      xmlns:w='urn:schemas-microsoft-com:office:word' 
+                      xmlns='http://www.w3.org/TR/REC-html40'
+                      xmlns:v='urn:schemas-microsoft-com:vml'
+                      xmlns:wx='urn:schemas-microsoft-com:office:word'>
+                <head>
+                    <meta charset='utf-8'>
+                    <title>Teaching Evaluation Report</title>
+                    <!--[if gte mso 9]><xml>
+                        <w:WordDocument>
+                            <w:View>Print</w:View>
+                            <w:DoNotOptimizeForBrowser/>
+                        </w:WordDocument>
+                    </xml><![endif]-->
+                    <style>
+                        @page WordSection1 {
+                            size: 8.5in 11.0in;
+                            margin: 1.0in 1.0in 1.0in 1.0in;
+                            mso-header-margin: 0.5in;
+                            mso-footer-margin: 0.5in;
+                            mso-footer: f1;
+                            mso-paper-source:0;
+                        }
+                        div.WordSection1 {
+                            page: WordSection1;
+                        }
+                        p.MsoFooter, li.MsoFooter, div.MsoFooter {
+                            margin: 0in;
+                            font-size: 10.0pt;
+                            font-family: "Times New Roman", serif;
+                            text-align: center;
+                        }
+                        p.MsoHeader, li.MsoHeader, div.MsoHeader {
+                            margin: 0in;
+                            font-size: 10.0pt;
+                            font-family: "Times New Roman", serif;
+                        }
+                        ul, ol {
+                            margin-left: 0.5in;
+                            margin-top: 0.1in;
+                            margin-bottom: 0.1in;
+                        }
+                        li {
+                            margin-bottom: 0.05in;
+                        }
+                        h2, h3, h4 {
+                            margin-top: 0.2in;
+                            margin-bottom: 0.1in;
+                        }
+                        p {
+                            margin: 0.05in 0in;
+                        }
+                    </style>
                 </head>
-                <body><div class="WordSection1">`;
+                <body>
+                    <div class="WordSection1">
+            `;
             
-            const footer = `
-                </div><div style='mso-element:footer' id=f1>
-                    <p class="MsoFooter">
-                        Page <span style='mso-field-code: PAGE'></span> of <span style='mso-field-code: NUMPAGES'></span>
-                    </p>
-                </div></body></html>`;
+            const footerDiv = `
+                    </div>
+                    <div style='mso-element:footer' id='f1'>
+                        <p class="MsoFooter">
+                            Page <span style='mso-field-code:"PAGE \\* MERGEFORMAT"'></span> of <span style='mso-field-code:"NUMPAGES \\* MERGEFORMAT"'></span>
+                        </p>
+                    </div>
+                </body>
+                </html>
+            `;
 
-            const fullHTML = header + cleanContent + footer;
-            const blob = new Blob(['\ufeff', fullHTML], { type: 'application/msword' });
+            const fullHTML = header + cleanContent + footerDiv;
+
+            const blob = new Blob(['\ufeff', fullHTML], { 
+                type: 'application/msword' 
+            });
+            
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = 'report.doc';
+            link.download = 'Teaching_Evaluation_Report.doc';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            
+            setTimeout(() => URL.revokeObjectURL(link.href), 100);
         } catch (error) {
             console.error("DOC generation failed:", error);
             alert(`Failed to generate Word document: ${error.message}.`);
         }
     };
 
+    // --- УЛУЧШЕННАЯ ОЧИСТКА HTML ДЛЯ WORD (без изменений) ---
+    const cleanHtmlForWord = (html) => {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+
+        // Удаляем все атрибуты стилей
+        const elements = tempDiv.getElementsByTagName('*');
+        for (let i = 0; i < elements.length; i++) {
+            elements[i].removeAttribute('style');
+            elements[i].removeAttribute('class');
+        }
+
+        // Заменяем Quill-списки на стандартные
+        const quillLists = tempDiv.querySelectorAll('[class*="ql-indent"]');
+        quillLists.forEach(list => {
+            const newList = document.createElement(list.tagName.toLowerCase());
+            Array.from(list.children).forEach(li => {
+                newList.appendChild(li.cloneNode(true));
+            });
+            list.parentNode.replaceChild(newList, list);
+        });
+
+        return tempDiv.innerHTML;
+    };
+
     const handleDownloadPDF = async () => {
         try {
             const pdf = await generatePdf();
-            pdf.save('report.pdf');
+            pdf.save('Teaching_Evaluation_Report.pdf');
         } catch (error) {
             console.error("PDF generation failed:", error);
             alert(`Failed to generate PDF: ${error.message}.`);
         }
     };
 
+    // Остальной код (AI support, save evaluation) остается без изменений
     const handleAiSupportForAllSections = async () => {
         if (!genAI) {
             alert('AI Service is not initialized. Please check your API key in .env file.');
@@ -352,8 +500,8 @@ const ViewReports = () => {
             setAiFeedbacks(newAiFeedbacks);
 
             if (generatedCount > 0) {
-                setSuccessMessage(`AI feedback generated successfully for ${generatedCount} sections!`);
-                setTimeout(() => setSuccessMessage(''), 3000);
+                // setSuccessMessage(`AI feedback generated successfully for ${generatedCount} sections!`);
+                // setTimeout(() => setSuccessMessage(''), 3000);
             } else {
                 alert('Could not generate AI feedback for any section. Check console for details.');
             }
@@ -364,6 +512,7 @@ const ViewReports = () => {
             setIsAiLoading(false);
         }
     };
+
     const handleSaveEvaluation = async () => {
         if (!location.state) {
             alert('Missing evaluation data. Please go back and try again.');
