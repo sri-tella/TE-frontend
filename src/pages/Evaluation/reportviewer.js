@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
+import { Button, Spinner } from 'react-bootstrap';
 import Header from '../../components/Header/header';
 import ReactQuill from 'react-quill';
 import 'quill/dist/quill.snow.css';
@@ -12,7 +12,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 const formatAiResponse = (text) => {
     if (!text) return '';
     const formatContent = (content) => {
-        content = content.trim(); 
+        content = content.trim();
         const lines = content.split('\n').filter(line => line.trim() !== '');
         return lines.join('<br />').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     };
@@ -24,7 +24,7 @@ const formatAiResponse = (text) => {
         let headerPart = parts[0].match(/^## (.*$)/im);
         observationsHtml = headerPart ? `<h5 style="font-weight: bold; margin-top: 5px; margin-bottom: 10px;">${headerPart[1]}</h5>` : '';
         observationsHtml += formatContent(contentPart);
-    }
+    };
     let recommendationsHtml = '';
     if (parts.length > 1 && parts[1]) {
         const recommendationsContent = formatContent(parts[1]);
@@ -41,7 +41,26 @@ const ViewReports = () => {
     const [backgroundInfo, setBackgroundInfo] = useState({ goal: '', help: '', outline: '' });
     const [structuredData, setStructuredData] = useState(null);
     const [aiFeedbacks, setAiFeedbacks] = useState({});
-    const [isAiLoading, setIsAiLoading] = useState(false);
+    
+    const [loading, setLoading] = useState({
+        ai: false,
+        save: false,
+        pdf: false,
+        doc: false,
+        aiProgress: ''
+    });
+
+    let loadingText = '';
+    if (loading.ai) loadingText = `Generating AI Feedback, please wait...`;
+    else if (loading.save) loadingText = 'Saving Report, please wait...';
+    else if (loading.pdf) loadingText = 'Generating PDF it will take 1-2 minutes, please wait...';
+    else if (loading.doc) loadingText = 'Generating Word Document 1-2 minutes, please wait...';
+
+    const isBusy = !!loadingText;
+
+    const setLoadingState = (key, value) => {
+        setLoading(prev => ({ ...prev, [key]: value }));
+    };
 
     const genAI = useMemo(() => {
         const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
@@ -117,11 +136,14 @@ const ViewReports = () => {
             groupedBySection[category].recommendations.push(rec);
         });
         setStructuredData({ sections: groupedBySection, feedbacks });
+        
         const selectedInstructor = JSON.parse(localStorage.getItem('selectedInstructor') || '{}');
         const classId = selectedInstructor?.classId;
         if (classId) {
+            // DEBUG: Логируем classId чтобы понять откуда берется ":1"
+            console.log("Fetching background info for classId:", classId); 
             fetch(`https://teachingeval.netlify.app/api/classes/${classId}`)
-                .then(res => res.ok ? res.json() : Promise.reject("Failed to fetch"))
+                .then(res => res.ok ? res.json() : Promise.reject(`Failed to fetch: ${res.status}`))
                 .then(data => setBackgroundInfo({ goal: data.goal || '', outline: data.outline || '', help: data.help || '' }))
                 .catch(err => { console.error("Error fetching background info:", err); setBackgroundInfo({ goal: 'N/A', outline: 'N/A', help: 'N/A' }); });
         }
@@ -136,13 +158,12 @@ const ViewReports = () => {
 
     const generatePdf = async () => {
     const pdf = new jsPDF('p', 'in', 'letter');
-    const pdfWidth = pdf.internal.pageSize.getWidth(); // 8.5 in
-    const pdfHeight = pdf.internal.pageSize.getHeight(); // 11 in
-    const margin = 1; // in
-    const contentWidth = pdfWidth - 2 * margin; // 6.5 in
-    const availableHeight = pdfHeight - margin - 1.5; // Увеличил буфер до 1.5 для большего отступа снизу и избежания пересечения с футером
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const margin = 1;
+    const contentWidth = pdfWidth - 2 * margin;
+    const availableHeight = pdfHeight - margin - 1.5;
 
-    // Global style (добавил margin: 0 и padding: 0 для body, чтобы избежать лишних отступов сверху)
     const style = document.createElement('style');
     style.innerHTML = `
         @media print {
@@ -174,6 +195,7 @@ const ViewReports = () => {
             margin: 8px 0 !important;
         }
     `;
+
     const parserContainer = document.createElement('div');
     parserContainer.innerHTML = reportContent;
     const children = Array.from(parserContainer.children);
@@ -194,20 +216,20 @@ const ViewReports = () => {
             position: 'absolute',
             left: '-9999px',
             top: '0',
-            width: `${contentWidth * 72}pt`, // Precision: 1in = 72pt
+            width: `${contentWidth * 72}pt`,
             backgroundColor: 'white',
             fontFamily: 'Times New Roman, serif',
             fontSize: '12pt',
             lineHeight: '1.4',
             margin: '0',
-            padding: '0' // Добавил padding: 0 для избежания лишних отступов
+            padding: '0'
         });
         tempContainer.appendChild(style.cloneNode(true));
         tempContainer.appendChild(block);
         document.body.appendChild(tempContainer);
 
         try {
-            const scale = 4; // High res for quality
+            const scale = 4;
             const canvas = await html2canvas(tempContainer, {
                 scale: scale,
                 useCORS: true,
@@ -219,11 +241,9 @@ const ViewReports = () => {
             const imgAspect = canvas.height / canvas.width;
             const imgFullHeightPdf = imgWidthPdf * imgAspect;
 
-            // Проверяем, нужно ли разбивать блок (если блок больше страницы)
             const needSplit = imgFullHeightPdf > availableHeight;
 
             if (!needSplit) {
-                // Если блок помещается на страницу целиком, проверяем пространство на текущей странице
                 let spaceOnPage = availableHeight - currentY;
                 let positionY = margin + currentY;
                 if (imgFullHeightPdf > spaceOnPage) {
@@ -235,7 +255,6 @@ const ViewReports = () => {
                 pdf.addImage(canvas.toDataURL('image/png', 1.0), 'PNG', margin, positionY, imgWidthPdf, imgFullHeightPdf);
                 currentY += imgFullHeightPdf;
             } else {
-                // Если блок слишком большой, разбиваем с клиппингом (как раньше, но с большим буфером)
                 let blockRemaining = imgFullHeightPdf;
                 let srcOffset = 0;
                 while (blockRemaining > 0) {
@@ -249,7 +268,6 @@ const ViewReports = () => {
                     const addH = Math.min(spaceOnPage, blockRemaining);
                     const srcH = (addH / imgFullHeightPdf) * canvas.height;
 
-                    // Create clipped canvas
                     const clipCanvas = document.createElement('canvas');
                     clipCanvas.width = canvas.width;
                     clipCanvas.height = srcH;
@@ -268,7 +286,6 @@ const ViewReports = () => {
         }
     }
 
-    // Add page numbers (переместил футер чуть ниже для большего буфера)
     for (let i = 1; i <= pageCount; i++) {
         pdf.setPage(i);
         pdf.setFontSize(10);
@@ -276,7 +293,7 @@ const ViewReports = () => {
         pdf.text(
             `Page ${i} of ${pageCount}`,
             pdfWidth / 2,
-            pdfHeight - 0.5, // Переместил футер ближе к底 (0.5in от низа вместо 0.75)
+            pdfHeight - 0.5,
             { align: 'center' }
         );
     }
@@ -284,7 +301,10 @@ const ViewReports = () => {
     return pdf;
 };  
 
-    const handleDownloadDoc = () => {
+    const handleDownloadDoc = async () => {
+        setLoadingState('doc', true);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
         try {
             const cleanContent = cleanHtmlForWord(reportContent);
             
@@ -297,12 +317,6 @@ const ViewReports = () => {
                 <head>
                     <meta charset='utf-8'>
                     <title>Teaching Evaluation Report</title>
-                    <!--[if gte mso 9]><xml>
-                        <w:WordDocument>
-                            <w:View>Print</w:View>
-                            <w:DoNotOptimizeForBrowser/>
-                        </w:WordDocument>
-                    </xml><![endif]-->
                     <style>
                         @page WordSection1 {
                             size: 8.5in 11.0in;
@@ -351,7 +365,7 @@ const ViewReports = () => {
                     </div>
                     <div style='mso-element:footer' id='f1'>
                         <p class="MsoFooter">
-                            Page <span style='mso-field-code:"PAGE \\* MERGEFORMAT"'></span> of <span style='mso-field-code:"NUMPAGES \\* MERGEFORMAT"'></span>
+                            Page <span style='mso-field-code:" PAGE \\* MERGEFORMAT "'>1</span> of <span style='mso-field-code:" NUMPAGES \\* MERGEFORMAT "'>1</span>
                         </p>
                     </div>
                 </body>
@@ -375,22 +389,21 @@ const ViewReports = () => {
         } catch (error) {
             console.error("DOC generation failed:", error);
             alert(`Failed to generate Word document: ${error.message}.`);
+        } finally {
+            setLoadingState('doc', false);
         }
     };
 
-    // --- УЛУЧШЕННАЯ ОЧИСТКА HTML ДЛЯ WORD (без изменений) ---
     const cleanHtmlForWord = (html) => {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = html;
 
-        // Удаляем все атрибуты стилей
         const elements = tempDiv.getElementsByTagName('*');
         for (let i = 0; i < elements.length; i++) {
             elements[i].removeAttribute('style');
             elements[i].removeAttribute('class');
         }
 
-        // Заменяем Quill-списки на стандартные
         const quillLists = tempDiv.querySelectorAll('[class*="ql-indent"]');
         quillLists.forEach(list => {
             const newList = document.createElement(list.tagName.toLowerCase());
@@ -404,26 +417,47 @@ const ViewReports = () => {
     };
 
     const handleDownloadPDF = async () => {
+        // 1. Включаем спиннер
+        setLoadingState('pdf', true);
+        
+        // Даем браузеру мгновение, чтобы отрисовать спиннер перед тяжелой работой
+        await new Promise(resolve => setTimeout(resolve, 100));
+
         try {
+            // 2. Генерируем PDF (это тяжелая операция)
             const pdf = await generatePdf();
+
+            // 3. ВЫКЛЮЧАЕМ спиннер
+            setLoadingState('pdf', false);
+
+            // 4. ВАЖНО: Делаем паузу, чтобы React успел перерисовать экран и убрать спиннер
+            // до того, как начнется блокирующая операция сохранения
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            // 5. Теперь сохраняем файл. Спиннера на экране уже нет.
             pdf.save('Teaching_Evaluation_Report.pdf');
+
         } catch (error) {
             console.error("PDF generation failed:", error);
             alert(`Failed to generate PDF: ${error.message}.`);
+            // Если ошибка, выключаем спиннер здесь
+            setLoadingState('pdf', false);
         }
     };
 
-    // Остальной код (AI support, save evaluation) остается без изменений
+    // ПОЛНОСТЬЮ ПЕРЕПИСАННАЯ ФУНКЦИЯ ДЛЯ ИСПРАВЛЕНИЯ ОШИБКИ 429
     const handleAiSupportForAllSections = async () => {
         if (!genAI) {
             alert('AI Service is not initialized. Please check your API key in .env file.');
             return;
         }
-        if (!structuredData || isAiLoading) {
+        if (!structuredData || loading.ai) {
             return;
         }
 
-        setIsAiLoading(true);
+        setLoadingState('ai', true);
+        setLoading(prev => ({ ...prev, aiProgress: '(starting...)' }));
+
         try {
             const facultySpecialistRole = `You are a faculty development specialist with two decades of experience and an expert in effective teaching strategies. You are also a faculty member yourself, with empathy and understanding for the full context, rewards, and challenges of teaching in higher education.`;
             const { sections, feedbacks } = structuredData;
@@ -437,13 +471,23 @@ const ViewReports = () => {
                 sectionTitles.push('Additional Feedback');
             }
 
-            if (sectionTitles.length === 0) {
+            const totalSections = sectionTitles.length;
+            if (totalSections === 0) {
                 alert('No sections with data found to generate AI feedback.');
-                setIsAiLoading(false);
+                setLoadingState('ai', false);
                 return;
             }
 
-            const promises = sectionTitles.map(async (sectionTitle) => {
+            const newAiFeedbacks = { ...aiFeedbacks };
+            let generatedCount = 0;
+
+            // ИСПОЛЬЗУЕМ ЦИКЛ FOR...OF ДЛЯ ПОСЛЕДОВАТЕЛЬНЫХ ЗАПРОСОВ (ЧТОБЫ ИЗБЕЖАТЬ 429 ERROR)
+            for (let i = 0; i < totalSections; i++) {
+                const sectionTitle = sectionTitles[i];
+                
+                // Обновляем текст прогресса
+                setLoading(prev => ({ ...prev, aiProgress: `(${i + 1}/${totalSections})` }));
+
                 let promptContent = '';
                 if (sectionTitle === 'Additional Feedback') {
                     promptContent = feedbacks['Additional Feedback'] || '';
@@ -462,54 +506,48 @@ const ViewReports = () => {
                     if (recommendationsText.trim()) {
                         promptContent += `Recommendations: ${recommendationsText}\n`;
                     }
-                    
                     if (feedbacks && feedbacks[sectionTitle]) {
                         promptContent += `\nInstructor's own feedback for this section: ${feedbacks[sectionTitle]}`;
                     }
                 }
 
                 if (!promptContent.trim()) {
-                    return { sectionTitle, content: null };
+                    continue;
                 }
 
                 const userPrompt = `Convert these notes to full prose, with complete sentences and paragraphs. Keep observations (what was observed) separate from recommendations (what to suggest for improvement). Provide rationale for recommendations. Use markdown for formatting, specifically "##" for headings and "**" for bold text.
                     Here are the notes for the section "${sectionTitle}":
                     ${promptContent}`;
+
                 try {
                     const result = await model.generateContent(userPrompt);
                     const rawText = result.response.text();
-                    const formattedContent = formatAiResponse(rawText);
-                    return { sectionTitle, content: formattedContent || null };
+                    newAiFeedbacks[sectionTitle] = formatAiResponse(rawText);
+                    generatedCount++;
+                    
+                    // Добавляем паузу в 1 секунду между запросами, чтобы не превышать лимиты
+                    if (i < totalSections - 1) {
+                         await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+
                 } catch (error) {
                     console.error(`Error generating content for ${sectionTitle}:`, error);
-                    return { sectionTitle, content: null, error };
+                    // Можно добавить уведомление об ошибке для конкретной секции, если нужно
                 }
-            });
-
-            const results = await Promise.all(promises);
-            const newAiFeedbacks = { ...aiFeedbacks };
-            let generatedCount = 0;
-
-            results.forEach(result => {
-                if (result && result.content) {
-                    newAiFeedbacks[result.sectionTitle] = result.content;
-                    generatedCount++;
-                }
-            });
+            }
 
             setAiFeedbacks(newAiFeedbacks);
 
-            if (generatedCount > 0) {
-                // setSuccessMessage(`AI feedback generated successfully for ${generatedCount} sections!`);
-                // setTimeout(() => setSuccessMessage(''), 3000);
-            } else {
+            if (generatedCount === 0) {
                 alert('Could not generate AI feedback for any section. Check console for details.');
             }
+
         } catch (error) {
             console.error('Detailed error in AI support handler:', error);
             alert(`Failed to get AI assistance: ${error.message}`);
         } finally {
-            setIsAiLoading(false);
+            setLoadingState('ai', false);
+            setLoading(prev => ({ ...prev, aiProgress: '' }));
         }
     };
 
@@ -518,6 +556,7 @@ const ViewReports = () => {
             alert('Missing evaluation data. Please go back and try again.');
             return;
         }
+        setLoadingState('save', true);
 
         try {
             const currentDate = new Date().toISOString().split('T')[0];
@@ -604,6 +643,8 @@ const ViewReports = () => {
             console.error('Error saving evaluation or PDF:', error);
             setSuccessMessage(`Failed to save the report: ${error.message}`);
             setTimeout(() => setSuccessMessage(''), 5000);
+        } finally {
+             setLoadingState('save', false);
         }
     };
 
@@ -623,17 +664,73 @@ const ViewReports = () => {
                     />
                 </div>
 
-                <div className="mt-3">
-                    <Button onClick={() => navigate('/SelectedRecommendations')} className="button-custom mr-2">Go Back</Button>
-                    <Button onClick={handleAiSupportForAllSections} className="button-custom mr-2 mb-2" disabled={isAiLoading || !genAI || Object.keys(aiFeedbacks).length > 0}>
-                        {isAiLoading ? 'Generating...' : Object.keys(aiFeedbacks).length > 0 ? 'AI Feedback Generated' : 'Generate AI Feedback'}
+                <div className="mt-3 d-flex flex-wrap">
+                    <Button onClick={() => navigate('/SelectedRecommendations')} className="button-custom mr-2 mb-2" variant="secondary">Go Back</Button>
+                    
+                    <Button 
+                        onClick={handleAiSupportForAllSections} 
+                        className="button-custom mr-2 mb-2" 
+                        variant="secondary" 
+                        disabled={loading.ai || !genAI}
+                    >
+                       {loading.ai 
+                            ? 'Generating...' 
+                            : Object.keys(aiFeedbacks).length > 0 
+                                ? 'Regenerate AI Feedback' 
+                                : 'Generate AI Feedback'}
                     </Button>
-                    <Button onClick={handleSaveEvaluation} className="button-custom mr-2">Save Report</Button>
-                    <Button onClick={handleDownloadPDF} className="button-custom mr-2">Download PDF</Button>
-                    <Button onClick={handleDownloadDoc} className="button-custom mr-2">Download Word Doc</Button>
-                    {successMessage && (<div className={`mt-2 ${successMessage.includes('Failed') ? 'text-danger' : 'text-success'}`}>{successMessage}</div>)}
+
+                    <Button 
+                        onClick={handleSaveEvaluation} 
+                        className="button-custom mr-2 mb-2" 
+                        variant="secondary" 
+                        disabled={loading.save}
+                    >
+                         {loading.save ? 'Saving...' : 'Save Report'}
+                    </Button>
+
+                    <Button 
+                        onClick={handleDownloadPDF} 
+                        className="button-custom mr-2 mb-2" 
+                        variant="secondary" 
+                        disabled={loading.pdf}
+                    >
+                         {loading.pdf ? 'Generating PDF...' : 'Download PDF'}
+                    </Button>
+
+                    <Button 
+                        onClick={handleDownloadDoc} 
+                        className="button-custom mr-2 mb-2" 
+                        variant="secondary" 
+                        disabled={loading.doc}
+                    >
+                        {loading.doc ? 'Generating Doc...' : 'Download Word Doc'}
+                    </Button>
                 </div>
+                {successMessage && (<div className={`mt-2 ${successMessage.includes('Failed') ? 'text-danger' : 'text-success'}`}>{successMessage}</div>)}
             </div>
+
+            {isBusy && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 9999,
+                    color: 'white'
+                }}>
+                    <Spinner animation="border" role="status" style={{ width: '3rem', height: '3rem' }}>
+                        <span className="visually-hidden"></span>
+                    </Spinner>
+                    <h5 className="mt-3" style={{color: 'white'}}>{loadingText}</h5>
+                </div>
+            )}
         </>
     );
 };
