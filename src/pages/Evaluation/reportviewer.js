@@ -140,7 +140,6 @@ const ViewReports = () => {
         const selectedInstructor = JSON.parse(localStorage.getItem('selectedInstructor') || '{}');
         const classId = selectedInstructor?.classId;
         if (classId) {
-            // DEBUG: Логируем classId чтобы понять откуда берется ":1"
             console.log("Fetching background info for classId:", classId); 
             fetch(`https://teachingeval.netlify.app/api/classes/${classId}`)
                 .then(res => res.ok ? res.json() : Promise.reject(`Failed to fetch: ${res.status}`))
@@ -417,35 +416,25 @@ const ViewReports = () => {
     };
 
     const handleDownloadPDF = async () => {
-        // 1. Включаем спиннер
         setLoadingState('pdf', true);
         
-        // Даем браузеру мгновение, чтобы отрисовать спиннер перед тяжелой работой
         await new Promise(resolve => setTimeout(resolve, 100));
 
         try {
-            // 2. Генерируем PDF (это тяжелая операция)
             const pdf = await generatePdf();
 
-            // 3. ВЫКЛЮЧАЕМ спиннер
             setLoadingState('pdf', false);
-
-            // 4. ВАЖНО: Делаем паузу, чтобы React успел перерисовать экран и убрать спиннер
-            // до того, как начнется блокирующая операция сохранения
             await new Promise(resolve => setTimeout(resolve, 100));
 
-            // 5. Теперь сохраняем файл. Спиннера на экране уже нет.
             pdf.save('Teaching_Evaluation_Report.pdf');
 
         } catch (error) {
             console.error("PDF generation failed:", error);
             alert(`Failed to generate PDF: ${error.message}.`);
-            // Если ошибка, выключаем спиннер здесь
             setLoadingState('pdf', false);
         }
     };
 
-    // ПОЛНОСТЬЮ ПЕРЕПИСАННАЯ ФУНКЦИЯ ДЛЯ ИСПРАВЛЕНИЯ ОШИБКИ 429
     const handleAiSupportForAllSections = async () => {
         if (!genAI) {
             alert('AI Service is not initialized. Please check your API key in .env file.');
@@ -481,11 +470,9 @@ const ViewReports = () => {
             const newAiFeedbacks = { ...aiFeedbacks };
             let generatedCount = 0;
 
-            // ИСПОЛЬЗУЕМ ЦИКЛ FOR...OF ДЛЯ ПОСЛЕДОВАТЕЛЬНЫХ ЗАПРОСОВ (ЧТОБЫ ИЗБЕЖАТЬ 429 ERROR)
             for (let i = 0; i < totalSections; i++) {
                 const sectionTitle = sectionTitles[i];
                 
-                // Обновляем текст прогресса
                 setLoading(prev => ({ ...prev, aiProgress: `(${i + 1}/${totalSections})` }));
 
                 let promptContent = '';
