@@ -228,7 +228,7 @@ const ViewReports = () => {
         document.body.appendChild(tempContainer);
 
         try {
-            const scale = 4;
+            const scale = 2;
             const canvas = await html2canvas(tempContainer, {
                 scale: scale,
                 useCORS: true,
@@ -251,7 +251,7 @@ const ViewReports = () => {
                     currentY = 0;
                     positionY = margin + currentY;
                 }
-                pdf.addImage(canvas.toDataURL('image/png', 1.0), 'PNG', margin, positionY, imgWidthPdf, imgFullHeightPdf);
+                pdf.addImage(canvas.toDataURL('image/jpeg', 0.8), 'jpeg', margin, positionY, imgWidthPdf, imgFullHeightPdf);
                 currentY += imgFullHeightPdf;
             } else {
                 let blockRemaining = imgFullHeightPdf;
