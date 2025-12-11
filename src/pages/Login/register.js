@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './auth.css';
+import { API_BASE_URL } from '../../constants';
 
 const Signup = () => {
   const [firstname, setFirstName] = useState('');
@@ -23,7 +24,7 @@ const Signup = () => {
       return;
     }
 
-    fetch('https://te-backend-production.up.railway.app/api/auth/signup', {
+    fetch(`${API_BASE_URL}/api/auth/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

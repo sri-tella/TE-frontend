@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './intro.css';
 import Header from '../../components/Header/header';
 import axios from 'axios';
+import { API_BASE_URL } from '../../constants';
 
 const CombinedForm = () => {
   const navigate = useNavigate();
@@ -55,7 +56,7 @@ const CombinedForm = () => {
 
     try {
           console.log(formData);
-          await axios.post('https://te-backend-production.up.railway.app/api/form/instructor', formData);
+          await axios.post(`${API_BASE_URL}/api/form/instructor`, formData);
 //          alert("Instructor information saved successfully!");
           localStorage.setItem('instructorFormSubmitted', 'true');
           navigate('/inshome');

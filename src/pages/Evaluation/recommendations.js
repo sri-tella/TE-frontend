@@ -13,8 +13,6 @@ const SelectedRecommendations = () => {
 
   const normalizeTitle = (title) => title.replace(/^\d+\.\s*/, '');
 
-  // --- ИЗМЕНЕНИЕ: Вся логика инициализации перенесена сюда ---
-  // Это гарантирует, что состояние будет полным до первого рендера.
   const [responses, setResponses] = useState(() => {
     const { selectedOptions = [] } = location.state || {};
     const storedResponses = JSON.parse(localStorage.getItem('selectedRecommendations') || '[]');
@@ -68,7 +66,6 @@ const SelectedRecommendations = () => {
   const classId = instructorInfo?.classId;
   const evaluationId = parseInt(localStorage.getItem('evaluationId'), 10);
 
-  // --- ИЗМЕНЕНИЕ: Старый useEffect для установки responses удален ---
 
   const handleFeedbackChange = (sectionIndex, optionIndex, value) => {
     const updatedResponses = [...responses];
@@ -157,7 +154,6 @@ const SelectedRecommendations = () => {
                 (option.observedDescription || '').toLowerCase().includes(searchQuery.toLowerCase())
               );
               
-              // Исправленная логика фильтрации из предыдущего шага
               if (filteredOptions.length === 0) {
                 return null;
               }

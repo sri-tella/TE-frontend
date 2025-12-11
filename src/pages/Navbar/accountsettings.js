@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../../components/Header/header';
 import './adminsettings.css';
+import { API_BASE_URL } from '../../constants';
 
 const AccountManagement = () => {
   const [admins, setAdmins] = useState([]);
@@ -11,13 +12,13 @@ const AccountManagement = () => {
 
   useEffect(() => {
   // Fetching the current admins from backend
-    fetch('https://te-backend-production.up.railway.app/api/admins')
+    fetch(`${API_BASE_URL}/api/admins`)
       .then(res => res.json())
       .then(data => setAdmins(data))
       .catch(err => console.error('Error fetching admins:', err));
 
   // Fetching the current roleRequests from backend
-    fetch('https://te-backend-production.up.railway.app/api/admins/roleRequests')
+    fetch(`${API_BASE_URL}/api/admins/roleRequests`)
        .then(res => res.json())
        .then(data => setRoleRequests(data))
        .catch(err => console.error('Error fetching roleRequests:', err))
@@ -30,7 +31,7 @@ const AccountManagement = () => {
       return;
      }
 
-    fetch('https://te-backend-production.up.railway.app/api/admins', {
+    fetch(`${API_BASE_URL}/api/admins`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ firstName: newAdminFirstName.trim(), lastName: newAdminLastName.trim(), email: newAdminEmail.trim() }),
@@ -38,7 +39,7 @@ const AccountManagement = () => {
       .then(res => res.text())
       .then(data => {
         alert('Admin added successfully');
-        return fetch('https://te-backend-production.up.railway.app/api/admins');
+        return fetch(`${API_BASE_URL}/api/admins`);
       })
       .then(res => res.json())
           .then(data => {
@@ -55,12 +56,12 @@ const AccountManagement = () => {
     const confirmDelete = window.confirm('Are you sure you want to delete this admin?');
     if (!confirmDelete) return;
 
-    fetch(`https://te-backend-production.up.railway.app/api/admins/${id}`, {
+    fetch(`${API_BASE_URL}/api/admins/${id}`, {
       method: 'DELETE'
     })
       .then(() => {
         alert('Admin deleted successfully');
-        return fetch('https://te-backend-production.up.railway.app/api/admins');
+        return fetch(`${API_BASE_URL}/api/admins`);
       })
       .then(res => res.json())
       .then(data => setAdmins(data))
@@ -68,7 +69,7 @@ const AccountManagement = () => {
   };
 
   const handleApproveRequest = (requestId) => {
-    fetch(`https://te-backend-production.up.railway.app/api/admins/roleRequests/${requestId}/approve`, {
+    fetch(`${API_BASE_URL}/api/admins/roleRequests/${requestId}/approve`, {
       method: 'POST'
     })
       .then(() => {
