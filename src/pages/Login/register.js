@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './auth.css';
 import { API_BASE_URL } from '../../constants';
 
@@ -10,19 +10,29 @@ const Signup = () => {
   const [confirmEmail, setConfirmEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState(''); // Default role
+  const [role, setRole] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSignup = (e) => {
     e.preventDefault();
+    setError('');
+
     if (email !== confirmEmail) {
-      alert('Emails do not match');
+      setError('Emails do not match');
       return;
     }
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      setError('Passwords do not match');
       return;
     }
+    if (!role) {
+      setError('Please select a role');
+      return;
+    }
+
+    setIsLoading(true);
 
     fetch(`${API_BASE_URL}/api/auth/signup`, {
       method: 'POST',
@@ -36,82 +46,144 @@ const Signup = () => {
       }),
     })
       .then(response => {
-        if (!response.ok) {
-          throw new Error('Signup failed');
-        }
+        if (!response.ok) throw new Error('Signup failed');
         return response.json();
       })
       .then(data => {
         if (data.id) {
-          navigate('/');
+          navigate('/'); // Redirect to login
         } else {
-          alert('Signup failed');
+          setError('Signup failed. Please try again.');
         }
       })
       .catch(error => {
         console.error('Error during signup:', error);
-        alert('Signup failed: ' + error.message);
+        setError('Signup failed: ' + error.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
   return (
     <div className="auth-container">
-      <div className="auth-box">
-        <h2 className="auth-heading">Sign Up</h2>
+      <div className="auth-card signup-card">
+        <h2 className="auth-heading">Create Account</h2>
+        <p className="auth-subtext">Join us today!</p>
+        
+        {error && <div className="auth-error-message">{error}</div>}
+
         <form className="auth-form" onSubmit={handleSignup}>
-          <input
-            type="text"
-            placeholder="Firstname"
-            className="auth-input"
-            value={firstname}
-            onChange={(e) => setFirstName(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Lastname"
-            className="auth-input"
-            value={lastname}
-            onChange={(e) => setLastName(e.target.value)}
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            className="auth-input"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            type="email"
-            placeholder="Confirm Email"
-            className="auth-input"
-            value={confirmEmail}
-            onChange={(e) => setConfirmEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="auth-input"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            className="auth-input"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-          <select 
-            className="auth-input"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
+          
+          {/* Row for First Name and Last Name */}
+          <div className="form-row">
+            <div className="input-group half-width">
+              <label>First Name</label>
+              <input
+                type="text"
+                placeholder="First Name"
+                className="auth-input"
+                value={firstname}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="input-group half-width">
+              <label>Last Name</label>
+              <input
+                type="text"
+                placeholder="Last Name"
+                className="auth-input"
+                value={lastname}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="input-group">
+            <label>Email Address</label>
+            <input
+              type="email"
+              placeholder="example@email.com"
+              className="auth-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Confirm Email</label>
+            <input
+              type="email"
+              placeholder="Confirm your email"
+              className="auth-input"
+              value={confirmEmail}
+              onChange={(e) => setConfirmEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-row">
+            <div className="input-group half-width">
+              <label>Password</label>
+              <input
+                type="password"
+                placeholder="Password"
+                className="auth-input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <div className="input-group half-width">
+              <label>Confirm</label>
+              <input
+                type="password"
+                placeholder="Confirm"
+                className="auth-input"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="input-group">
+            <label>Select Role</label>
+            <select 
+              className="auth-input"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              required
+            >
+              <option value="" disabled>Choose a role...</option>
+              <option value="OBSERVER">Observer</option>
+              <option value="INSTRUCTOR">Instructor</option>
+            </select>
+          </div>
+
+          <button 
+            type="submit" 
+            className="btn auth-button w-100 text-center" 
+            disabled={isLoading}
           >
-            <option value="" disabled>Select role</option>
-            <option value="OBSERVER">Observer</option>
-            <option value="INSTRUCTOR">Instructor</option>
-          </select>
-          <button type="submit" className="auth-button">Sign Up</button>
+            {isLoading ? (
+               <>
+                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                CREATING ACCOUNT...
+               </>
+            ) : (
+              'SIGN UP'
+            )}
+          </button>
         </form>
+        
+        <div className="auth-footer">
+          <span className="auth-text">Already have an account? </span>
+          <Link to="/" className="auth-link">Sign In</Link>
+        </div>
       </div>
     </div>
   );
