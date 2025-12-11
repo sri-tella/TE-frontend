@@ -6,6 +6,7 @@ import Header from '../../components/Header/header';
 import TextArea from '../../components/Textarea/textarea';
 import recommendationsMapping from './recommendationsMapping';
 import './mainform.css';
+import { API_BASE_URL } from '../../constants';
 
 const ReviewRecommendations = () => {
   const [selectedRecommendations, setSelectedRecommendations] = useState([]);
@@ -14,7 +15,7 @@ const ReviewRecommendations = () => {
 
   useEffect(() => {
     // Fetch selected recommendations from the backend
-    fetch('https://te-backend-production.up.railway.app/api/options')
+    fetch(`${API_BASE_URL}/api/options`)
     // fetch('http://localhost:8080/api/options')
       .then(response => response.json())
       .then(data => {

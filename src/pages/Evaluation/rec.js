@@ -185,6 +185,7 @@
  import { useNavigate } from 'react-router-dom';
  import { Accordion, Card, Button } from 'react-bootstrap';
  import './mainform.css';
+ import { API_BASE_URL } from '../../constants';
 
  const Recommendations = ({ sections }) => {
    const [recommendations, setRecommendations] = useState([]);
@@ -192,7 +193,7 @@
 
    useEffect(() => {
      // Fetch recommendations from the backend
-     fetch('https://te-backend-production.up.railway.app/api/options')
+     fetch(`${API_BASE_URL}/api/options`)
        .then(response => response.json())
        .then(data => {
          console.log('Fetched recommendations:', data);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../components/Header/header';
 import './adminsettings.css';
+import { API_BASE_URL } from '../../constants';
 
 const ProfilePage = () => {
   // Auto-populate user details from localStorage
@@ -33,7 +34,7 @@ const ProfilePage = () => {
 
     const userEmail = localStorage.getItem('email');
 
-    fetch('https://te-backend-production.up.railway.app/api/auth/change-password', {
+    fetch(`${API_BASE_URL}/api/auth/change-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -55,7 +56,7 @@ const ProfilePage = () => {
 
       const role = localStorage.getItem('role');
       function handleRequestDualRole() {
-        fetch('https://te-backend-production.up.railway.app/api/admins/roleRequests', {
+        fetch(`${API_BASE_URL}/api/admins/roleRequests`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

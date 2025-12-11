@@ -89,11 +89,9 @@ const MainForm = ({ sections, saveSection }) => {
   const handleSave = () => {
     const evaluationId = localStorage.getItem('evaluationId');
     
-    // ✅ Проверяем оба возможных ключа для observerId
     const observerId = localStorage.getItem('observerId') || localStorage.getItem('userId');
     const instructorInfoRaw = localStorage.getItem('selectedInstructor');
     
-    // Детальное логирование
     console.log('=== Data Check in MainForm ===');
     console.log('localStorage observerId:', localStorage.getItem('observerId'));
     console.log('localStorage userId:', localStorage.getItem('userId'));
@@ -102,7 +100,6 @@ const MainForm = ({ sections, saveSection }) => {
     console.log('instructorInfoRaw:', instructorInfoRaw);
     console.log('==============================');
     
-    // Проверяем наличие критичных данных
     const missingFields = [];
     
     if (!evaluationId) missingFields.push('Evaluation ID');
@@ -111,7 +108,7 @@ const MainForm = ({ sections, saveSection }) => {
     
     if (missingFields.length > 0) {
       console.error('❌ Missing required fields:', missingFields);
-      alert(`Отсутствуют необходимые данные:\n${missingFields.join('\n')}\n\nПожалуйста, начните процесс заново.`);
+      alert(`The necessary data is missing:\n${missingFields.join('\n')}\n\nPlease start the process again.`);
       return;
     }
 
@@ -120,7 +117,7 @@ const MainForm = ({ sections, saveSection }) => {
       instructorInfo = JSON.parse(instructorInfoRaw);
     } catch (e) {
       console.error('Error parsing instructor info:', e);
-      alert('Ошибка при обработке данных инструктора. Пожалуйста, начните заново.');
+      alert('An error occurred while processing the instructors data. Please start again.');
       return;
     }
 

@@ -8,6 +8,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import './mainform.css';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { API_BASE_URL } from '../../constants';
 
 const formatAiResponse = (text) => {
     if (!text) return '';
@@ -141,7 +142,7 @@ const ViewReports = () => {
         const classId = selectedInstructor?.classId;
         if (classId) {
             console.log("Fetching background info for classId:", classId); 
-            fetch(`https://teachingeval.netlify.app/api/classes/${classId}`)
+            fetch(`${API_BASE_URL}/api/classes/${classId}`)
                 .then(res => res.ok ? res.json() : Promise.reject(`Failed to fetch: ${res.status}`))
                 .then(data => setBackgroundInfo({ goal: data.goal || '', outline: data.outline || '', help: data.help || '' }))
                 .catch(err => { console.error("Error fetching background info:", err); setBackgroundInfo({ goal: 'N/A', outline: 'N/A', help: 'N/A' }); });
@@ -512,14 +513,12 @@ const ViewReports = () => {
                     newAiFeedbacks[sectionTitle] = formatAiResponse(rawText);
                     generatedCount++;
                     
-                    // Добавляем паузу в 1 секунду между запросами, чтобы не превышать лимиты
                     if (i < totalSections - 1) {
                          await new Promise(resolve => setTimeout(resolve, 1000));
                     }
 
                 } catch (error) {
                     console.error(`Error generating content for ${sectionTitle}:`, error);
-                    // Можно добавить уведомление об ошибке для конкретной секции, если нужно
                 }
             }
 
@@ -566,7 +565,7 @@ const ViewReports = () => {
                 }))
             };
 
-            const response = await fetch(`https://teachingeval.netlify.app/api/evaluations/save`, {
+            const response = await fetch(`${API_BASE_URL}/api/evaluations/save`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -608,7 +607,7 @@ const ViewReports = () => {
             formData.append('file', pdfBlob, 'report.pdf');
             formData.append('evaluationId', evaluationId || '1');
 
-            const pdfResponse = await fetch(`https://teachingeval.netlify.app/api/reports/save-pdf`, {
+            const pdfResponse = await fetch(`${API_BASE_URL}/api/reports/save-pdf`, {
                 method: 'POST',
                 body: formData,
             });
