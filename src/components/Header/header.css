@@ -1,145 +1,192 @@
-.navbar {
-    background-color: #2d4c41;
+/* Основной фон хедера */
+.custom-navbar {
+  background-color: #154734; /* Baylor Green */
+  padding: 10px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: 'Inter', sans-serif;
+  min-height: 80px;
 }
-.nav-link-icon {
-  font-size: 1.5rem;
+
+/* Контейнер логотипа */
+.brand-logo-container {
   display: flex;
   align-items: center;
-  color: rgba(255, 255, 255, .5);
+  background-color: white; 
+  padding: 5px 15px;
+  border-radius: 6px;
+  margin-right: 10px;
 }
 
-.nav-link-icon svg {
-  margin-right: 0.5rem;
+.logo-img {
+  height: 45px;
+  width: auto;
+  object-fit: contain;
 }
 
-.nav-logout-button {
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    color: #ccc;
-    background: transparent;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    outline: none;
-    text-decoration: none;
-    }
-
-.nav-logout-button:hover {
-    color: white;
+/* ЛЕВОЕ МЕНЮ (Home, Reports...) */
+.nav-left {
+  display: flex;
+  gap: 25px; /* Расстояние между ссылками Home, Reports и т.д. */
+  align-items: center;
 }
 
+.nav-item-link {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 1.05rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+  padding: 5px 0;
+}
+
+.nav-item-link:hover {
+  color: #FFB81C !important; /* Baylor Gold */
+}
+
+.nav-icon {
+  margin-right: 8px;
+}
+
+/* ПРАВОЕ МЕНЮ (User, Logout...) */
+.nav-right {
+  display: flex;
+  gap: 20px; /* Расстояние между элементами справа */
+  align-items: center;
+}
+
+.welcome-text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  margin-right: 10px;
+}
+
+.welcome-text strong {
+  color: #FFB81C;
+  font-weight: 600;
+}
+
+.profile-link {
+  margin-right: 10px;
+}
+
+/* Кнопка Logout */
+.logout-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  padding: 8px 18px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: #FFB81C;
+  color: #FFB81C;
+}
+
+/* Уведомления */
 .notification-wrapper {
   position: relative;
-  margin-right: 15px;
-  cursor: pointer;
-}
-
-.notification-container {
-  position: relative;
-}
-
-.notification-container:hover {
-  color:white;
-}
-
-.notification-count {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  background: red;
-  color: white;
-  font-size: 0.8rem;
-  padding: 2px 6px;
-  border-radius: 50%;
-  font-weight: bold;
-  min-width: 18px;
-  min-height: 18px;
   display: flex;
-  justify-content: center;
   align-items: center;
 }
 
+.nav-icon-btn {
+  color: white;
+  cursor: pointer;
+  position: relative;
+  padding: 5px;
+  transition: transform 0.2s;
+}
+
+.nav-icon-btn:hover {
+  transform: scale(1.1);
+  color: #FFB81C;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background-color: #e53e3e;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+  border: 2px solid #154734;
+}
+
+/* Выпадающее меню */
 .notification-dropdown {
   position: absolute;
-  top: 60px;
-  right: 0;
-  width: 300px;
+  top: 50px;
+  right: -60px; /* Сдвигаем немного влево, чтобы не уходило за экран */
+  width: 320px;
   background: white;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  z-index: 3000;
-  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  z-index: 9999;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.dropdown-header {
+  background-color: #f8f9fa;
+  padding: 12px 15px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #154734;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .notification-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 12px 10px;
-  border-bottom: 1px solid #f1f1f1;
-  background: #fafafa;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: background 0.2s ease-in-out;
+  align-items: flex-start;
+  padding: 12px 15px;
+  border-bottom: 1px solid #f3f4f6;
+  background-color: white;
 }
 
 .notification-item:hover {
-  background: #f0f0f0;
+  background-color: #f9fafb;
 }
 
-.notification-item.unread {
-  background: #e9f5ff;
-  font-weight: bold;
-}
-
-.notification-item span {
+.notif-message {
+  font-size: 0.9rem;
+  color: #4b5563;
+  line-height: 1.4;
   flex: 1;
-  padding-right: 10px;
-  color: #333;
 }
 
-p {
-  color: black;
-}
-
-.notification-item:last-child {
-  border-bottom: none;
-}
-
-.delete-notification {
-  background: #ff4d4d;
-  text-align: center;
-  color: white;
+.btn-close-notif {
+  background: none;
   border: none;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  font-size: 0.85rem;
-  font-weight: bold;
+  color: #9ca3af;
+  font-size: 1.2rem;
+  line-height: 1;
   cursor: pointer;
-  transition: background 0.2s ease-in-out;
+  padding: 0 0 0 10px;
+  margin-left: 10px;
 }
 
-.delete-notification:hover {
-  background: #e60000;
+.btn-close-notif:hover {
+  color: #ef4444;
 }
 
-
-.nav-logout-button svg {
-    margin-right: 0.5rem;
-}
-
-.mr-3 {
-    font-size: 1.5rem;
-    display: flex;
-    align-items: center;
-    color: #ccc;
-    margin-right: 1rem;
-    text-decoration: none;
-}
-
-.mr-3 strong {
-    margin-left: 0.5rem;
+.no-notifications {
+  padding: 20px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.9rem;
 }
