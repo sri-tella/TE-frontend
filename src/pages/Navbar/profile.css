@@ -1,0 +1,152 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+}
+
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: calc(100vh - 80px); /* Учет высоты хедера */
+  padding: 40px 20px;
+  background: linear-gradient(rgba(21, 71, 52, 0.5), rgba(21, 71, 52, 0.3)), url('../../images/bgimg.avif');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.profile-wrapper {
+  display: flex;
+  gap: 30px;
+  width: 100%;
+  max-width: 1000px;
+  flex-wrap: wrap; /* Чтобы переносилось на моб */
+  justify-content: center;
+}
+
+.profile-card {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  flex: 1;
+  min-width: 320px; /* Минимальная ширина карточки */
+  max-width: 450px;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-heading {
+  font-size: 1.5rem;
+  color: #154734;
+  margin: 0 0 25px 0;
+  font-weight: 700;
+  text-align: center;
+  border-bottom: 2px solid #f0f2f5;
+  padding-bottom: 15px;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.input-group {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.85rem;
+  color: #374151;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.profile-input {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 0.95rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: #fff;
+}
+
+.profile-input:focus {
+  outline: none;
+  border-color: #154734;
+  box-shadow: 0 0 0 3px rgba(21, 71, 52, 0.1);
+}
+
+/* Стиль для полей, которые нельзя менять */
+.profile-input.read-only {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border-color: #e5e7eb;
+  cursor: not-allowed;
+}
+
+.profile-button {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background-color: #FFB81C;
+  color: #154734;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  margin-top: auto; /* Прижимает кнопку к низу */
+}
+
+.profile-button:hover:not(:disabled) {
+  background-color: #e6a300;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.profile-button:disabled {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Секция запроса роли */
+.role-request-section {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.role-text {
+  font-size: 0.9rem;
+  color: #4b5563;
+  margin-bottom: 10px;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 2px solid #154734;
+  color: #154734;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.btn-secondary:hover {
+  background-color: #154734;
+  color: #fff;
+}
