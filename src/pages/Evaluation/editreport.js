@@ -7,6 +7,7 @@ import 'react-quill/dist/quill.snow.css';
 import './mainform.css';
 import axios from 'axios';
 import * as pdfjsLib from 'pdfjs-dist/webpack';
+import { API_BASE_URL } from '../../constants';
 
 const EditReport = () => {
   const location = useLocation();
@@ -21,7 +22,7 @@ const EditReport = () => {
       setReportId(reportId);
 
       // Fetch the PDF content by reportId from the backend
-      axios.get(`https://te-backend-production.up.railway.app/api/reports/${reportId}/pdf`, {
+      axios.get(`${API_BASE_URL}/api/reports/${reportId}/pdf`, {
         responseType: 'arraybuffer'
       })
       .then(response => {
@@ -58,7 +59,7 @@ const EditReport = () => {
   // Function to handle saving the updated report content
   const handleSaveEvaluation = async () => {
     try {
-      const response = await axios.put(`https://te-backend-production.up.railway.app/api/reports/${reportId}/update`, {
+      const response = await axios.put(`${API_BASE_URL}/api/reports/${reportId}/update`, {
         reportContent
       });
 

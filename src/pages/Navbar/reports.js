@@ -4,6 +4,7 @@ import { Table, Button } from 'react-bootstrap';
 import Header from '../../components/Header/header';
 import { useNavigate } from 'react-router-dom';
 import './reports.css';
+import { API_BASE_URL } from '../../constants';
 
 const Reports = () => {
   const [reports, setReports] = useState([]);
@@ -24,7 +25,7 @@ const Reports = () => {
 
   useEffect(() => {
     // Fetch all reports from API on component mount
-    axios.get('https://te-backend-production.up.railway.app/api/reports')
+    axios.get(`${API_BASE_URL}/api/reports`)
       .then(response => {
         setReports(response.data);
       })
@@ -36,7 +37,7 @@ const Reports = () => {
 
   const handleDownloadPDF = async (reportId) => {
     try {
-      const response = await axios.get(`https://te-backend-production.up.railway.app/api/reports/${reportId}/pdf`, { responseType: 'blob' });
+      const response = await axios.get(`${API_BASE_URL}/api/reports/${reportId}/pdf`, { responseType: 'blob' });
       const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
       const pdfUrl = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');

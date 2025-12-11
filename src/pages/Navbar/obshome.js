@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/header';
 import '../Navbar/home.css';
 import axios from 'axios';
+import { API_BASE_URL } from '../../constants';
 
 const ObsHome = () => {
   const [classInfoList, setClassInfoList] = useState([]);
@@ -10,7 +11,7 @@ const ObsHome = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get("https://te-backend-production.up.railway.app/api/classes/with-instructors")
+    axios.get(`${API_BASE_URL}/api/classes/with-instructors`)
       .then(response => {
         console.log("Fetched class info with instructors:", response.data);
         setClassInfoList(response.data);
@@ -44,7 +45,7 @@ const ObsHome = () => {
 
     try {
       // Fetch observerId using the email
-      const observerRes = await axios.get(`https://te-backend-production.up.railway.app/api/observers/email/${observerEmail}`);
+      const observerRes = await axios.get(`${API_BASE_URL}/api/observers/email/${observerEmail}`);
       const observerId = observerRes.data.observer_id;
 
       // Create Evaluation
@@ -56,7 +57,7 @@ const ObsHome = () => {
         date: startDate
       };
 
-      const response = await axios.post("https://te-backend-production.up.railway.app/api/evaluations/start", evaluationPayload);
+      const response = await axios.post(`${API_BASE_URL}/api/evaluations/start`, evaluationPayload);
       const evaluationId = response.data.evaluation_id;
 
       // Store evaluationId in localStorage for use throughout the session
