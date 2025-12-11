@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/header';
-import '../Navbar/home.css';
+import './obshome.css';
 import axios from 'axios';
 import { API_BASE_URL } from '../../constants';
 
@@ -13,11 +13,10 @@ const ObsHome = () => {
   useEffect(() => {
     axios.get(`${API_BASE_URL}/api/classes/with-instructors`)
       .then(response => {
-        console.log("Fetched class info with instructors:", response.data);
         setClassInfoList(response.data);
       })
       .catch(error => {
-        console.error("Error fetching class and instructor data:", error);
+        console.error(error);
       });
   }, []);
 
@@ -44,12 +43,10 @@ const ObsHome = () => {
     }
 
     try {
-      // Fetch observerId using the email
       const observerRes = await axios.get(`${API_BASE_URL}/api/observers/email/${observerEmail}`);
       const observerId = observerRes.data.observer_id;
 
-      // Create Evaluation
-      const startDate = new Date().toISOString().split('T')[0]; // today
+      const startDate = new Date().toISOString().split('T')[0];
       const evaluationPayload = {
         observerId,
         instructorId: instructorInfo.instructorId,
@@ -60,59 +57,67 @@ const ObsHome = () => {
       const response = await axios.post(`${API_BASE_URL}/api/evaluations/start`, evaluationPayload);
       const evaluationId = response.data.evaluation_id;
 
-      // Store evaluationId in localStorage for use throughout the session
       localStorage.setItem("evaluationId", evaluationId);
 
       navigate('/Evaluate');
     } catch (error) {
-      console.error("Failed to start evaluation:", error);
-      alert("Failed to start evaluation. Please try again.");
+      console.error(error);
+      alert("Failed to start evaluation.");
     }
   };
 
   return (
     <>
       <Header />
-      <div className="home-container">
-        <h1 className="home-heading">Welcome to Teaching Evaluation Application</h1>
-        <h3 className="instruction-text">
-          Please select an instructor and class to begin evaluation:
-        </h3>
+      <div className="obs-container">
+        <div className="obs-card">
+          <h1 className="obs-heading">Teaching Evaluation</h1>
+          <p className="obs-subtext">
+            Select an instructor and class from the list below to begin.
+          </p>
 
-        <table className="instructor-table">
-          <thead>
-            <tr>
-              <th>First Name</th>
-              <th>Last Name</th>
-              <th>Email</th>
-              <th>Course Title</th>
-              <th>Course Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {classInfoList.map((info) => (
-              <tr
-                key={info.classId}
-                onClick={() => handleRowClick(info)}
-                className={selectedClassId === info.classId ? 'selected-row' : ''}
-              >
-                <td>{info.instructorFirstName}</td>
-                <td>{info.instructorLastName}</td>
-                <td>{info.instructorEmail}</td>
-                <td>{info.title}</td>
-                <td>{info.description}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          <div className="table-responsive">
+            <table className="obs-table">
+              <thead>
+                <tr>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Email</th>
+                  <th>Course Title</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {classInfoList.map((info) => (
+                  <tr
+                    key={info.classId}
+                    onClick={() => handleRowClick(info)}
+                    className={selectedClassId === info.classId ? 'selected-row' : ''}
+                  >
+                    <td>{info.instructorFirstName}</td>
+                    <td>{info.instructorLastName}</td>
+                    <td>{info.instructorEmail}</td>
+                    <td>{info.title}</td>
+                    <td>{info.description}</td>
+                  </tr>
+                ))}
+                {classInfoList.length === 0 && (
+                  <tr>
+                    <td colSpan="5" style={{ textAlign: 'center' }}>No classes found</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
-        <button
-          className="start-evaluation-link"
-          disabled={!selectedClassId}
-          onClick={handleStartObservation}
-        >
-          Start Evaluation
-        </button>
+          <button
+            className="btn obs-button text-center"
+            disabled={!selectedClassId}
+            onClick={handleStartObservation}
+          >
+            Start Evaluation
+          </button>
+        </div>
       </div>
     </>
   );
