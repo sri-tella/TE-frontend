@@ -56,7 +56,6 @@ const Header = () => {
     <Navbar className="custom-navbar" expand="lg" variant="dark">
       <Container fluid className="px-4">
         
-        {/* Логотип (отдельно) */}
         <Navbar.Brand as={Link} to="/home" className="brand-logo-container">
           <img
             src={logo}
@@ -69,7 +68,6 @@ const Header = () => {
         
         <Navbar.Collapse id="basic-navbar-nav" className="justify-content-between">
           
-          {/* БЛОК СЛЕВА: Home, Reports, Help */}
           <Nav className="nav-left-block">
             <Nav.Link as={Link} to="/home" className="nav-item-link">
               <House size={20} className="nav-icon" /> Home
@@ -87,7 +85,6 @@ const Header = () => {
             )}
           </Nav>
 
-          {/* БЛОК СПРАВА: User, Notif, Profile, Logout */}
           <Nav className="nav-right-block align-items-center">
             {username && (
               <span className="welcome-text">
