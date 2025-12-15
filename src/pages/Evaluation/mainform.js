@@ -14,10 +14,8 @@ const MainForm = ({ sections, saveSection }) => {
   const normalizeTitle = (title) => title.replace(/^\d+\.\s*/, '');
 
   useEffect(() => {
-    // 1. Load saved responses from localStorage
     const storedResponses = JSON.parse(localStorage.getItem('savedResponses') || '[]');
     
-    // 2. Initialize state from props
     let initialResponses = sections.map(section => {
       const normalized = normalizeTitle(section.title);
       const storedSection = storedResponses.find(res => normalizeTitle(res.title) === normalized) || {};
@@ -36,7 +34,6 @@ const MainForm = ({ sections, saveSection }) => {
       };
     });
 
-    // 3. Ensure the "Additional Feedback" section is added to the state
     const additionalFeedbackTitle = '9. Additional Feedback';
     const hasAdditionalFeedback = initialResponses.some(sec => sec.title === additionalFeedbackTitle);
 
@@ -56,16 +53,13 @@ const MainForm = ({ sections, saveSection }) => {
     setResponses(initialResponses);
   }, [sections]);
 
-  // Handler for text changes in the TextArea
   const handleFeedbackChange = (sectionIndex, optionIndex, value) => {
     const updatedResponses = [...responses];
     updatedResponses[sectionIndex].options[optionIndex].feedbackText = value;
-    
     setResponses(updatedResponses);
     localStorage.setItem('savedResponses', JSON.stringify(updatedResponses));
   };
   
-  // Handler for checkboxes
   const handleCheckboxChange = (sectionIndex, optionIndex) => {
     const updatedResponses = [...responses];
     const option = updatedResponses[sectionIndex].options[optionIndex];
@@ -85,29 +79,17 @@ const MainForm = ({ sections, saveSection }) => {
     localStorage.setItem('savedResponses', JSON.stringify(updatedResponses));
   };
 
-  // Save handler
   const handleSave = () => {
     const evaluationId = localStorage.getItem('evaluationId');
-    
     const observerId = localStorage.getItem('observerId') || localStorage.getItem('userId');
     const instructorInfoRaw = localStorage.getItem('selectedInstructor');
     
-    console.log('=== Data Check in MainForm ===');
-    console.log('localStorage observerId:', localStorage.getItem('observerId'));
-    console.log('localStorage userId:', localStorage.getItem('userId'));
-    console.log('Final observerId:', observerId);
-    console.log('evaluationId:', evaluationId);
-    console.log('instructorInfoRaw:', instructorInfoRaw);
-    console.log('==============================');
-    
     const missingFields = [];
-    
     if (!evaluationId) missingFields.push('Evaluation ID');
-    if (!observerId) missingFields.push('Observer ID (userId или observerId)');
+    if (!observerId) missingFields.push('Observer ID');
     if (!instructorInfoRaw) missingFields.push('Instructor Info');
     
     if (missingFields.length > 0) {
-      console.error('❌ Missing required fields:', missingFields);
       alert(`The necessary data is missing:\n${missingFields.join('\n')}\n\nPlease start the process again.`);
       return;
     }
@@ -117,7 +99,6 @@ const MainForm = ({ sections, saveSection }) => {
       instructorInfo = JSON.parse(instructorInfoRaw);
     } catch (e) {
       console.error('Error parsing instructor info:', e);
-      alert('An error occurred while processing the instructors data. Please start again.');
       return;
     }
 
@@ -136,8 +117,6 @@ const MainForm = ({ sections, saveSection }) => {
         }));
     });
     
-    console.log("✅ Selected options with feedbacks:", selectedOptions);
-
     navigate('/SelectedRecommendations', {
       state: {
         evaluationId,
@@ -149,88 +128,104 @@ const MainForm = ({ sections, saveSection }) => {
     });
   };
 
-  // Custom toggle for the accordion
   const CustomToggle = ({ children, eventKey }) => {
     const decoratedOnClick = useAccordionToggle(eventKey, () => {});
     return (
-      <Button type="button" variant="link" onClick={decoratedOnClick}>
+      <div className="custom-accordion-toggle" onClick={decoratedOnClick}>
         {children}
-      </Button>
+      </div>
     );
   };
 
-  // --- COMPONENT RENDER LOGIC ---
   return (
     <>
       <Header />
-      <div>
-        <h4>Select all observations that apply. Click on the headers to expand/collapse and use the search bar on the right to quickly find key words.</h4>
-        <SearchBar searchQuery={searchQuery} handleSearchChange={setSearchQuery} />
-      </div>
-      <div>
-        <Form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
-          <Accordion defaultActiveKey="0">
-            {/* Iterate over the full array to preserve stable indices */}
-            {responses.map((section, originalIndex) => {
-  const normalizedTitle = normalizeTitle(section.title);
-  const matchesSearch = searchQuery === '' ||
-    section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    section.options.some(option =>
-      option.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase())
-    );
+      <div className="main-form-page">
+        <div className="main-form-card">
+          
+          <div className="form-header-row">
+            <div className="form-instructions">
+              <h4>Evaluation Form</h4>
+              <p>Select all observations that apply. Click headers to expand. Use the search bar to find keywords.</p>
+            </div>
+            <div className="form-search">
+              <SearchBar searchQuery={searchQuery} handleSearchChange={setSearchQuery} />
+            </div>
+          </div>
 
-  if (!matchesSearch) {
-    return null;
-  }
+          <Form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+            <Accordion defaultActiveKey="0" className="custom-accordion">
+              {responses.map((section, originalIndex) => {
+                const normalizedTitle = normalizeTitle(section.title);
+                const matchesSearch = searchQuery === '' ||
+                  section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  section.options.some(option =>
+                    option.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase())
+                  );
 
-  return (
-    <Card key={originalIndex}>
-      <Card.Header>
-        <CustomToggle eventKey={String(originalIndex)}>
-          {section.title}
-        </CustomToggle>
-      </Card.Header>
-      <Accordion.Collapse eventKey={String(originalIndex)}>
-        <Card.Body>
-          {section.options.map((option, optionIndex) => {
-            const showOption = searchQuery === '' ||
-              option.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              (normalizedTitle !== 'Additional Feedback' && (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase()));
+                if (!matchesSearch) {
+                  return null;
+                }
 
-            if (!showOption && normalizedTitle !== 'Additional Feedback') {
-              return null;
-            }
+                return (
+                  <Card key={originalIndex} className="accordion-card">
+                    <Card.Header className="accordion-header-custom">
+                      <CustomToggle eventKey={String(originalIndex)}>
+                        {section.title}
+                      </CustomToggle>
+                    </Card.Header>
+                    <Accordion.Collapse eventKey={String(originalIndex)}>
+                      <Card.Body className="accordion-body-custom">
+                        {section.options.map((option, optionIndex) => {
+                          const showOption = searchQuery === '' ||
+                            option.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            (normalizedTitle !== 'Additional Feedback' && (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase()));
 
-            return (
-              <div key={optionIndex}>
-                {normalizedTitle !== 'Additional Feedback' ? (
-                  <Form.Check
-                    type="checkbox"
-                    label={option.description}
-                    checked={option.selected}
-                    onChange={() => handleCheckboxChange(originalIndex, optionIndex)}
-                  />
-                ) : (
-                  <p>{option.description}</p>
-                )}
-                {option.showFeedback && (
-                  <TextArea
-                    value={option.feedbackText || ''}
-                    onChange={(e) => handleFeedbackChange(originalIndex, optionIndex, e.target.value)}
-                  />
-                )}
-              </div>
-            );
-          })}
-        </Card.Body>
-      </Accordion.Collapse>
-    </Card>
-  );
-})}
-          </Accordion>
-          <Button type="submit" className="mt-3">Save and Continue</Button>
-        </Form>
+                          if (!showOption && normalizedTitle !== 'Additional Feedback') {
+                            return null;
+                          }
+
+                          return (
+                            <div key={optionIndex} className="option-item">
+                              {normalizedTitle !== 'Additional Feedback' ? (
+                                <Form.Check
+                                  type="checkbox"
+                                  id={`checkbox-${originalIndex}-${optionIndex}`}
+                                  label={option.description}
+                                  checked={option.selected}
+                                  onChange={() => handleCheckboxChange(originalIndex, optionIndex)}
+                                  className="custom-checkbox"
+                                />
+                              ) : (
+                                <p className="additional-feedback-label">{option.description}</p>
+                              )}
+                              {option.showFeedback && (
+                                <div className="feedback-area">
+                                  <TextArea
+                                    value={option.feedbackText || ''}
+                                    placeholder="Add specific comments here..."
+                                    onChange={(e) => handleFeedbackChange(originalIndex, optionIndex, e.target.value)}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </Card.Body>
+                    </Accordion.Collapse>
+                  </Card>
+                );
+              })}
+            </Accordion>
+            
+            <div className="form-footer">
+              <Button type="submit" className="btn-baylor-save">
+                SAVE AND CONTINUE
+              </Button>
+            </div>
+          </Form>
+        </div>
       </div>
     </>
   );

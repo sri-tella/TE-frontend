@@ -110,8 +110,6 @@ const SelectedRecommendations = () => {
         }));
     });
     
-    console.log("Selected recommendations with feedbacks:", selectedOptions);
-
     navigate('/viewReport', {
       state: {
         evaluationId,
@@ -128,100 +126,115 @@ const SelectedRecommendations = () => {
       setActiveKey(activeKey === eventKey ? null : eventKey)
     );
     return (
-      <Button type="button" variant="link" onClick={decoratedOnClick}>
+      <div className="custom-accordion-toggle" onClick={decoratedOnClick}>
         {children}
-      </Button>
+      </div>
     );
   };
 
   return (
     <>
       <Header />
-      <div>
-        <h4>Here are possible recommendations. Some are selected based on your observations in the previous step. Click on the headers to expand/collapse and use the search bar on the right to quickly find key words.</h4>
-        <SearchBar searchQuery={searchQuery} handleSearchChange={setSearchQuery} />
-      </div>
-      <div>
-        <Form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
-          <Accordion activeKey={activeKey}>
-            {responses.map((section, originalIndex) => {
-              
-              const filteredOptions = section.options.filter(option =>
-                searchQuery === '' ||
-                section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                option.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-                (option.observedDescription || '').toLowerCase().includes(searchQuery.toLowerCase())
-              );
-              
-              if (filteredOptions.length === 0) {
-                return null;
-              }
-
-              const groupedOptions = filteredOptions.reduce((acc, option) => {
-                const obs = option.observedDescription || 'General';
-                if (!acc[obs]) {
-                  acc[obs] = [];
-                }
-                acc[obs].push(option);
-                return acc;
-              }, {});
-
-              return (
-                <Card key={originalIndex}>
-                  <Card.Header>
-                    <CustomToggle eventKey={String(originalIndex)}>
-                      {section.title}
-                    </CustomToggle>
-                  </Card.Header>
-                  <Accordion.Collapse eventKey={String(originalIndex)}>
-                    <Card.Body>
-                      {Object.entries(groupedOptions).map(([obs, opts]) => (
-                        <div key={obs} className="mb-3">
-                          <h5>{obs}</h5>
-                          {opts.map((option) => {
-                            const originalOptionIndex = section.options.findIndex(o => o.description === option.description);
-                            if (originalOptionIndex === -1) return null;
-
-                            return (
-                              <div key={originalOptionIndex}>
-                                {normalizeTitle(section.title) !== 'Additional Feedback' ? (
-                                  <Form.Check
-                                    type="checkbox"
-                                    label={option.description}
-                                    checked={option.selected}
-                                    onChange={() => handleCheckboxChange(originalIndex, originalOptionIndex)}
-                                  />
-                                ) : (
-                                  <p>{option.description}</p>
-                                )}
-                                
-                                {option.showFeedback && (
-                                  <TextArea
-                                    value={option.feedbackText || ''}
-                                    onChange={(e) => handleFeedbackChange(originalIndex, originalOptionIndex, e.target.value)}
-                                  />
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ))}
-                    </Card.Body>
-                  </Accordion.Collapse>
-                </Card>
-              );
-            })}
-          </Accordion>
-          <div className="mt-3">
-            <Button onClick={() => navigate('/Evaluate')} className="button-custom mr-2">
-              Go Back
-            </Button>
-            <Button type="submit" className="button-custom mr-3">
-              Save and Edit Report
-            </Button>
+      <div className="main-form-page">
+        <div className="main-form-card">
+          
+          <div className="form-header-row">
+            <div className="form-instructions">
+              <h4>Possible Recommendations</h4>
+              <p>Some are selected based on your previous observations. Click headers to expand.</p>
+            </div>
+            <div className="form-search">
+              <SearchBar searchQuery={searchQuery} handleSearchChange={setSearchQuery} />
+            </div>
           </div>
-        </Form>
+
+          <Form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+            <Accordion activeKey={activeKey} className="custom-accordion">
+              {responses.map((section, originalIndex) => {
+                
+                const filteredOptions = section.options.filter(option =>
+                  searchQuery === '' ||
+                  section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  option.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  (option.observedDescription || '').toLowerCase().includes(searchQuery.toLowerCase())
+                );
+                
+                if (filteredOptions.length === 0) {
+                  return null;
+                }
+
+                const groupedOptions = filteredOptions.reduce((acc, option) => {
+                  const obs = option.observedDescription || 'General';
+                  if (!acc[obs]) {
+                    acc[obs] = [];
+                  }
+                  acc[obs].push(option);
+                  return acc;
+                }, {});
+
+                return (
+                  <Card key={originalIndex} className="accordion-card">
+                    <Card.Header className="accordion-header-custom">
+                      <CustomToggle eventKey={String(originalIndex)}>
+                        {section.title}
+                      </CustomToggle>
+                    </Card.Header>
+                    <Accordion.Collapse eventKey={String(originalIndex)}>
+                      <Card.Body className="accordion-body-custom">
+                        {Object.entries(groupedOptions).map(([obs, opts]) => (
+                          <div key={obs} className="recommendation-group">
+                            <h5 className="observation-subtitle">{obs}</h5>
+                            {opts.map((option) => {
+                              const originalOptionIndex = section.options.findIndex(o => o.description === option.description);
+                              if (originalOptionIndex === -1) return null;
+
+                              return (
+                                <div key={originalOptionIndex} className="option-item">
+                                  {normalizeTitle(section.title) !== 'Additional Feedback' ? (
+                                    <Form.Check
+                                      type="checkbox"
+                                      id={`rec-checkbox-${originalIndex}-${originalOptionIndex}`}
+                                      label={option.description}
+                                      checked={option.selected}
+                                      onChange={() => handleCheckboxChange(originalIndex, originalOptionIndex)}
+                                      className="custom-checkbox"
+                                    />
+                                  ) : (
+                                    <p className="additional-feedback-label">{option.description}</p>
+                                  )}
+                                  
+                                  {option.showFeedback && (
+                                    <div className="feedback-area">
+                                      <TextArea
+                                        value={option.feedbackText || ''}
+                                        placeholder="Add comments specific to this recommendation..."
+                                        onChange={(e) => handleFeedbackChange(originalIndex, originalOptionIndex, e.target.value)}
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ))}
+                      </Card.Body>
+                    </Accordion.Collapse>
+                  </Card>
+                );
+              })}
+            </Accordion>
+            
+            <div className="form-footer-dual">
+              <Button onClick={() => navigate('/Evaluate')} className="btn-baylor-secondary">
+                Go Back
+              </Button>
+              <Button type="submit" className="btn-baylor-save">
+                Save and Edit Report
+              </Button>
+            </div>
+          </Form>
+        </div>
       </div>
     </>
   );
