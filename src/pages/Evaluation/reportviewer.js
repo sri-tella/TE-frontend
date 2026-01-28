@@ -93,7 +93,7 @@ const ViewReports = () => {
             }).join('')}</ul>`;
         };
 
-        let report = `<h2>Teaching Evaluation Report</h2><h3>Observation Information</h3><p><strong>Instructor:</strong> ${instructorName}</p><p><strong>Date of Observation:</strong> ${formattedDate}</p><p><strong>Time:</strong> ${formattedTime}</p><p><strong>Class Session Topic or Course Subject:</strong> ${classTopic}</p><p><strong>Observer:</strong> ${observerFirstName} ${observerLastName}</p><h3>Background Information</h3><p><strong>What is the learning goal or objective for todays class session?/Objective:</strong><br>${bgInfo.goal || 'N/A'}</p><p><strong>Please provide a brief outline or sketch of how class session will proceed?</strong><br>${bgInfo.outline || 'N/A'}</p><p><strong>How might the observer be particularly helpful in the observation process? Are there elements of the class session that might benefit from detailed feedback or focused attention?</strong><br>${bgInfo.help || 'N/A'}</p><h3>Observation</h3>`;
+        let report = `<h2>Teaching Evaluation Report</h2><h3>Observation Information</h3><p><strong>Instructor:</strong> ${instructorName}</p><p><strong>Date of Observation:</strong> ${formattedDate}</p><p><strong>Time:</strong> ${formattedTime}</p><p><strong>Class Session Topic or Course Subject:</strong> ${classTopic}</p><p><strong>Observer:</strong> ${observerFirstName} ${observerLastName}</p><h3>Background Information</h3><p><strong>What is the learning goal or objective for today's class session?/Objective:</strong><br>${bgInfo.goal || 'N/A'}</p><p><strong>Please provide a brief outline or sketch of how class session will proceed?</strong><br>${bgInfo.outline || 'N/A'}</p><p><strong>How might the observer be particularly helpful in the observation process? Are there elements of the class session that might benefit from detailed feedback or focused attention?</strong><br>${bgInfo.help || 'N/A'}</p><h3>Observation</h3>`;
         
         manualOrder.forEach((category, index) => {
             const secData = sections[category] || { observations: [], recommendations: [] };
@@ -106,7 +106,7 @@ const ViewReports = () => {
             
             const sectionAiAssistance = aiFbs[category];
             if (sectionAiAssistance && sectionAiAssistance.trim()) {
-                report += `<div style="padding-left: 30px;"><div style="margin-top: 10px; padding: 15px; background-color: #f0f7ff; border-left: 5px solid #007bff; border-radius: 4px; font-family: sans-serif;"><span style="margin: 0 0 10px 0; font-size: 25px !important; color: #0056b3;"><strong>🤖 AI Assistance:</strong></span><div>${sectionAiAssistance}</div></div></div>`;
+                report += `<div style="padding-left: 30px;"><div style="margin-top: 10px; padding: 15px; background-color: #f0f7ff; border-left: 5px solid #007bff; border-radius: 4px; font-family: sans-serif;"><span style="margin: 0 0 10px 0; font-size: 25px !important; color: #0056b3;"><strong> AI Assistance:</strong></span><div>${sectionAiAssistance}</div></div></div>`;
             }
         });
         
@@ -114,7 +114,7 @@ const ViewReports = () => {
         
         const additionalAiAssistance = aiFbs['Additional Feedback'];
         if (additionalAiAssistance) {
-            report += `<div style="padding-left: 30px;"><div style="margin-top: 10px; padding: 15px; background-color: #f0f7ff; border-left: 5px solid #007bff; border-radius: 4px; font-family: sans-serif;"><span style="margin: 0 0 10px 0; font-size: 20px !important; color: #0056b3;"><strong>🤖 AI Assistance:</strong></span><div>${additionalAiAssistance}</div></div></div>`;
+            report += `<div style="padding-left: 30px;"><div style="margin-top: 10px; padding: 15px; background-color: #f0f7ff; border-left: 5px solid #007bff; border-radius: 4px; font-family: sans-serif;"><span style="margin: 0 0 10px 0; font-size: 20px !important; color: #0056b3;"><strong> AI Assistance:</strong></span><div>${additionalAiAssistance}</div></div></div>`;
         }
         
         report += `<h4>Other Comments or Recommendations</h4><p>${(feedbacks && feedbacks['Other Comments or Recommendations']) || '<em>No other comments.</em>'}</p>`;
@@ -354,7 +354,6 @@ const ViewReports = () => {
         }
     };
 
-    // --- ЛОГИКА GEMINI С ЗАЩИТОЙ ОТ 429 ---
     const handleAiSupportForAllSections = async () => {
         if (!genAI) {
             alert('AI Service is not initialized. Please check your API key.');
@@ -366,10 +365,10 @@ const ViewReports = () => {
         setLoading(prev => ({ ...prev, aiProgress: '(starting...)' }));
 
         try {
-            const facultySpecialistRole = `You are a faculty development specialist with two decades of experience and an expert in effective teaching strategies. You are also a faculty member yourself, with empathy and understanding for the full context, rewards, and challenges of teaching in higher education.`;
+            // Updated Role and Instructions
+            const facultySpecialistRole = `You are a faculty development specialist and an expert in effective teaching strategies.`;
             const { sections, feedbacks } = structuredData;
             
-            // ВАЖНО: Используем 'gemini-pro'. Она самая стабильная.
             const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
             const sectionTitles = Object.keys(sections);
@@ -377,12 +376,10 @@ const ViewReports = () => {
                 sectionTitles.push('Additional Feedback');
             }
 
-            // Если секций нет, пробуем использовать Background Info
             if (sectionTitles.length === 0) {
                  if (backgroundInfo.goal || backgroundInfo.outline) {
                     sectionTitles.push('Introduction'); 
                  } else {
-                     // Не показываем алерт если данных совсем нет, просто выходим
                      console.log('No data found for AI.');
                      setLoadingState('ai', false);
                      return;
@@ -404,22 +401,42 @@ const ViewReports = () => {
                     promptContent = feedbacks['Additional Feedback'] || '';
                 } else if (sections[sectionTitle]) {
                     const sectionData = sections[sectionTitle];
-                    if (sectionData.observations?.length) promptContent += `Observations: ${sectionData.observations.join('. ')}\n`;
+                    if (sectionData.observations?.length) promptContent += `Raw Observations Notes: ${sectionData.observations.join('. ')}\n`;
                     
                     const recommendationsText = sectionData.recommendations
                         .map(rec => rec.description + (rec.feedbackText ? ` (Comment: ${rec.feedbackText})` : ''))
                         .join('. ');
                     
-                    if (recommendationsText) promptContent += `Recommendations: ${recommendationsText}\n`;
-                    if (feedbacks?.[sectionTitle]) promptContent += `Instructor feedback: ${feedbacks[sectionTitle]}`;
+                    if (recommendationsText) promptContent += `Raw Recommendations Notes: ${recommendationsText}\n`;
+                    if (feedbacks?.[sectionTitle]) promptContent += `Instructor feedback context: ${feedbacks[sectionTitle]}`;
                 } else if (sectionTitle === 'Introduction' && !sections['Introduction']) {
                     promptContent = `Goal: ${backgroundInfo.goal}. Outline: ${backgroundInfo.outline}.`;
                 }
 
                 if (!promptContent.trim()) continue;
 
-                // Инструкция прямо в промпт (самый надежный способ для старых версий)
-                const userPrompt = `${facultySpecialistRole}\n\nTask: Convert these notes to full prose... Keep observations separate from recommendations. Use markdown for headings "##" and bold "**".\n\nHere are the notes for "${sectionTitle}": ${promptContent}`;
+                // --- NEW REFINED PROMPT ---
+                const userPrompt = `
+                ${facultySpecialistRole}
+
+                Task: Write a formal observation report section for **"${sectionTitle}"** based on the notes below. This is for a single specific class session.
+
+                STRICT GUIDELINES:
+                1. **PAST TENSE ONLY**: Write all observations in the past tense (e.g., "The instructor asked...", "Students responded...", "The class started...").
+                2. **OBJECTIVE OBSERVATIONS**: Under the "Observations" header, describe ONLY what happened. Do not evaluate, judge, or praise in this section. (Correct: "The instructor used a slide." Incorrect: "The instructor effectively used a slide.")
+                3. **EVALUATIVE RECOMMENDATIONS**: Put all judgments, praise, critiques, and suggestions under the "Recommendations for Improvement" header.
+                4. **NO FILLER**: Do NOT start with "As a specialist...", "Based on the notes...", or "Here is the report". Start directly with the first header.
+                
+                REQUIRED FORMAT:
+                ## Observations
+                [Write the descriptive narrative here in past tense]
+
+                ## Recommendations for Improvement
+                [Write the evaluative feedback and specific suggestions here]
+
+                INPUT NOTES:
+                ${promptContent}
+                `;
 
                 // --- ЛОГИКА ПОВТОРА (RETRY) ---
                 let attempts = 0;
@@ -436,7 +453,6 @@ const ViewReports = () => {
                     } catch (error) {
                         console.error(`Attempt ${attempts + 1} failed for ${sectionTitle}:`, error);
                         
-                        // Если ошибка 429 (лимиты) или 503 (сервер занят) - ждем и пробуем снова
                         if (error.message.includes('429') || error.message.includes('503')) {
                             attempts++;
                             const waitTime = 5000 * attempts; 
