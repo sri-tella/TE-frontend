@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/header';
-import '../Navbar/home.css';
+import './mainform.css'; 
 
 const InsHome = () => {
   const navigate = useNavigate();
@@ -14,10 +14,10 @@ const InsHome = () => {
     setFormFilled(hasSubmitted);
 
     const storedRoles = localStorage.getItem('role');
-        if (storedRoles) {
-          const parsedRoles = storedRoles.split(',').map(role => role.trim().toUpperCase());
-          setRoles(parsedRoles);
-        }
+    if (storedRoles) {
+      const parsedRoles = storedRoles.split(',').map(role => role.trim().toUpperCase());
+      setRoles(parsedRoles);
+    }
 
     const activeRole = localStorage.getItem('activeRole') || 'INSTRUCTOR';
     setCurrentRole(activeRole);
@@ -30,18 +30,35 @@ const InsHome = () => {
   return (
     <>
       <Header />
-      <div className="home-container">
-        <h1 className="home-heading">Welcome to Teaching Observation Application</h1>
-        {!formFilled ? (
-          <>
-            <h2>Please complete your course/session details.</h2>
-            <button className="start-evaluation-link" onClick={handleFillForm}>
-              Fill in Form
-            </button>
-          </>
-        ) : (
-          <h2>Thank you for submitting your form!</h2>
-        )}
+      <div className="main-form-page">
+        <div className="main-form-card" style={{ maxWidth: '600px', textAlign: 'center' }}>
+          
+          <div className="form-instructions">
+            <h4 style={{ marginBottom: '20px' }}>
+              Welcome to Teaching Observation Application
+            </h4>
+            
+            {!formFilled ? (
+              <>
+                <p style={{ marginBottom: '30px' }}>
+                  Please complete your course/session details.
+                </p>
+                <button 
+                  className="btn-baylor-save" 
+                  onClick={handleFillForm}
+                  style={{ width: '100%', maxWidth: '300px', margin: '0 auto', display: 'block' }}
+                >
+                  Fill in Form
+                </button>
+              </>
+            ) : (
+              <div className="observation-subtitle" style={{ textAlign: 'center', marginTop: '20px' }}>
+                Thank you for submitting your form!
+              </div>
+            )}
+          </div>
+
+        </div>
       </div>
     </>
   );
