@@ -1,6 +1,5 @@
-/* --- Основной фон страницы --- */
 .obs-container {
-  min-height: 100vh; /* На всю высоту экрана */
+  min-height: 100vh;
   padding: 40px 20px;
   background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2)), url('../../images/bgimg.avif');
   background-size: cover;
@@ -9,80 +8,71 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Заголовок страницы */
 .obs-heading {
   text-align: center;
   margin-bottom: 30px;
-  color: #ffffff; /* Белый текст на темном фоне */
+  color: #ffffff;
   font-size: 2.5rem;
   font-weight: 700;
   text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
-/* --- Контейнер для Drag-and-Drop (две колонки) --- */
 .dnd-container {
   display: flex;
-  gap: 30px; /* Расстояние между колонками */
-  justify-content: center; /* Центрируем колонки */
+  gap: 30px;
+  justify-content: center;
   align-items: flex-start;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-/* Общий стиль для колонок */
 .dnd-column {
-  flex: 1; /* Колонки занимают равную ширину */
+  flex: 1;
   background-color: #f8f9fa;
   border-radius: 12px;
   padding: 20px;
-  min-height: 500px; /* Высота колонок */
+  min-height: 500px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
 }
 
-/* Заголовки внутри колонок */
 .dnd-column h3 {
   text-align: center;
   margin-bottom: 20px;
-  color: #154734; /* Baylor Green */
+  color: #154734;
   font-weight: 700;
   border-bottom: 2px solid #e5e7eb;
   padding-bottom: 10px;
 }
 
-/* --- Специфика правой колонки (Архив) --- */
 .archive-column {
   background-color: #eaeaea;
   border: 2px dashed #bbb;
-  
-  /* ДОБАВИТЬ ЭТО: */
-  position: sticky; /* Делает элемент липким */
-  top: 20px;        /* Отступ от верхнего края окна браузера */
-  height: fit-content; /* Чтобы колонка не растягивалась пустым местом */
+  position: -webkit-sticky;
+  position: sticky;
+  top: 100px;
+  height: fit-content;
 }
 
-/* --- Зона списка (куда бросаем) --- */
 .class-list {
-  flex-grow: 1; /* Растягиваем на всю высоту колонки */
+  flex-grow: 1;
   padding: 10px;
   border-radius: 8px;
   transition: background-color 0.2s ease;
 }
 
-/* Подсветка при перетаскивании */
 .dragging-over {
-  background-color: #e3f2fd; /* Голубой для активных */
+  background-color: #e3f2fd;
 }
 
 .dragging-over-archive {
-  background-color: #ffebee; /* Красноватый для архива */
+  background-color: #ffebee;
 }
 
-/* --- Карточка Класса --- */
 .class-card {
   background: white;
-  border-left: 5px solid #ccc; /* Полоска слева */
+  border-left: 5px solid #ccc;
   border-radius: 6px;
   padding: 15px;
   margin-bottom: 15px;
@@ -96,9 +86,8 @@
   box-shadow: 0 5px 10px rgba(0,0,0,0.15);
 }
 
-/* Выбранная карточка */
 .selected-card {
-  border-left: 5px solid #154734; /* Зеленая полоска */
+  border-left: 5px solid #154734;
   background-color: #e8f5e9 !important;
   border: 2px solid #154734;
 }
@@ -138,7 +127,6 @@
   font-size: 1.1rem;
 }
 
-/* --- Кнопка Start Evaluation --- */
 .actions-area {
   text-align: center;
   margin-top: 30px;
@@ -146,8 +134,8 @@
 
 .obs-button {
   padding: 15px 40px;
-  background-color: #FFB81C; /* Baylor Gold */
-  color: #154734; /* Baylor Green Text */
+  background-color: #FFB81C;
+  color: #154734;
   border: none;
   border-radius: 8px;
   cursor: pointer;

@@ -4,7 +4,6 @@ import Header from '../../components/Header/header';
 import './obshome.css';
 import axios from 'axios';
 import { API_BASE_URL } from '../../constants';
-// Библиотека для перетаскивания
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 const ObsHome = () => {
@@ -13,7 +12,6 @@ const ObsHome = () => {
   const [selectedClassId, setSelectedClassId] = useState(null);
   const navigate = useNavigate();
 
-  // --- 1. ЗАГРУЗКА ДАННЫХ ---
   useEffect(() => {
     fetchClasses();
   }, []);
@@ -22,9 +20,6 @@ const ObsHome = () => {
     axios.get(`${API_BASE_URL}/api/classes/with-instructors`)
       .then(response => {
         const allData = response.data;
-        
-        // Фильтруем: если isArchived = true -> в архив, иначе -> в активные
-        // (Это поле isArchived мы добавили в Java контроллере)
         const active = allData.filter(item => !item.isArchived);
         const archived = allData.filter(item => item.isArchived);
 
@@ -36,16 +31,13 @@ const ObsHome = () => {
       });
   };
 
-  // --- 2. СОХРАНЕНИЕ НА СЕРВЕР ---
   const updateArchiveStatus = (classId, status) => {
-    // Отправляем true/false на наш новый эндпоинт
     axios.put(`${API_BASE_URL}/api/classes/${classId}/archive`, status, {
         headers: { 'Content-Type': 'application/json' }
     })
     .catch(err => console.error("Failed to update archive status", err));
   };
 
-  // Выбор класса (клик по карточке)
   const handleClassSelect = (info) => {
     setSelectedClassId(info.classId);
     localStorage.setItem("selectedInstructor", JSON.stringify({
@@ -59,50 +51,40 @@ const ObsHome = () => {
     }));
   };
 
-  // --- 3. ЛОГИКА ПЕРЕТАСКИВАНИЯ ---
   const onDragEnd = (result) => {
     const { source, destination } = result;
 
-    // Если бросили мимо или вернули на то же место
     if (!destination) return;
     if (source.droppableId === destination.droppableId && source.index === destination.index) return;
 
-    // Определяем, откуда и куда тащим
     let sourceList = source.droppableId === 'active' ? activeClasses : archivedClasses;
     let destList = destination.droppableId === 'active' ? activeClasses : archivedClasses;
 
-    // Копируем массивы
     const newSourceList = Array.from(sourceList);
     const newDestList = source.droppableId === destination.droppableId ? newSourceList : Array.from(destList);
 
-    // Перемещаем элемент
     const [movedItem] = newSourceList.splice(source.index, 1);
     newDestList.splice(destination.index, 0, movedItem);
 
-    // Обновляем состояние React и отправляем запрос на сервер
     if (source.droppableId === 'active' && destination.droppableId === 'archive') {
-        // -> В АРХИВ
         setActiveClasses(newSourceList);
         setArchivedClasses(newDestList);
-        if (movedItem.classId === selectedClassId) setSelectedClassId(null); // Снимаем выделение
+        if (movedItem.classId === selectedClassId) setSelectedClassId(null);
         
-        updateArchiveStatus(movedItem.classId, true); // Сохраняем в БД
+        updateArchiveStatus(movedItem.classId, true);
 
     } else if (source.droppableId === 'archive' && destination.droppableId === 'active') {
-        // -> В АКТИВНЫЕ
         setArchivedClasses(newSourceList);
         setActiveClasses(newDestList);
         
-        updateArchiveStatus(movedItem.classId, false); // Сохраняем в БД
+        updateArchiveStatus(movedItem.classId, false);
 
     } else {
-        // Перестановка внутри одной колонки (сортировка)
         if (source.droppableId === 'active') setActiveClasses(newDestList);
         else setArchivedClasses(newDestList);
     }
   };
 
-  // Кнопка "Начать оценку"
   const handleStartObservation = async () => {
     const observerEmail = localStorage.getItem("email");
     const instructorInfo = JSON.parse(localStorage.getItem("selectedInstructor"));
@@ -133,7 +115,6 @@ const ObsHome = () => {
     }
   };
 
-  // Компонент карточки
   const ClassCard = ({ info, index, isSelected, isClickable = true }) => (
     <Draggable draggableId={String(info.classId)} index={index}>
       {(provided, snapshot) => (
@@ -142,12 +123,10 @@ const ObsHome = () => {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           className={`class-card ${isSelected ? 'selected-card' : ''}`}
-          // ВАЖНО: Если isClickable ложь, функция выбора не сработает
           onClick={() => isClickable && handleClassSelect(info)}
           style={{
             ...provided.draggableProps.style,
             opacity: snapshot.isDragging ? 0.8 : 1,
-            // Если нельзя кликнуть — курсор обычный, иначе — рука
             cursor: isClickable ? 'pointer' : 'default'
           }}
         >
@@ -173,7 +152,6 @@ const ObsHome = () => {
         <DragDropContext onDragEnd={onDragEnd}>
           <div className="dnd-container">
             
-            {/* Левая колонка: Активные */}
             <div className="dnd-column">
               <h3>Available Classes</h3>
               <Droppable droppableId="active">
@@ -198,7 +176,6 @@ const ObsHome = () => {
               </Droppable>
             </div>
 
-            {/* Правая колонка: Архив */}
             <div className="dnd-column archive-column">
               <h3>Archive 🗑️</h3>
               <Droppable droppableId="archive">
@@ -214,7 +191,7 @@ const ObsHome = () => {
                         info={info} 
                         index={index} 
                         isSelected={false} 
-                        isClickable={false} /* <--- ДОБАВИТЬ ВОТ ЭТО */
+                        isClickable={false}
                       />
                     ))}
                     {provided.placeholder}
