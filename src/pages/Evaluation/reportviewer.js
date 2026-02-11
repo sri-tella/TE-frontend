@@ -23,19 +23,26 @@ const formatAiResponse = (text) => {
         const lines = content.split('\n').filter(line => line.trim() !== '');
         return lines.join('<br />').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     };
+    
     const recommendationHeader = '## Recommendations for Improvement';
     const parts = text.split(recommendationHeader);
+    
     let observationsHtml = '';
     if (parts[0]) {
         let contentPart = parts[0].replace(/^## (.*$)/gim, '').trim();
         let headerPart = parts[0].match(/^## (.*$)/im);
-        observationsHtml = headerPart ? `<h5 style="font-weight: bold; margin-top: 5px; margin-bottom: 10px;">${headerPart[1]}</h5>` : '';
+        observationsHtml = headerPart ? `<h6 style="font-weight: bold; color: #154734; margin-top: 5px; margin-bottom: 5px;">${headerPart[1]}</h6>` : '';
         observationsHtml += formatContent(contentPart);
     }
+    
     let recommendationsHtml = '';
     if (parts.length > 1 && parts[1]) {
         const recommendationsContent = formatContent(parts[1]);
-        recommendationsHtml = `<div style="color: #0d47a1;"><h5 style="font-weight: bold; margin-top: 15px; margin-bottom: 10px; color: #0d47a1;">Recommendations for Improvement</h5>${recommendationsContent}</div>`;
+        recommendationsHtml = `
+            <div style="margin-top: 10px; border-top: 1px solid #eee; pt-2">
+                <h6 style="font-weight: bold; color: #154734; margin-top: 8px; margin-bottom: 5px;">Recommendations for Improvement</h6>
+                ${recommendationsContent}
+            </div>`;
     }
     return observationsHtml + recommendationsHtml;
 };
@@ -236,14 +243,30 @@ const ViewReports = () => {
             report += `<p><strong>Recommendations:</strong></p>${renderListWithFeedback(secData.recommendations)}`;
             const sectionAiAssistance = aiFbs[category];
             if (sectionAiAssistance && sectionAiAssistance.trim()) {
-                report += `<div style="padding-left: 30px;"><div style="margin-top: 10px; padding: 15px; background-color: #f0f7ff; border-left: 5px solid #007bff; border-radius: 4px; font-family: sans-serif;"><span style="margin: 0 0 10px 0; font-size: 25px !important; color: #0056b3;"><strong> AI Assistance:</strong></span><div>${sectionAiAssistance}</div></div></div>`;
+                report += `
+                    <div style="margin: 15px 0 20px 25px; padding: 12px 15px; background-color: #f9f9f9; border-left: 4px solid #154734; border-radius: 2px;">
+                        <div style="margin-bottom: 8px;">
+                            <span style="font-size: 20pt; font-weight: bold; color: #154734; text-transform: uppercase; letter-spacing: 0.5px;">
+                                Institutional AI Analysis
+                            </span>
+                        </div>
+                        <div style="font-size: 20pt; color: #333;" id='a'>${sectionAiAssistance}</div>
+                    </div>`;
             }
         });
 
         report += `<h3>Additional Feedback</h3><h4>Did the class session meet the instructor's goal or objective?</h4><p>${(feedbacks && feedbacks['Additional Feedback']) || '<em>No additional feedback provided.</em>'}</p>`;
         const additionalAiAssistance = aiFbs['Additional Feedback'];
         if (additionalAiAssistance) {
-            report += `<div style="padding-left: 30px;"><div style="margin-top: 10px; padding: 15px; background-color: #f0f7ff; border-left: 5px solid #007bff; border-radius: 4px; font-family: sans-serif;"><span style="margin: 0 0 10px 0; font-size: 20px !important; color: #0056b3;"><strong> AI Assistance:</strong></span><div>${additionalAiAssistance}</div></div></div>`;
+            report += `
+                <div style="margin: 15px 0 20px 25px; padding: 12px 15px; background-color: #f9f9f9; border-left: 4px solid #154734; border-radius: 2px;">
+                    <div style="margin-bottom: 8px;">
+                        <span style="font-size: 20pt; font-weight: bold; color: #154734; text-transform: uppercase;">
+                            Additional AI Insight
+                        </span>
+                    </div>
+                    <div style="font-size: 20pt; color: #333;" id='a'>${additionalAiAssistance}</div>
+                </div>`;
         }
         report += `<h4>Other Comments or Recommendations</h4><p>${(feedbacks && feedbacks['Other Comments or Recommendations']) || '<em>No other comments.</em>'}</p>`;
 
@@ -454,7 +477,7 @@ const ViewReports = () => {
         setLoadingState('ai', true);
 
         try {
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
             const newAiFeedbacks = {};
             const { sections, feedbacks } = structuredData;
             const manualOrder = ["Introduction", "Organization", "Content", "Visual Aids and Technology", "Delivery", "Activities", "Student Behavior", "Conclusion"];
@@ -488,19 +511,28 @@ const ViewReports = () => {
                 `.trim();
 
                 let attempts = 0;
-                while (attempts < 3) {
+                const maxAttempts = 3;
+
+                while (attempts < maxAttempts) {
                     try {
                         const result = await model.generateContent(sectionPrompt);
                         const response = await result.response;
-                        newAiFeedbacks[category] = formatAiResponse(response.text());
+                        const text = response.text();
+                        newAiFeedbacks[category] = formatAiResponse(text);
+
                         completed++;
                         setLoading(prev => ({ ...prev, aiProgress: `(${completed}/${totalSections})` }));
                         break;
                     } catch (error) {
+                        console.error(`Error getting AI for ${category}:`, error);
                         if (error.message.includes('429') || error.message.includes('503')) {
                             attempts++;
-                            await new Promise(resolve => setTimeout(resolve, 5000 * attempts));
-                        } else break;
+                            const waitTime = 5000 * attempts;
+                            console.warn(`Rate limit hit. Waiting ${waitTime / 1000}s before retry...`);
+                            await new Promise(resolve => setTimeout(resolve, waitTime));
+                        } else {
+                            break;
+                        }
                     }
                 }
                 if (i < manualOrder.length - 1) await new Promise(resolve => setTimeout(resolve, 4000));
@@ -525,15 +557,19 @@ const ViewReports = () => {
                     try {
                         const result = await model.generateContent(additionalPrompt);
                         const response = await result.response;
-                        newAiFeedbacks['Additional Feedback'] = formatAiResponse(response.text());
+                        const text = response.text();
+                        newAiFeedbacks['Additional Feedback'] = formatAiResponse(text);
                         completed++;
                         setLoading(prev => ({ ...prev, aiProgress: `(${completed}/${totalSections})` }));
                         break;
                     } catch (error) {
+                        console.error('Error getting AI for Additional Feedback:', error);
                         if (error.message.includes('429') || error.message.includes('503')) {
                             attempts++;
                             await new Promise(resolve => setTimeout(resolve, 5000 * attempts));
-                        } else break;
+                        } else {
+                            break;
+                        }
                     }
                 }
             }
