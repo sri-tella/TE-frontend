@@ -246,11 +246,11 @@ const ViewReports = () => {
                 report += `
                     <div style="margin: 15px 0 20px 25px; padding: 12px 15px; background-color: #f9f9f9; border-left: 4px solid #154734; border-radius: 2px;">
                         <div style="margin-bottom: 8px;">
-                            <span style="font-size: 20pt; font-weight: bold; color: #154734; text-transform: uppercase; letter-spacing: 0.5px;">
+                            <span style="font-size: 10pt; font-weight: bold; color: #154734; text-transform: uppercase; letter-spacing: 0.5px;">
                                 Institutional AI Analysis
                             </span>
                         </div>
-                        <div style="font-size: 20pt; color: #333;" id='a'>${sectionAiAssistance}</div>
+                        <div style="font-size: 10.5pt; color: #333;">${sectionAiAssistance}</div>
                     </div>`;
             }
         });
@@ -261,11 +261,11 @@ const ViewReports = () => {
             report += `
                 <div style="margin: 15px 0 20px 25px; padding: 12px 15px; background-color: #f9f9f9; border-left: 4px solid #154734; border-radius: 2px;">
                     <div style="margin-bottom: 8px;">
-                        <span style="font-size: 20pt; font-weight: bold; color: #154734; text-transform: uppercase;">
+                        <span style="font-size: 10pt; font-weight: bold; color: #154734; text-transform: uppercase;">
                             Additional AI Insight
                         </span>
                     </div>
-                    <div style="font-size: 20pt; color: #333;" id='a'>${additionalAiAssistance}</div>
+                    <div style="font-size: 10.5pt; color: #333;">${additionalAiAssistance}</div>
                 </div>`;
         }
         report += `<h4>Other Comments or Recommendations</h4><p>${(feedbacks && feedbacks['Other Comments or Recommendations']) || '<em>No other comments.</em>'}</p>`;
