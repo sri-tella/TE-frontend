@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../components/Header/header';
 import './profile.css'; 
-import { API_BASE_URL } from '../../constants';
+import { authService, adminService } from '../../services/apiService';
 
 const ProfilePage = () => {
   const [firstName, setFirstName] = useState('');
@@ -20,7 +20,7 @@ const ProfilePage = () => {
     setEmail(localStorage.getItem('email') || '');
   }, []);
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     if (!oldPassword || !newPassword || !confirmPassword) {
       alert('All password fields are required.');
       return;
@@ -33,96 +33,73 @@ const ProfilePage = () => {
     setIsLoading(true);
     const userEmail = localStorage.getItem('email');
 
-    fetch(`${API_BASE_URL}/api/auth/change-password`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    try {
+      await authService.changePassword({
         email: userEmail,
         oldPassword,
         newPassword,
         confirmPassword
-      }),
-    })
-      .then(res => res.text())
-      .then(message => {
-        alert(message);
-        setOldPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
-      })
-      .catch(err => alert('Error changing password: ' + err))
-      .finally(() => setIsLoading(false));
+      });
+
+      alert('Password updated successfully!');
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      console.error("Change Password Error:", err);
+      if (err.response?.status === 403) {
+        alert('Failed: You are not authorized. Please log in again.');
+      } else {
+        alert(`Failed: ${err.response?.data || 'Unknown error'}`);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const role = localStorage.getItem('role');
   
-  function handleRequestDualRole() {
+  const handleRequestDualRole = async () => {
     setIsLoading(true);
-    fetch(`${API_BASE_URL}/api/admins/roleRequests`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        id: localStorage.getItem('userId'),
-        requestedRole: 'OBSERVER'
-      })
-    })
-    .then(res => res.text())
-    .then(message => {
-        alert(message);
-        setRequestSubmitted(true);
-    })
-    .catch(console.error)
-    .finally(() => setIsLoading(false));
-  }
+    try {
+      const userId = localStorage.getItem('userId');
+      const res = await adminService.requestDualRole(userId);
+      alert(res.data || "Request submitted!");
+      setRequestSubmitted(true);
+    } catch (err) {
+      console.error("Role Request Error:", err);
+      alert(err.response?.status === 403 ? "Authorization failed" : "Request error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
       <Header />
       <div className="profile-container">
         <div className="profile-wrapper">
-          
           <div className="profile-card">
             <h2 className="profile-heading">Account Details</h2>
             <div className="profile-form">
               <div className="input-group">
                 <label>First Name</label>
-                <input
-                  type="text"
-                  className="profile-input read-only"
-                  value={firstName}
-                  readOnly
-                />
+                <input type="text" className="profile-input read-only" value={firstName} readOnly />
               </div>
               <div className="input-group">
                 <label>Last Name</label>
-                <input
-                  type="text"
-                  className="profile-input read-only"
-                  value={lastName}
-                  readOnly
-                />
+                <input type="text" className="profile-input read-only" value={lastName} readOnly />
               </div>
               <div className="input-group">
                 <label>Email Address</label>
-                <input
-                  type="email"
-                  className="profile-input read-only"
-                  value={email}
-                  readOnly
-                />
+                <input type="email" className="profile-input read-only" value={email} readOnly />
               </div>
             </div>
-            
-            {/* Role Request Section */}
             {role === "INSTRUCTOR" && !requestSubmitted && (
                 <div className="role-request-section">
                   <p className="role-text">Want to evaluate others?</p>
-                  <button 
-                    className="btn-secondary" 
-                    onClick={handleRequestDualRole}
-                    disabled={isLoading}
-                  >
-                    Request Observer Access
+                  <button className="btn-secondary" onClick={handleRequestDualRole} disabled={isLoading}>
+                    {isLoading ? 'Sending...' : 'Request Observer Access'}
                   </button>
                 </div>
             )}
@@ -139,6 +116,7 @@ const ProfilePage = () => {
                   className="profile-input"
                   value={oldPassword}
                   onChange={(e) => setOldPassword(e.target.value)}
+                  autoComplete="current-password"
                 />
               </div>
               <div className="input-group">
@@ -149,6 +127,7 @@ const ProfilePage = () => {
                   className="profile-input"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
+                  autoComplete="new-password"
                 />
               </div>
               <div className="input-group">
@@ -159,6 +138,7 @@ const ProfilePage = () => {
                   className="profile-input"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
+                  autoComplete="new-password"
                 />
               </div>
               
@@ -171,7 +151,6 @@ const ProfilePage = () => {
               </button>
             </div>
           </div>
-
         </div>
       </div>
     </>

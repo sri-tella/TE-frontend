@@ -4,6 +4,7 @@ import Header from '../../components/Header/header';
 import './obshome.css';
 import axios from 'axios';
 import { API_BASE_URL } from '../../constants';
+import { classService, evaluationService } from '../../services/apiService';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 const ObsHome = () => {
@@ -17,7 +18,7 @@ const ObsHome = () => {
   }, []);
 
   const fetchClasses = () => {
-    axios.get(`${API_BASE_URL}/api/classes/with-instructors`)
+classService.fetchClasses()
       .then(response => {
         const allData = response.data;
         const active = allData.filter(item => !item.isArchived);
@@ -32,9 +33,7 @@ const ObsHome = () => {
   };
 
   const updateArchiveStatus = (classId, status) => {
-    axios.put(`${API_BASE_URL}/api/classes/${classId}/archive`, status, {
-        headers: { 'Content-Type': 'application/json' }
-    })
+classService.updateArchiveStatus(classId, status)
     .catch(err => console.error("Failed to update archive status", err));
   };
 
@@ -95,18 +94,7 @@ const ObsHome = () => {
     }
 
     try {
-      const observerRes = await axios.get(`${API_BASE_URL}/api/observers/email/${observerEmail}`);
-      const observerId = observerRes.data.observer_id;
-      const startDate = new Date().toISOString().split('T')[0];
-      
-      const evaluationPayload = {
-        observerId,
-        instructorId: instructorInfo.instructorId,
-        classId: instructorInfo.classId,
-        date: startDate
-      };
-
-      const response = await axios.post(`${API_BASE_URL}/api/evaluations/start`, evaluationPayload);
+const response = await evaluationService.startEvaluation(observerEmail, instructorInfo);
       localStorage.setItem("evaluationId", response.data.evaluation_id);
       navigate('/Evaluate');
     } catch (error) {
