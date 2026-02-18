@@ -14,9 +14,15 @@ const SelectedRecommendations = () => {
   const normalizeTitle = (title) => title.replace(/^\d+\.\s*/, '');
 
   const [responses, setResponses] = useState(() => {
-    const { selectedOptions = [] } = location.state || {};
-    const storedResponses = JSON.parse(localStorage.getItem('selectedRecommendations') || '[]');
+    const { selectedOptions = [] } = location.state || { selectedOptions: [] };
+    // Пытаемся взять старые данные только если мы не пришли со свежими данными из MainForm
+    const isFreshStart = selectedOptions.length > 0;
+    const storedResponses = isFreshStart ? [] : JSON.parse(localStorage.getItem('selectedRecommendations') || '[]');
     
+    // Ищем текст доп. фидбека, котор ый пришел из MainForm
+    const mainFormAdditional = selectedOptions.find(opt => opt.sectionTitle === 'Additional Feedback');
+    const initialAdditionalText = mainFormAdditional?.feedbackText || '';
+
     let initialResponses = Object.entries(recommendationsMapping).map(([sectionTitle, recGroups]) => {
       const normalized = normalizeTitle(sectionTitle);
       const storedSection = storedResponses.find(res => normalizeTitle(res.title) === normalized) || {};
@@ -25,35 +31,31 @@ const SelectedRecommendations = () => {
         title: sectionTitle,
         options: Object.entries(recGroups).flatMap(([observation, recommendations]) => 
           recommendations.map(recommendation => {
-            const isSelected = selectedOptions.some(opt => opt.description === observation);
+            // Галочка ставится, если наблюдение БЫЛО выбрано на прошлом шаге
+const isSelectedByObservation = selectedOptions.some(opt => opt.description === observation && opt.selected);
             const storedOption = storedSection.options?.find(opt => opt.description === recommendation);
+            
             return {
               description: recommendation,
               observedDescription: observation,
-              selected: storedOption?.selected ?? isSelected,
-              showFeedback: storedOption?.selected ?? isSelected,
+              selected: isSelectedByObservation || (storedOption?.selected ?? false),
+              showFeedback: isSelectedByObservation || (storedOption?.selected ?? false),
               feedbackText: storedOption?.feedbackText || ''
             };
           })
         )
       };
     });
-
-    const additionalFeedbackTitle = 'Additional Feedback';
-    const hasAdditionalFeedback = initialResponses.some(sec => normalizeTitle(sec.title) === additionalFeedbackTitle);
-
-    if (!hasAdditionalFeedback) {
-      const storedAdditional = storedResponses.find(res => normalizeTitle(res.title) === additionalFeedbackTitle);
-      initialResponses.push({
-        title: additionalFeedbackTitle,
-        options: [{
-          description: 'Please type in any additional feedback or comments.',
-          feedbackText: storedAdditional?.options?.[0]?.feedbackText || '',
-          selected: true,
-          showFeedback: true,
-        }]
-      });
-    }
+    initialResponses.push({
+      title: 'Additional Feedback',
+      options: [{
+        description: 'Please type in any additional feedback or comments.',
+        feedbackText: initialAdditionalText,
+        selected: true,
+        showFeedback: true,
+      }]
+    });
+    
     return initialResponses;
   });
 
@@ -95,25 +97,32 @@ const SelectedRecommendations = () => {
   };
 
   const handleSave = () => {
+    const feedbacks = {}; 
+    
     const selectedOptions = responses.flatMap((section) => {
-      if (normalizeTitle(section.title) === 'Additional Feedback') {
+      const normalizedTitle = normalizeTitle(section.title);
+      
+      if (normalizedTitle === 'Additional Feedback') {
+        feedbacks['Additional Feedback'] = section.options[0].feedbackText;
+        
         return section.options[0].feedbackText ? [{
           ...section.options[0],
           sectionTitle: 'Additional Feedback',
         }] : [];
       }
+      
       return section.options
         .filter(option => option.selected)
         .map(option => ({
           ...option,
-          sectionTitle: normalizeTitle(section.title),
+          sectionTitle: normalizedTitle,
         }));
     });
-    
     navigate('/viewReport', {
       state: {
         evaluationId,
         selectedRecommendations: selectedOptions,
+        feedbacks: feedbacks,
         observerId,
         instructorId,
         classId

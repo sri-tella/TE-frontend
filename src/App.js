@@ -8,7 +8,7 @@ import Help from "./pages/Navbar/help";
 import IntroForm from "./pages/Evaluation/intro";
 import MainForm from "./pages/Evaluation/mainform";
 import Rec from "./pages/Evaluation/rec";
-import ReportViewer from './pages/Evaluation/reportviewer';
+import ReportViewer from './pages/Evaluation/reportViewer';
 import SelectedRecommendations from "./pages/Evaluation/recommendations";
 import ReviewRecommendations from "./pages/Evaluation/reviewrecommendations";
 import EditReport from "./pages/Evaluation/editreport";
