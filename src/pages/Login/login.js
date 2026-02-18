@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './auth.css';
-import { API_BASE_URL } from '../../constants';
+import { authService } from '../../services/apiService';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -15,39 +15,41 @@ const Login = () => {
     setError('');
     setIsLoading(true);
 
-    fetch(`${API_BASE_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    })
-      .then(response => {
-        if (!response.ok) throw new Error('Network response was not ok');
-        return response.json();
-      })
-      .then(data => {
-        if (data.message === 'Login successful') {
-          localStorage.setItem('userId', data.id);
-          localStorage.setItem('firstName', data.firstName);
-          localStorage.setItem('lastName', data.lastName);
-          localStorage.setItem('email', data.email);
-          
-          const role = data.roles.replace('[', '').replace(']', '');
-          localStorage.setItem('role', role);
-
-          if (role === 'OBSERVER') {
-             navigate('/obshome');
-          } else if (role === 'INSTRUCTOR') {
-             navigate('/inshome');
-          } else {
-             navigate('/home');
-          }
+    authService.login(email, password)
+  .then(response => {
+      const data = response.data;
+      const token = data.token || data.accessToken || data.jwt; 
+      console.log("Данные от token:", token);
+      if (data.message === 'Login successful' || token) {
+        if (token) {
+          localStorage.setItem('token', token);
         } else {
-          setError('Invalid email or password');
+          console.error("ВНИМАНИЕ: Сервер не прислал токен! Проверьте бэкенд.");
         }
-      })
+        
+        localStorage.setItem('userId', data.instructorId);
+        localStorage.setItem('firstName', data.firstName);
+        localStorage.setItem('lastName', data.lastName);
+        localStorage.setItem('email', data.email);
+        
+        const role = data.roles ? data.roles.replace(/[\[\]]/g, '') : '';
+        localStorage.setItem('role', role);
+
+        if (role === 'OBSERVER') {
+            navigate('/obshome');
+        } else if (role === 'INSTRUCTOR') {
+            navigate('/inshome');
+        } else {
+            navigate('/home');
+        }
+      } else {
+        setError('Invalid email or password');
+      }
+    })
       .catch(error => {
-        console.error(error);
-        setError('Server error. Please try again later.');
+        console.error("Login error:", error);
+        const message = error.response?.data?.message || 'Invalid email or password';
+        setError(message);
       })
       .finally(() => {
         setIsLoading(false);

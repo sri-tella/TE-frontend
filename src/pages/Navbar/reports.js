@@ -5,6 +5,7 @@ import Header from '../../components/Header/header';
 import { useNavigate } from 'react-router-dom';
 import './reports.css';
 import { API_BASE_URL } from '../../constants';
+import { reportService } from '../../services/apiService';
 
 const Reports = () => {
   const [reports, setReports] = useState([]);
@@ -25,7 +26,7 @@ const Reports = () => {
 
   useEffect(() => {
     // Fetch all reports from API on component mount
-    axios.get(`${API_BASE_URL}/api/reports`)
+reportService.fetchReports()
       .then(response => {
         setReports(response.data);
       })
@@ -37,7 +38,7 @@ const Reports = () => {
 
   const handleDownloadPDF = async (reportId) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/reports/${reportId}/pdf`, { responseType: 'blob' });
+const response = await reportService.downloadPDF(reportId);
       const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
       const pdfUrl = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
