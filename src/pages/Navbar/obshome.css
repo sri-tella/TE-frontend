@@ -24,6 +24,8 @@
   align-items: flex-start;
   max-width: 1200px;
   margin: 0 auto;
+  height: calc(100vh - 250px); /* Fixed height for the container */
+  min-height: 400px;
 }
 
 .dnd-column {
@@ -31,7 +33,7 @@
   background-color: #f8f9fa;
   border-radius: 12px;
   padding: 20px;
-  min-height: 500px;
+  height: 100%; /* Fill the container height */
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
@@ -44,15 +46,12 @@
   font-weight: 700;
   border-bottom: 2px solid #e5e7eb;
   padding-bottom: 10px;
+  flex-shrink: 0; /* Header doesn't shrink */
 }
 
 .archive-column {
   background-color: #eaeaea;
   border: 2px dashed #bbb;
-  position: -webkit-sticky;
-  position: sticky;
-  top: 100px;
-  height: fit-content;
 }
 
 .class-list {
@@ -60,6 +59,8 @@
   padding: 10px;
   border-radius: 8px;
   transition: background-color 0.2s ease;
+  overflow-y: auto; /* Enable scrolling for the list */
+  max-height: 100%;
 }
 
 .dragging-over {
@@ -129,7 +130,12 @@
 
 .actions-area {
   text-align: center;
-  margin-top: 30px;
+  margin-top: 20px;
+  padding: 10px 0;
+  position: sticky;
+  bottom: 0;
+  background: transparent;
+  z-index: 10;
 }
 
 .obs-button {
@@ -143,7 +149,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
   transition: all 0.2s ease;
 }
 
