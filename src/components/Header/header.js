@@ -4,7 +4,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Container from 'react-bootstrap/Container';
 import { House, FileText, QuestionCircle, BoxArrowRight, Gear, Person, Bell } from 'react-bootstrap-icons';
-import logo from "../../images/Baylor-University-Logo.jpg";
+import logo from "../../images/Baylor_Athletics_logo.svg.png";
 import './header.css';
 import { API_BASE_URL } from '../../constants';
 
