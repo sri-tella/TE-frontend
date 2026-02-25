@@ -6,6 +6,7 @@ import axios from 'axios';
 import { API_BASE_URL } from '../../constants';
 import { classService, evaluationService } from '../../services/apiService';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { JournalCheck, Archive, PlayCircleFill, PersonBadge, Book, CheckCircleFill } from 'react-bootstrap-icons';
 
 const ObsHome = () => {
   const [activeClasses, setActiveClasses] = useState([]);
@@ -114,22 +115,40 @@ classService.updateArchiveStatus(classId, status)
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className={`class-card ${isSelected ? 'selected-card' : ''}`}
+          className={`class-card ${isSelected ? 'selected-card' : ''} ${snapshot.isDragging ? 'dragging-card' : ''}`}
           onClick={() => isClickable && handleClassSelect(info)}
           style={{
             ...provided.draggableProps.style,
-            opacity: snapshot.isDragging ? 0.8 : 1,
             cursor: isClickable ? 'pointer' : 'default'
           }}
         >
-          <div className="card-header">
-            <strong>{info.title}</strong>
+          {isSelected && <CheckCircleFill className="selection-badge" />}
+          
+          <div className="card-top">
+            <div className="course-icon-box">
+              <Book />
+            </div>
+            <div className="course-title-area">
+              <strong className="course-title-text">{info.title}</strong>
+              <small className="course-id-label">ID: #{info.classId}</small>
+            </div>
           </div>
-          <div className="card-body">
-            <span className="instructor-name">{info.instructorFirstName} {info.instructorLastName}</span>
-            <small>{info.instructorEmail}</small>
-            <p>{info.description}</p>
+
+          <div className="card-mid">
+            <div className="instructor-badge">
+              <PersonBadge className="badge-icon" />
+              <div className="instructor-details">
+                <span className="instructor-name-text">{info.instructorFirstName} {info.instructorLastName}</span>
+                <span className="instructor-email-text">{info.instructorEmail}</span>
+              </div>
+            </div>
           </div>
+
+          {info.description && (
+            <div className="card-footer-desc">
+              <p>{info.description}</p>
+            </div>
+          )}
         </div>
       )}
     </Draggable>
@@ -145,7 +164,12 @@ classService.updateArchiveStatus(classId, status)
           <div className="dnd-container">
             
             <div className="dnd-column">
-              <h3>Available Classes</h3>
+              <h3>
+                <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+                  <JournalCheck /> Available Classes
+                </div>
+                <span className="column-count">{activeClasses.length}</span>
+              </h3>
               <Droppable droppableId="active">
                 {(provided, snapshot) => (
                   <div
@@ -162,14 +186,19 @@ classService.updateArchiveStatus(classId, status)
                       />
                     ))}
                     {provided.placeholder}
-                    {activeClasses.length === 0 && <p className="empty-msg">No active classes</p>}
+                    {activeClasses.length === 0 && <p className="empty-msg">No active classes available</p>}
                   </div>
                 )}
               </Droppable>
             </div>
 
             <div className="dnd-column archive-column">
-              <h3>Archive 🗑️</h3>
+              <h3>
+                <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+                  <Archive /> Archived Sessions
+                </div>
+                <span className="column-count">{archivedClasses.length}</span>
+              </h3>
               <Droppable droppableId="archive">
                 {(provided, snapshot) => (
                   <div
@@ -202,7 +231,7 @@ classService.updateArchiveStatus(classId, status)
             disabled={!selectedClassId}
             onClick={handleStartObservation}
             >
-            Start Evaluation
+            <PlayCircleFill style={{marginRight: '10px'}} /> Start Evaluation
             </button>
         </div>
       </div>
