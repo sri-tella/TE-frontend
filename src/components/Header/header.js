@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, NavLink, Link } from 'react-router-dom';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Container from 'react-bootstrap/Container';
@@ -53,7 +53,7 @@ const Header = () => {
   };
 
   return (
-    <Navbar className="custom-navbar" expand="lg" variant="dark">
+    <Navbar className="custom-navbar" expand="lg">
       <Container fluid className="px-4">
         
         <Navbar.Brand as={Link} to="/home" className="brand-logo-container">
@@ -69,32 +69,32 @@ const Header = () => {
         <Navbar.Collapse id="basic-navbar-nav" className="justify-content-between">
           
           <Nav className="nav-left-block">
-            <Nav.Link as={Link} to="/home" className="nav-item-link">
-              <House size={20} className="nav-icon" /> Home
-            </Nav.Link>
-            <Nav.Link as={Link} to="/reports" className="nav-item-link">
-              <FileText size={20} className="nav-icon" /> Reports
-            </Nav.Link>
-            <Nav.Link as={Link} to="/help" className="nav-item-link">
-              <QuestionCircle size={20} className="nav-icon" /> Help
-            </Nav.Link>
+            <NavLink to="/home" className={({isActive}) => isActive ? "nav-item-link active" : "nav-item-link"}>
+              <House size={18} className="nav-icon" /> Home
+            </NavLink>
+            <NavLink to="/reports" className={({isActive}) => isActive ? "nav-item-link active" : "nav-item-link"}>
+              <FileText size={18} className="nav-icon" /> Reports
+            </NavLink>
+            <NavLink to="/help" className={({isActive}) => isActive ? "nav-item-link active" : "nav-item-link"}>
+              <QuestionCircle size={18} className="nav-icon" /> Help
+            </NavLink>
             {role === 'ADMIN' && (
-              <Nav.Link as={Link} to="/settings" className="nav-item-link">
-                <Gear size={20} className="nav-icon" /> Settings
-              </Nav.Link>
+              <NavLink to="/settings" className={({isActive}) => isActive ? "nav-item-link active" : "nav-item-link"}>
+                <Gear size={18} className="nav-icon" /> Settings
+              </NavLink>
             )}
           </Nav>
 
           <Nav className="nav-right-block align-items-center">
             {username && (
-              <span className="welcome-text">
+              <div className="welcome-text">
                 Hi, <strong>{username}</strong>
-              </span>
+              </div>
             )}
 
             <div className="notification-wrapper">
               <div className="nav-icon-btn" onClick={() => setShowDropdown(!showDropdown)}>
-                <Bell size={22} />
+                <Bell size={20} className="bi-bell" />
                 {notifications.length > 0 && <span className="notification-badge">{notifications.length}</span>}
               </div>
               
@@ -115,12 +115,12 @@ const Header = () => {
               )}
             </div>
 
-            <Nav.Link as={Link} to="/myprofile" className="nav-item-link profile-link">
-               <Person size={24} className="nav-icon" /> Profile
-            </Nav.Link>
+            <NavLink to="/myprofile" className={({isActive}) => isActive ? "nav-item-link active profile-link" : "nav-item-link profile-link"}>
+               <Person size={22} className="nav-icon" /> Profile
+            </NavLink>
             
             <button onClick={handleLogout} className="logout-btn">
-              <BoxArrowRight size={20} className="nav-icon" /> Logout
+              <BoxArrowRight size={18} className="nav-icon" /> Logout
             </button>
           </Nav>
 
