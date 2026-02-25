@@ -1,78 +1,75 @@
 import React from 'react';
 import Header from '../../components/Header/header';
 import './help.css';
-import { Eye, PersonVideo3, ShieldLock, Envelope } from 'react-bootstrap-icons';
+import { Eye, PersonVideo3, ShieldLock, Envelope, ArrowRightCircle, Check2Circle } from 'react-bootstrap-icons';
 
 const Help = () => {
-  const role = localStorage.getItem('role');
-  const roles = role ? role.split(',').map(r => r.trim()) : [];
+  const role = localStorage.getItem('role') || '';
+  const roles = role.split(',').map(r => r.trim());
 
-  const showObserver = roles.includes('OBSERVER');
-  const showInstructor = roles.includes('INSTRUCTOR');
-  const showAdmin = roles.includes('ADMIN');
+  const isObserver = roles.includes('OBSERVER');
+  const isInstructor = roles.includes('INSTRUCTOR');
+  const isAdmin = roles.includes('ADMIN');
 
   return (
     <>
       <Header />
       <div className="help-page-container">
-        <div className="help-card">
-          <h1 className="help-heading">Help & Instructions</h1>
-          <p className="help-subtext">Follow the steps below based on your role.</p>
+        <div className="help-main-card">
+          
+          <header className="help-header">
+            <h1 className="help-heading">Platform Guidance</h1>
+            <p className="help-subtext">Comprehensive workflow instructions for your institutional role</p>
+          </header>
 
-          <div className="help-body">
-            {showObserver && (
-              <div className="help-section">
-                <h2><Eye className="section-icon" /> Steps for Observers</h2>
-                <ol>
-                  <li>Log in and navigate to the <strong>Start Observation</strong> page.</li>
-                  <li>Select the instructor and class you want to observe from the list.</li>
-                  <li>Fill in the observation form during or after the session.</li>
-                  <li>Save and review your observations carefully.</li>
-                  <li>Generate and download the final observation report.</li>
-                </ol>
+          <div className="help-sections-wrapper">
+            {isObserver && (
+              <div className="help-compact-section">
+                <h3><Eye /> Observer Workflow</h3>
+                <div className="help-steps-grid">
+                  <div className="step-item"><span>1</span> Navigate to <strong>Start Observation</strong> dashboard</div>
+                  <div className="step-item"><span>2</span> Identify target <strong>Instructor & Class</strong> credentials</div>
+                  <div className="step-item"><span>3</span> Document insights via <strong>Pedagogical Framework</strong></div>
+                  <div className="step-item"><span>4</span> Execute <strong>Data Validation</strong> & Save progress</div>
+                  <div className="step-item"><span>5</span> Generate <strong>Professional AI-Enhanced Report</strong></div>
+                </div>
               </div>
             )}
 
-            {showInstructor && (
-              <div className="help-section">
-                <h2><PersonVideo3 className="section-icon" /> Steps for Instructors</h2>
-                <ol>
-                  <li>Log in and navigate to the <strong>Course Form</strong> page.</li>
-                  <li>Fill out your course/session details accurately.</li>
-                  <li>Submit your form to make it available for observers in the system.</li>
-                  <li>If needed, request <strong>Observer Access</strong> via the Profile page.</li>
-                </ol>
+            {isInstructor && (
+              <div className="help-compact-section">
+                <h3><PersonVideo3 /> Instructor Workflow</h3>
+                <div className="help-steps-grid">
+                  <div className="step-item"><span>1</span> Initialize your <strong>Course Credentials</strong> form</div>
+                  <div className="step-item"><span>2</span> Define <strong>Strategic Learning Objectives</strong></div>
+                  <div className="step-item"><span>3</span> Finalize session for <strong>Observer Discovery</strong></div>
+                  <div className="step-item"><span>4</span> Request <strong>Dual-Role Privileges</strong> if needed</div>
+                </div>
               </div>
             )}
 
-            {showAdmin && (
-              <div className="help-section">
-                <h2><ShieldLock className="section-icon" /> Steps for Admins</h2>
-                <ol>
-                  <li>Log in and navigate to the <strong>Account Management</strong> tab.</li>
-                  <li>Add new admins or remove existing users as needed.</li>
-                  <li>Review and approve instructor role requests for dual access.</li>
-                </ol>
+            {isAdmin && (
+              <div className="help-compact-section">
+                <h3><ShieldLock /> Admin Orchestration</h3>
+                <div className="help-steps-grid">
+                  <div className="step-item"><span>1</span> Manage <strong>User Identities</strong> & access levels</div>
+                  <div className="step-item"><span>2</span> Authorize <strong>Cross-Role Access</strong> requests</div>
+                  <div className="step-item"><span>3</span> Monitor <strong>System-Wide Integrity</strong> & Audits</div>
+                </div>
               </div>
             )}
-
-            {!showObserver && !showInstructor && !showAdmin && (
-              <div className="help-section">
-                <h2>General Instructions</h2>
-                <p>No specific role detected. Please contact the administrator.</p>
-              </div>
-            )}
-
-            <div className="contact-section">
-              <h3><Envelope className="section-icon" /> Need More Help?</h3>
-              <p>
-                If you face issues, please contact support at: <br />
-                <a href="mailto:teachingevaluation@gmail.com?subject=Support Request" className="contact-link">
-                  teachingevaluation@gmail.com
-                </a>
-              </p>
-            </div>
           </div>
+
+          <footer className="help-footer-simple">
+            <div className="contact-info">
+              <Envelope style={{color: '#FFB81C'}} /> 
+              <span>Institutional Support: <strong>teachingevaluation@gmail.com</strong></span>
+            </div>
+            <a href="mailto:teachingevaluation@gmail.com" className="btn-contact-simple">
+              Get Assistance <ArrowRightCircle />
+            </a>
+          </footer>
+
         </div>
       </div>
     </>
