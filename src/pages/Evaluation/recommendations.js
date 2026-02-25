@@ -15,7 +15,6 @@ const SelectedRecommendations = () => {
 
   const [responses, setResponses] = useState(() => {
     const { selectedOptions = [] } = location.state || { selectedOptions: [] };
-    // Пытаемся взять старые данные только если мы не пришли со свежими данными из MainForm
     const isFreshStart = selectedOptions.length > 0;
     const storedResponses = isFreshStart ? [] : JSON.parse(localStorage.getItem('selectedRecommendations') || '[]');
     

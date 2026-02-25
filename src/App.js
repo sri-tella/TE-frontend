@@ -113,7 +113,6 @@ const [evaluation, setEvaluation] = useState({
   };
 
   const completeEvaluation = () => {
-    // Save evaluation to backend
     console.log("Evaluation submitted:", evaluation);
   };
 
