@@ -41,12 +41,24 @@ const MainForm = ({ sections, saveSection }) => {
       const storedAdditional = storedResponses.find(res => normalizeTitle(res.title) === 'Additional Feedback');
       initialResponses.push({
         title: additionalFeedbackTitle,
-        options: [{
-          description: 'Please type in any additional feedback or comments.',
-          feedbackText: storedAdditional?.options[0]?.feedbackText || '',
-          selected: true,
-          showFeedback: true,
-        }]
+        options: [
+          {
+            description: "Did the class session meet the instructor's goal or objective?",
+            feedbackText: (storedAdditional?.options?.[0]?.description === "Did the class session meet the instructor's goal or objective?" 
+              ? storedAdditional.options[0].feedbackText 
+              : storedAdditional?.options?.[0]?.feedbackText) || '',
+            selected: true,
+            showFeedback: true,
+          },
+          {
+            description: "Other Comments or Recommendations",
+            feedbackText: (storedAdditional?.options?.[1]?.description === "Other Comments or Recommendations"
+              ? storedAdditional.options[1].feedbackText
+              : "") || '',
+            selected: true,
+            showFeedback: true,
+          }
+        ]
       });
     }
 
@@ -104,10 +116,10 @@ const MainForm = ({ sections, saveSection }) => {
 
     const selectedOptions = responses.flatMap((section) => {
       if (normalizeTitle(section.title) === 'Additional Feedback') {
-        return section.options[0].feedbackText ? [{
-          ...section.options[0],
+        return section.options.map(opt => ({
+          ...opt,
           sectionTitle: 'Additional Feedback',
-        }] : [];
+        }));
       }
       return section.options
         .filter(option => option.selected)

@@ -93,12 +93,16 @@ classService.updateArchiveStatus(classId, status)
       return;
     }
 
-    try {
-const response = await evaluationService.startEvaluation(observerEmail, instructorInfo);
-      localStorage.setItem("evaluationId", response.data.evaluation_id);
-      navigate('/Evaluate');
-    } catch (error) {
-      console.error(error);
+        try {
+          const response = await evaluationService.startEvaluation(observerEmail, instructorInfo);
+          localStorage.setItem("evaluationId", response.data.evaluation_id);
+          
+          // Clear previous session data
+          localStorage.removeItem('savedResponses');
+          localStorage.removeItem('selectedRecommendations');
+          
+          navigate('/Evaluate');
+        } catch (error) {      console.error(error);
       alert("Failed to start evaluation.");
     }
   };
