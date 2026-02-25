@@ -45,10 +45,16 @@ const ReportPdfDocument = ({ data, aiFeedbacks, backgroundInfo }) => {
           <Text style={styles.text}><Text style={styles.label}>Observer: </Text>{observerName}</Text>
         </View>
 
+        <View style={{ marginBottom: 15 }}>
+          <Text style={styles.subTitle}>Background Information</Text>
+          <Text style={styles.text}><Text style={styles.label}>Learning Goal/Objective: </Text>{backgroundInfo.goal || 'N/A'}</Text>
+          <Text style={styles.text}><Text style={styles.label}>Outline: </Text>{backgroundInfo.outline || 'N/A'}</Text>
+        </View>
+
         {Object.keys(categoryQuestions).map((cat) => {
           const sec = sections[cat] || { observations: [], recommendations: [] };
           return (
-            <View key={cat} wrap={false} style={{ marginBottom: 12 }}>
+            <View key={cat} style={{ marginBottom: 15, paddingBottom: 10, borderBottom: '0.5pt solid #eee' }}>
               <Text style={styles.sectionHeader}>{categoryQuestions[cat]}</Text>
               <View style={styles.contentBlock}>
                 <Text style={[styles.text, { fontWeight: 'bold' }]}>Observations:</Text>
@@ -68,14 +74,37 @@ const ReportPdfDocument = ({ data, aiFeedbacks, backgroundInfo }) => {
               </View>
 
               {aiFeedbacks[cat] && (
-                <View style={styles.aiBox}>
-                  <Text style={styles.aiHeader}>Institutional AI Analysis</Text>
-                  <Text style={styles.text}>{aiFeedbacks[cat].replace(/<[^>]*>?/gm, '')}</Text>
+                <View style={{ marginTop: 10 }}>
+                  {aiFeedbacks[cat]
+                    .replace(/<\/div>/gi, '\n')
+                    .replace(/<br\s*\/?>/gi, '\n')
+                    .replace(/<[^>]*>?/gm, '')
+                    .split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line.length > 0)
+                    .map((line, i) => (
+                      <Text key={i} style={[styles.text, { fontSize: 10, marginBottom: 3, lineHeight: 1.2 }]}>
+                        {line.replace(/\*/g, '').replace(/##/g, '')}
+                      </Text>
+                    ))
+                  }
                 </View>
               )}
             </View>
           );
         })}
+
+        <View wrap={false} style={{ marginTop: 20 }}>
+          <Text style={[styles.subTitle, { fontSize: 16, borderBottom: '1pt solid #eee', paddingBottom: 5 }]}>Additional Feedback</Text>
+          <View style={{ marginTop: 10 }}>
+            <Text style={[styles.text, { fontWeight: 'bold' }]}>Did the class session meet the instructor's goal or objective?</Text>
+            <Text style={styles.text}>{feedbacks['Additional Feedback'] || 'No additional feedback provided.'}</Text>
+          </View>
+          <View style={{ marginTop: 15 }}>
+            <Text style={[styles.text, { fontWeight: 'bold' }]}>Other Comments or Recommendations</Text>
+            <Text style={styles.text}>{feedbacks['Other Comments or Recommendations'] || 'No other comments.'}</Text>
+          </View>
+        </View>
 
         <Text style={styles.footer} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} fixed />
       </Page>

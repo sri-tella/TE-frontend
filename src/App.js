@@ -8,7 +8,7 @@ import Help from "./pages/Navbar/help";
 import IntroForm from "./pages/Evaluation/intro";
 import MainForm from "./pages/Evaluation/mainform";
 import Rec from "./pages/Evaluation/rec";
-import ReportViewer from './pages/Evaluation/reportViewer';
+import ReportViewer from './pages/Evaluation/reportviewer';
 import SelectedRecommendations from "./pages/Evaluation/recommendations";
 import ReviewRecommendations from "./pages/Evaluation/reviewrecommendations";
 import EditReport from "./pages/Evaluation/editreport";
@@ -135,7 +135,7 @@ const [evaluation, setEvaluation] = useState({
            <Route path="/Evaluate" element={<MainForm sections={evaluation.sections} saveSection={saveSection} />} />
            <Route path="/SelectedRecommendations" element={<SelectedRecommendations evaluation={evaluation} />} />
            <Route path="/myprofile" element = {<Profile />} />
-//           <Route path="/ReviewRecommendations" element={<ReviewRecommendations completeEvaluation={completeEvaluation} />} />
+           {/* <Route path="/ReviewRecommendations" element={<ReviewRecommendations completeEvaluation={completeEvaluation} />} /> */}
         </Routes>
     </BrowserRouter>
   );

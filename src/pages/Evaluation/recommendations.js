@@ -19,9 +19,9 @@ const SelectedRecommendations = () => {
     const isFreshStart = selectedOptions.length > 0;
     const storedResponses = isFreshStart ? [] : JSON.parse(localStorage.getItem('selectedRecommendations') || '[]');
     
-    // Ищем текст доп. фидбека, котор ый пришел из MainForm
-    const mainFormAdditional = selectedOptions.find(opt => opt.sectionTitle === 'Additional Feedback');
-    const initialAdditionalText = mainFormAdditional?.feedbackText || '';
+    const goalFeedback = selectedOptions.find(opt => opt.description === "Did the class session meet the instructor's goal or objective?")?.feedbackText || 
+                         selectedOptions.find(opt => opt.sectionTitle === 'Additional Feedback')?.feedbackText || '';
+    const otherFeedback = selectedOptions.find(opt => opt.description === "Other Comments or Recommendations")?.feedbackText || '';
 
     let initialResponses = Object.entries(recommendationsMapping).map(([sectionTitle, recGroups]) => {
       const normalized = normalizeTitle(sectionTitle);
@@ -31,8 +31,9 @@ const SelectedRecommendations = () => {
         title: sectionTitle,
         options: Object.entries(recGroups).flatMap(([observation, recommendations]) => 
           recommendations.map(recommendation => {
-            // Галочка ставится, если наблюдение БЫЛО выбрано на прошлом шаге
-const isSelectedByObservation = selectedOptions.some(opt => opt.description === observation && opt.selected);
+            // Find if the observation that triggers this recommendation was selected
+            const matchedObservation = selectedOptions.find(opt => opt.description === observation && opt.selected);
+            const isSelectedByObservation = !!matchedObservation;
             const storedOption = storedSection.options?.find(opt => opt.description === recommendation);
             
             return {
@@ -40,7 +41,8 @@ const isSelectedByObservation = selectedOptions.some(opt => opt.description === 
               observedDescription: observation,
               selected: isSelectedByObservation || (storedOption?.selected ?? false),
               showFeedback: isSelectedByObservation || (storedOption?.selected ?? false),
-              feedbackText: storedOption?.feedbackText || ''
+              // Carry over feedback from observation page if it exists
+              feedbackText: storedOption?.feedbackText || matchedObservation?.feedbackText || ''
             };
           })
         )
@@ -48,12 +50,20 @@ const isSelectedByObservation = selectedOptions.some(opt => opt.description === 
     });
     initialResponses.push({
       title: 'Additional Feedback',
-      options: [{
-        description: 'Please type in any additional feedback or comments.',
-        feedbackText: initialAdditionalText,
-        selected: true,
-        showFeedback: true,
-      }]
+      options: [
+        {
+          description: "Did the class session meet the instructor's goal or objective?",
+          feedbackText: goalFeedback,
+          selected: true,
+          showFeedback: true,
+        },
+        {
+          description: "Other Comments or Recommendations",
+          feedbackText: otherFeedback,
+          selected: true,
+          showFeedback: true,
+        }
+      ]
     });
     
     return initialResponses;
@@ -103,12 +113,18 @@ const isSelectedByObservation = selectedOptions.some(opt => opt.description === 
       const normalizedTitle = normalizeTitle(section.title);
       
       if (normalizedTitle === 'Additional Feedback') {
-        feedbacks['Additional Feedback'] = section.options[0].feedbackText;
+        section.options.forEach(opt => {
+          if (opt.description === "Did the class session meet the instructor's goal or objective?") {
+            feedbacks['Additional Feedback'] = opt.feedbackText;
+          } else if (opt.description === "Other Comments or Recommendations") {
+            feedbacks['Other Comments or Recommendations'] = opt.feedbackText;
+          }
+        });
         
-        return section.options[0].feedbackText ? [{
-          ...section.options[0],
+        return section.options.filter(opt => opt.feedbackText).map(opt => ({
+          ...opt,
           sectionTitle: 'Additional Feedback',
-        }] : [];
+        }));
       }
       
       return section.options

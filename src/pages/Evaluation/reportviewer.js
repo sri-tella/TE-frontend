@@ -35,20 +35,36 @@ const withMinDelay = async (task, delay = 800) => {
 
 const formatAiResponse = (text) => {
     if (!text) return '';
-    const obsPart = text.split(/## Recommendations for Improvement/i)[0].replace(/## Key Observations|\[.*?\]/gi, '').split('\n').filter(l => l.trim()).join('<br/>');
-    const recPart = text.split(/## Recommendations for Improvement/i)[1]?.split('\n').filter(l => l.trim()).join('<br/>') || '';
+    // Clean markdown and unwanted markers/headers
+    let cleanRaw = text.replace(/\*\*/g, '').replace(/##/g, '').replace(/^\s*\* /gm, '');
+    
+    // Remove "Institutional AI Analysis" variations
+    cleanRaw = cleanRaw.replace(/\(?Institutional AI Analysis\)?[:\-]?/gi, '').trim();
+
+    const sections = cleanRaw.split(/Recommendations for Improvement|Recommendations/i);
+    const obsPart = sections[0]
+        .replace(/Key Observations|Observations/i, '')
+        .split('\n')
+        .map(l => l.trim())
+        .filter(l => l.length > 0)
+        .join('<br/>');
+        
+    const recPart = sections[1]
+        ?.split('\n')
+        .map(l => l.trim())
+        .filter(l => l.length > 0)
+        .join('<br/>') || '';
 
     return `
-        <div style="margin: 20px 0; padding: 15px; background: #fff; border: 1px solid #e0e0e0; border-left: 5px solid #154734; border-radius: 4px;">
-            <h5 style="color: #154734; font-weight: bold; font-size: 11pt; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">INSTITUTIONAL AI ANALYSIS</h5>
-            <div style="margin-bottom: 10px;">
-                <strong style="color: #154734; font-size: 10pt;">Key Observations</strong>
-                <p style="font-size: 10.5pt; color: #444; margin-top: 5px;">${obsPart}</p>
+        <div style="margin: 15px 0; padding: 5px 0; border-top: 1px solid #eee;">
+            <div style="margin-bottom: 8px;">
+                <strong style="color: #154734; font-size: 10.5pt; display: block; margin-bottom: 4px;">Observations</strong>
+                <div style="font-size: 10.5pt; color: #444; line-height: 1.4;">${obsPart}</div>
             </div>
             ${recPart ? `
-            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ddd;">
-                <strong style="color: #154734; font-size: 10pt;">Recommendations for Improvement</strong>
-                <p style="font-size: 10.5pt; color: #444; margin-top: 5px;">${recPart}</p>
+            <div style="margin-top: 10px;">
+                <strong style="color: #154734; font-size: 10.5pt; display: block; margin-bottom: 4px;">Recommendations</strong>
+                <div style="font-size: 10.5pt; color: #444; line-height: 1.4;">${recPart}</div>
             </div>` : ''}
         </div>
     `;
@@ -248,6 +264,15 @@ const ReportViewer = () => {
     };
 
     const isBusy = loading.ai || loading.save || loading.doc;
+
+    useEffect(() => {
+        if (isBusy) {
+            document.body.classList.add('no-scroll');
+        } else {
+            document.body.classList.remove('no-scroll');
+        }
+        return () => document.body.classList.remove('no-scroll');
+    }, [isBusy]);
 
     return (
         <>
