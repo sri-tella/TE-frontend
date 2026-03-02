@@ -101,16 +101,18 @@ const Header = () => {
               {showDropdown && (
                 <div className="notification-dropdown">
                   <div className="dropdown-header">Notifications</div>
-                  {notifications.length === 0 ? (
-                    <div className="no-notifications">No new notifications</div>
-                  ) : (
-                    notifications.map(n => (
-                      <div key={n.id} className="notification-item">
-                        <span className="notif-message">{n.message}</span>
-                        <button onClick={() => handleMarkAsRead(n.id)} className="btn-close-notif">&times;</button>
-                      </div>
-                    ))
-                  )}
+                  <div className="notification-list-container">
+                    {notifications.length === 0 ? (
+                      <div className="no-notifications">No new notifications</div>
+                    ) : (
+                      notifications.map(n => (
+                        <div key={n.id} className="notification-item">
+                          <span className="notif-message">{n.message}</span>
+                          <button onClick={() => handleMarkAsRead(n.id)} className="btn-close-notif">&times;</button>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
               )}
             </div>
