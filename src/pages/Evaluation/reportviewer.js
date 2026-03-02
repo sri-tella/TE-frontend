@@ -98,6 +98,14 @@ const ReportViewer = () => {
     const [structuredData, setStructuredData] = useState(null);
     const [aiFeedbacks, setAiFeedbacks] = useState({});
     const [loading, setLoading] = useState({ ai: false, save: false, pdf: false, doc: false, init: true });
+    
+    // Состояние для данных сохранения (чтобы работало и из истории)
+    const [saveData, setSaveData] = useState({
+        observerId: null,
+        instructorId: null,
+        classId: null,
+        recommendations: []
+    });
 
     const setLoadingState = (key, value) => setLoading(prev => ({ ...prev, [key]: value }));
 
@@ -169,14 +177,12 @@ const ReportViewer = () => {
     useEffect(() => {
         if (!location.state) { navigate('/reports'); return; }
         
-        const { reportId, selectedRecommendations, feedbacks } = location.state;
+        const { reportId, selectedRecommendations, feedbacks, observerId, instructorId, classId } = location.state;
 
-        // Если мы пришли со страницы истории (только с ID)
         if (reportId && !selectedRecommendations) {
             reportService.fetchReportDetails(reportId)
                 .then(response => {
                     const data = response.data;
-                    // Преобразуем плоские данные из БД в структурированные для редактора
                     const grouped = {};
                     const sectionMapping = { "Visuals & PPT": "Visual Aids and Technology", "Pacing": "Delivery", "Affect": "Delivery", "Speech & Delivery": "Delivery", "Specific Activities": "Activities", "Student-Instructor Interactions": "Activities", "Expectations for Student Behavior": "Student Behavior" };
                     
@@ -194,6 +200,14 @@ const ReportViewer = () => {
                         courseTitle: data.courseTitle
                     });
                     setBackgroundInfo({ goal: data.classGoal, outline: data.classOutline, help: data.classHelp });
+                    
+                    // Сохраняем ID для возможного пересохранения
+                    setSaveData({
+                        observerId: data.observerId,
+                        instructorId: data.instructorId,
+                        classId: data.classId,
+                        recommendations: data.recommendations
+                    });
                 })
                 .catch(err => {
                     console.error("Fetch report error:", err);
@@ -201,7 +215,6 @@ const ReportViewer = () => {
                 })
                 .finally(() => setLoadingState('init', false));
         } 
-        // Если мы пришли из процесса создания отчета (с полными данными)
         else {
             const sectionMapping = { "Visuals & PPT": "Visual Aids and Technology", "Pacing": "Delivery", "Affect": "Delivery", "Speech & Delivery": "Delivery", "Specific Activities": "Activities", "Student-Instructor Interactions": "Activities", "Expectations for Student Behavior": "Student Behavior" };
             const grouped = {};
@@ -213,6 +226,13 @@ const ReportViewer = () => {
             });
             setStructuredData({ sections: grouped, feedbacks });
             
+            setSaveData({
+                observerId,
+                instructorId,
+                classId,
+                recommendations: selectedRecommendations
+            });
+
             const instructor = JSON.parse(localStorage.getItem('selectedInstructor') || '{}');
             if (instructor?.classId) {
                 classService.fetchClassDetails(instructor.classId)
@@ -289,14 +309,16 @@ const ReportViewer = () => {
     };
 
     const handleSaveEvaluation = async () => {
-        if (!location.state) return;
+        if (!saveData.instructorId) return;
         setLoadingState('save', true);
         try {
             await withMinDelay(async () => {
                 const evaluationData = {
                     date: new Date().toISOString().split('T')[0],
-                    observerId: location.state.observerId, instructorId: location.state.instructorId, classId: location.state.classId,
-                    recommendations: location.state.selectedRecommendations.map(rec => ({ ...rec, selected: true }))
+                    observerId: saveData.observerId, 
+                    instructorId: saveData.instructorId, 
+                    classId: saveData.classId,
+                    recommendations: saveData.recommendations.map(rec => ({ ...rec, selected: true }))
                 };
                 await fetch(`${API_BASE_URL}/api/evaluations/save`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(evaluationData) });
             });
@@ -363,7 +385,7 @@ const ReportViewer = () => {
                             <Button 
                                 onClick={handleSaveEvaluation} 
                                 className="eval-submit-btn-v3 px-5 py-3 rounded-pill font-weight-bold shadow w-auto" 
-                                disabled={loading.save || !!location.state.reportId}
+                                disabled={loading.save}
                                 style={{ pointerEvents: 'auto' }}
                             >
                                 <Save className="mr-2" /> {loading.save ? 'SAVING...' : 'SAVE REPORT'}
