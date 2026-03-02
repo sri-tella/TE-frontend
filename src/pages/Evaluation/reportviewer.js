@@ -14,7 +14,7 @@ import './mainform.css';
 import './tiptapStyle.css';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { API_BASE_URL } from '../../constants';
-import { classService } from '../../services/apiService';
+import { classService, reportService } from '../../services/apiService';
 import ReportPdfDocument from './ReportPdfDocument';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { generateWordReport } from './WordGenerator';
@@ -97,7 +97,7 @@ const ReportViewer = () => {
     const [backgroundInfo, setBackgroundInfo] = useState({ goal: '', help: '', outline: '' });
     const [structuredData, setStructuredData] = useState(null);
     const [aiFeedbacks, setAiFeedbacks] = useState({});
-    const [loading, setLoading] = useState({ ai: false, save: false, pdf: false, doc: false });
+    const [loading, setLoading] = useState({ ai: false, save: false, pdf: false, doc: false, init: true });
 
     const setLoadingState = (key, value) => setLoading(prev => ({ ...prev, [key]: value }));
 
@@ -116,12 +116,12 @@ const ReportViewer = () => {
     useEffect(() => { editorRef.current = editor; }, [editor]);
 
     const generateReportContent = useCallback((data, aiFbs, bgInfo) => {
-        if (!data) return '';
-        const { sections, feedbacks } = data;
+        if (!data || !data.sections) return '';
+        const { sections, feedbacks = {} } = data;
         const observerName = `${localStorage.getItem('firstName') || ''} ${localStorage.getItem('lastName') || ''}`.trim();
         const instructor = JSON.parse(localStorage.getItem('selectedInstructor') || '{}');
-        const instructorName = `${instructor.instructorFirstName || ''} ${instructor.instructorLastName || ''}`.trim();
-        const classTopic = instructor?.courseTitle || '';
+        const instructorName = data.instructorName || `${instructor.instructorFirstName || ''} ${instructor.instructorLastName || ''}`.trim();
+        const classTopic = data.courseTitle || instructor?.courseTitle || '';
         const now = new Date();
         const formattedDate = now.toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
         const formattedTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
@@ -168,21 +168,58 @@ const ReportViewer = () => {
 
     useEffect(() => {
         if (!location.state) { navigate('/reports'); return; }
-        const { selectedRecommendations, feedbacks } = location.state;
-        const sectionMapping = { "Visuals & PPT": "Visual Aids and Technology", "Pacing": "Delivery", "Affect": "Delivery", "Speech & Delivery": "Delivery", "Specific Activities": "Activities", "Student-Instructor Interactions": "Activities", "Expectations for Student Behavior": "Student Behavior" };
-        const grouped = {};
-        (selectedRecommendations || []).forEach(rec => {
-            const cat = sectionMapping[rec.sectionTitle] || rec.sectionTitle;
-            if (!grouped[cat]) grouped[cat] = { observations: [], recommendations: [] };
-            if (rec.observedDescription && !grouped[cat].observations.includes(rec.observedDescription)) grouped[cat].observations.push(rec.observedDescription);
-            grouped[cat].recommendations.push(rec);
-        });
-        setStructuredData({ sections: grouped, feedbacks });
-        const instructor = JSON.parse(localStorage.getItem('selectedInstructor') || '{}');
-        if (instructor?.classId) {
-            classService.fetchClassDetails(instructor.classId)
-                .then(data => setBackgroundInfo({ goal: data.goal, outline: data.outline, help: data.help }))
-                .catch(() => setBackgroundInfo({ goal: 'N/A', outline: 'N/A', help: 'N/A' }));
+        
+        const { reportId, selectedRecommendations, feedbacks } = location.state;
+
+        // Если мы пришли со страницы истории (только с ID)
+        if (reportId && !selectedRecommendations) {
+            reportService.fetchReportDetails(reportId)
+                .then(response => {
+                    const data = response.data;
+                    // Преобразуем плоские данные из БД в структурированные для редактора
+                    const grouped = {};
+                    const sectionMapping = { "Visuals & PPT": "Visual Aids and Technology", "Pacing": "Delivery", "Affect": "Delivery", "Speech & Delivery": "Delivery", "Specific Activities": "Activities", "Student-Instructor Interactions": "Activities", "Expectations for Student Behavior": "Student Behavior" };
+                    
+                    (data.recommendations || []).forEach(rec => {
+                        const cat = sectionMapping[rec.sectionTitle] || rec.sectionTitle;
+                        if (!grouped[cat]) grouped[cat] = { observations: [], recommendations: [] };
+                        if (rec.observedDescription && !grouped[cat].observations.includes(rec.observedDescription)) grouped[cat].observations.push(rec.observedDescription);
+                        grouped[cat].recommendations.push(rec);
+                    });
+
+                    setStructuredData({ 
+                        sections: grouped, 
+                        feedbacks: data.feedbacks || {},
+                        instructorName: data.instructorName,
+                        courseTitle: data.courseTitle
+                    });
+                    setBackgroundInfo({ goal: data.classGoal, outline: data.classOutline, help: data.classHelp });
+                })
+                .catch(err => {
+                    console.error("Fetch report error:", err);
+                    setErrorMessage("Failed to load report data.");
+                })
+                .finally(() => setLoadingState('init', false));
+        } 
+        // Если мы пришли из процесса создания отчета (с полными данными)
+        else {
+            const sectionMapping = { "Visuals & PPT": "Visual Aids and Technology", "Pacing": "Delivery", "Affect": "Delivery", "Speech & Delivery": "Delivery", "Specific Activities": "Activities", "Student-Instructor Interactions": "Activities", "Expectations for Student Behavior": "Student Behavior" };
+            const grouped = {};
+            (selectedRecommendations || []).forEach(rec => {
+                const cat = sectionMapping[rec.sectionTitle] || rec.sectionTitle;
+                if (!grouped[cat]) grouped[cat] = { observations: [], recommendations: [] };
+                if (rec.observedDescription && !grouped[cat].observations.includes(rec.observedDescription)) grouped[cat].observations.push(rec.observedDescription);
+                grouped[cat].recommendations.push(rec);
+            });
+            setStructuredData({ sections: grouped, feedbacks });
+            
+            const instructor = JSON.parse(localStorage.getItem('selectedInstructor') || '{}');
+            if (instructor?.classId) {
+                classService.fetchClassDetails(instructor.classId)
+                    .then(data => setBackgroundInfo({ goal: data.goal, outline: data.outline, help: data.help }))
+                    .catch(() => setBackgroundInfo({ goal: 'N/A', outline: 'N/A', help: 'N/A' }));
+            }
+            setLoadingState('init', false);
         }
     }, [location.state, navigate]);
 
@@ -215,7 +252,7 @@ const ReportViewer = () => {
 
         try {
             await withMinDelay(async () => {
-                const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+                const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
                 const sectionsToAnalyze = Object.keys(structuredData.sections)
                     .map(cat => `${cat}: ${structuredData.sections[cat]?.observations.join('; ')}`)
                     .join('\n\n');
@@ -269,7 +306,7 @@ const ReportViewer = () => {
         finally { setLoadingState('save', false); }
     };
 
-    const isBusy = loading.ai || loading.save || loading.doc;
+    const isBusy = loading.ai || loading.save || loading.doc || loading.init;
 
     useEffect(() => {
         if (isBusy) {
@@ -326,7 +363,7 @@ const ReportViewer = () => {
                             <Button 
                                 onClick={handleSaveEvaluation} 
                                 className="eval-submit-btn-v3 px-5 py-3 rounded-pill font-weight-bold shadow w-auto" 
-                                disabled={loading.save}
+                                disabled={loading.save || !!location.state.reportId}
                                 style={{ pointerEvents: 'auto' }}
                             >
                                 <Save className="mr-2" /> {loading.save ? 'SAVING...' : 'SAVE REPORT'}

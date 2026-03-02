@@ -45,6 +45,9 @@ export const reportService = {
   fetchReports: () => {
     return api.get('/api/reports');
   },
+  fetchReportDetails: (reportId) => {
+    return api.get(`/api/reports/${reportId}`);
+  },
   downloadPDF: (reportId) => {
     return api.get(`/api/reports/${reportId}/pdf`, { responseType: 'blob' });
   },
