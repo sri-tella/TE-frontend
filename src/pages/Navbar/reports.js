@@ -4,11 +4,12 @@ import Header from '../../components/Header/header';
 import { useNavigate } from 'react-router-dom';
 import './reports.css';
 import { reportService } from '../../services/apiService';
-import { FileEarmarkPdf, Eye, Trash, FileText, Search } from 'react-bootstrap-icons';
+import { FileEarmarkPdf, Eye, FileText, Search } from 'react-bootstrap-icons';
 
 const Reports = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [downloadingId, setDownloadingId] = useState(null);
   const [searchTerm, setSearchQuery] = useState('');
 
   const navigate = useNavigate();
@@ -16,15 +17,18 @@ const Reports = () => {
   useEffect(() => {
     reportService.fetchReports()
       .then(response => {
-        setReports(response.data);
+        // Убедимся, что данные - это массив
+        setReports(Array.isArray(response.data) ? response.data : []);
       })
       .catch(error => {
-        console.error('There was an error fetching the reports!', error);
+        console.error('Error fetching reports:', error);
       })
       .finally(() => setLoading(false));
   }, []);
 
   const handleDownloadPDF = async (reportId) => {
+    if (downloadingId) return;
+    setDownloadingId(reportId);
     try {
       const response = await reportService.downloadPDF(reportId);
       const pdfBlob = new Blob([response.data], { type: 'application/pdf' });
@@ -32,16 +36,22 @@ const Reports = () => {
       const link = document.createElement('a');
       link.href = pdfUrl;
       link.download = `Evaluation_Report_${reportId}.pdf`;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
       URL.revokeObjectURL(pdfUrl);
     } catch (error) {
       console.error('Error downloading the PDF:', error);
+      alert("Failed to download PDF. Please try again.");
+    } finally {
+      setDownloadingId(null);
     }
   };
 
   const filteredReports = reports.filter(r => 
     (r.instructorName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (r.courseTitle || '').toLowerCase().includes(searchTerm.toLowerCase())
+    (r.courseTitle || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (String(r.report_id)).includes(searchTerm)
   );
 
    return (
@@ -63,7 +73,7 @@ const Reports = () => {
                   <Search className="search-icon" />
                   <input 
                     type="text" 
-                    placeholder="Search instructor or course..." 
+                    placeholder="Search instructor, course or ID..." 
                     className="form-control-v3 search-input"
                     value={searchTerm}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -95,7 +105,7 @@ const Reports = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredReports.map((report, index) => (
+                      {filteredReports.map((report) => (
                         <tr key={report.report_id}>
                           <td className="pl-4 text-muted font-weight-bold">#{report.report_id}</td>
                           <td>
@@ -103,7 +113,7 @@ const Reports = () => {
                               <div className="instructor-avatar mr-2">
                                 {(report.instructorName || 'U').charAt(0)}
                               </div>
-                              <span className="instructor-name">{report.instructorName || 'Unknown Instructor'}</span>
+                              <span className="instructor-name">{report.instructorName || 'N/A'}</span>
                             </div>
                           </td>
                           <td>
@@ -122,9 +132,10 @@ const Reports = () => {
                                 variant="outline-success" 
                                 className="btn-action-baylor mr-2"
                                 onClick={() => handleDownloadPDF(report.report_id)}
+                                disabled={downloadingId === report.report_id}
                                 title="Download PDF"
                               >
-                                <FileEarmarkPdf />
+                                {downloadingId === report.report_id ? <Spinner animation="border" size="sm" /> : <FileEarmarkPdf />}
                               </Button>
                               <Button 
                                 variant="success" 
