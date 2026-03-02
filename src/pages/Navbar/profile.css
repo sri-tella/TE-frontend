@@ -1,152 +1,137 @@
-body, html {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family: 'Inter', sans-serif;
-}
-
-.profile-container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: calc(100vh - 80px); /* Учет высоты хедера */
-  padding: 40px 20px;
-  background: linear-gradient(rgba(21, 71, 52, 0.5), rgba(21, 71, 52, 0.3)), url('../../images/bgimg.avif');
+#profile-page-scoped {
+  background: linear-gradient(rgba(21, 71, 52, 0.6), rgba(21, 71, 52, 0.4)), url('../../images/bgimg.avif');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+  min-height: calc(100vh - 80px);
+  padding: 60px 0;
+  font-family: 'Inter', sans-serif;
 }
 
-.profile-wrapper {
-  display: flex;
-  gap: 30px;
-  width: 100%;
-  max-width: 1000px;
-  flex-wrap: wrap; /* Чтобы переносилось на моб */
-  justify-content: center;
-}
-
-.profile-card {
-  background-color: #ffffff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  flex: 1;
-  min-width: 320px; /* Минимальная ширина карточки */
-  max-width: 450px;
-  display: flex;
-  flex-direction: column;
-}
-
-.profile-heading {
-  font-size: 1.5rem;
-  color: #154734;
-  margin: 0 0 25px 0;
-  font-weight: 700;
-  text-align: center;
-  border-bottom: 2px solid #f0f2f5;
-  padding-bottom: 15px;
-}
-
-.profile-form {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-}
-
-.input-group {
-  text-align: left;
-  margin-bottom: 20px;
-}
-
-.input-group label {
-  display: block;
-  font-size: 0.85rem;
-  color: #374151;
-  margin-bottom: 6px;
-  font-weight: 600;
-}
-
-.profile-input {
-  width: 100%;
-  padding: 10px 15px;
-  font-size: 0.95rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  box-sizing: border-box;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  background-color: #fff;
-}
-
-.profile-input:focus {
-  outline: none;
-  border-color: #154734;
-  box-shadow: 0 0 0 3px rgba(21, 71, 52, 0.1);
-}
-
-/* Стиль для полей, которые нельзя менять */
-.profile-input.read-only {
-  background-color: #f3f4f6;
-  color: #6b7280;
-  border-color: #e5e7eb;
-  cursor: not-allowed;
-}
-
-.profile-button {
-  width: 100%;
-  padding: 12px 20px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  background-color: #FFB81C;
-  color: #154734;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  margin-top: auto; /* Прижимает кнопку к низу */
-}
-
-.profile-button:hover:not(:disabled) {
-  background-color: #e6a300;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.profile-button:disabled {
-  background-color: #e5e7eb;
-  color: #9ca3af;
-  cursor: not-allowed;
-}
-
-/* Секция запроса роли */
-.role-request-section {
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #e5e7eb;
-  text-align: center;
-}
-
-.role-text {
-  font-size: 0.9rem;
-  color: #4b5563;
+#profile-page-scoped .profile-main-title {
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 3rem;
+  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   margin-bottom: 10px;
 }
 
-.btn-secondary {
-  background-color: transparent;
-  border: 2px solid #154734;
-  color: #154734;
-  padding: 8px 16px;
-  border-radius: 6px;
+#profile-page-scoped .profile-sub-title {
+  color: #FFB81C;
+  font-size: 1.25rem;
   font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.9rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
-.btn-secondary:hover {
-  background-color: #154734;
-  color: #fff;
+/* Card Styling */
+#profile-page-scoped .profile-card {
+  background: #ffffff !important;
+  border-radius: 20px !important;
+  padding: 40px !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+#profile-page-scoped .profile-card:hover {
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2) !important;
+}
+
+#profile-page-scoped .profile-card-header h2 {
+  color: #003015;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+#profile-page-scoped .header-icon {
+  color: #FFB81C;
+  font-size: 2rem;
+}
+
+/* Form Styling */
+#profile-page-scoped .input-group-custom {
+  margin-bottom: 25px;
+}
+
+#profile-page-scoped .input-group-custom label {
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  color: #4a5568;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#profile-page-scoped .form-control {
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  padding: 12px 15px !important;
+  font-size: 1rem !important;
+  background-color: #ffffff !important; /* Белый фон */
+  transition: all 0.2s ease !important;
+}
+
+#profile-page-scoped .form-control:focus {
+  border-color: #003015 !important;
+  box-shadow: 0 0 0 4px rgba(0, 48, 21, 0.1) !important;
+  background-color: #ffffff !important;
+}
+
+#profile-page-scoped .form-control:focus::placeholder {
+  color: transparent;
+}
+
+#profile-page-scoped .read-only-input {
+  background-color: #edf2f7 !important;
+  color: #718096 !important;
+  cursor: not-allowed;
+}
+
+/* Buttons */
+#profile-page-scoped .btn-baylor-gold {
+  background-color: #FFB81C !important;
+  color: #003015 !important;
+  border: none !important;
+  border-radius: 50px !important;
+  padding: 14px 30px !important;
+  font-weight: 800 !important;
+  font-size: 1rem !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  box-shadow: 0 4px 12px rgba(255, 184, 28, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+#profile-page-scoped .btn-baylor-gold:hover {
+  background-color: #003015 !important;
+  color: #FFB81C !important;
+  box-shadow: 0 8px 20px rgba(0, 48, 21, 0.3) !important;
+}
+
+#profile-page-scoped .btn-outline-baylor {
+  border: 2px solid #003015 !important;
+  color: #003015 !important;
+  background: transparent !important;
+  border-radius: 50px !important;
+  padding: 10px 20px !important;
+  font-weight: 700 !important;
+  transition: all 0.2s !important;
+}
+
+#profile-page-scoped .btn-outline-baylor:hover {
+  background-color: #003015 !important;
+  color: #ffffff !important;
+}
+
+@media (max-width: 768px) {
+  #profile-page-scoped .profile-main-title {
+    font-size: 2.25rem;
+  }
+  
+  #profile-page-scoped .profile-card {
+    padding: 25px !important;
+  }
 }

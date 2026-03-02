@@ -39,16 +39,21 @@ classService.updateArchiveStatus(classId, status)
   };
 
   const handleClassSelect = (info) => {
-    setSelectedClassId(info.classId);
-    localStorage.setItem("selectedInstructor", JSON.stringify({
-      instructorId: info.instructorId,
-      instructorEmail: info.instructorEmail,
-      instructorFirstName: info.instructorFirstName,
-      instructorLastName: info.instructorLastName,
-      classId: info.classId,
-      courseTitle: info.title,
-      courseDescription: info.description
-    }));
+    if (selectedClassId === info.classId) {
+      setSelectedClassId(null);
+      localStorage.removeItem("selectedInstructor");
+    } else {
+      setSelectedClassId(info.classId);
+      localStorage.setItem("selectedInstructor", JSON.stringify({
+        instructorId: info.instructorId,
+        instructorEmail: info.instructorEmail,
+        instructorFirstName: info.instructorFirstName,
+        instructorLastName: info.instructorLastName,
+        classId: info.classId,
+        courseTitle: info.title,
+        courseDescription: info.description
+      }));
+    }
   };
 
   const onDragEnd = (result) => {
@@ -231,7 +236,7 @@ classService.updateArchiveStatus(classId, status)
             disabled={!selectedClassId}
             onClick={handleStartObservation}
             >
-            <PlayCircleFill style={{marginRight: '10px'}} /> Start Evaluation
+            <PlayCircleFill size={22} style={{marginRight: '10px'}} /> Start Evaluation
             </button>
         </div>
       </div>

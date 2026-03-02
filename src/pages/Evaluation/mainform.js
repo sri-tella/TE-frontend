@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Accordion, Card, Button, Form, useAccordionToggle } from 'react-bootstrap';
+import { Accordion, Card, Button, Form, useAccordionToggle, AccordionContext, Collapse } from 'react-bootstrap';
+import { Search, ChevronDown, Check2Circle } from 'react-bootstrap-icons';
 import Header from '../../components/Header/header';
 import SearchBar from '../../components/Searchbar/searchbar';
 import TextArea from '../../components/Textarea/textarea';
@@ -9,9 +10,14 @@ import './mainform.css';
 const MainForm = ({ sections, saveSection }) => {
   const [responses, setResponses] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [openSections, setOpenSections] = useState(['0']);
   const navigate = useNavigate();
 
   const normalizeTitle = (title) => title.replace(/^\d+\.\s*/, '');
+  const getSectionNumber = (title) => {
+    const match = title.match(/^(\d+)\./);
+    return match ? match[1] : null;
+  };
 
   useEffect(() => {
     const storedResponses = JSON.parse(localStorage.getItem('savedResponses') || '[]');
@@ -65,6 +71,38 @@ const MainForm = ({ sections, saveSection }) => {
     setResponses(initialResponses);
   }, [sections]);
 
+  // Авто-раскрытие при поиске
+  useEffect(() => {
+    if (searchQuery.trim() === '') return;
+
+    const searchLower = searchQuery.toLowerCase();
+    const matchingIndices = responses.reduce((acc, section, index) => {
+      const titleMatches = section.title.toLowerCase().includes(searchLower);
+      const hasMatchingOptions = section.options.some(option => 
+        option.description.toLowerCase().includes(searchLower) ||
+        (option.feedbackText || '').toLowerCase().includes(searchLower)
+      );
+      
+      if (titleMatches || hasMatchingOptions) {
+        acc.push(String(index));
+      }
+      return acc;
+    }, []);
+
+    if (matchingIndices.length > 0) {
+      setOpenSections(prev => {
+        const next = new Set([...prev, ...matchingIndices]);
+        return Array.from(next);
+      });
+    }
+  }, [searchQuery, responses]);
+
+  const toggleSection = (key) => {
+    setOpenSections(prev => 
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    );
+  };
+
   const handleFeedbackChange = (sectionIndex, optionIndex, value) => {
     const updatedResponses = [...responses];
     updatedResponses[sectionIndex].options[optionIndex].feedbackText = value;
@@ -96,37 +134,20 @@ const MainForm = ({ sections, saveSection }) => {
     const observerId = localStorage.getItem('observerId') || localStorage.getItem('userId');
     const instructorInfoRaw = localStorage.getItem('selectedInstructor');
     
-    const missingFields = [];
-    if (!evaluationId) missingFields.push('Evaluation ID');
-    if (!observerId) missingFields.push('Observer ID');
-    if (!instructorInfoRaw) missingFields.push('Instructor Info');
-    
-    if (missingFields.length > 0) {
-      alert(`The necessary data is missing:\n${missingFields.join('\n')}\n\nPlease start the process again.`);
+    if (!evaluationId || !observerId || !instructorInfoRaw) {
+      alert("Missing evaluation data. Please start again.");
       return;
     }
 
-    let instructorInfo = null;
-    try {
-      instructorInfo = JSON.parse(instructorInfoRaw);
-    } catch (e) {
-      console.error('Error parsing instructor info:', e);
-      return;
-    }
+    let instructorInfo = JSON.parse(instructorInfoRaw);
 
     const selectedOptions = responses.flatMap((section) => {
       if (normalizeTitle(section.title) === 'Additional Feedback') {
-        return section.options.map(opt => ({
-          ...opt,
-          sectionTitle: 'Additional Feedback',
-        }));
+        return section.options.map(opt => ({ ...opt, sectionTitle: 'Additional Feedback' }));
       }
       return section.options
         .filter(option => option.selected)
-        .map(option => ({
-          ...option,
-          sectionTitle: normalizeTitle(section.title),
-        }));
+        .map(option => ({ ...option, sectionTitle: normalizeTitle(section.title) }));
     });
     
     navigate('/SelectedRecommendations', {
@@ -140,103 +161,131 @@ const MainForm = ({ sections, saveSection }) => {
     });
   };
 
-  const CustomToggle = ({ children, eventKey }) => {
-    const decoratedOnClick = useAccordionToggle(eventKey, () => {});
-    return (
-      <div className="custom-accordion-toggle" onClick={decoratedOnClick}>
-        {children}
-      </div>
-    );
-  };
-
   return (
     <>
       <Header />
-      <div className="main-form-page">
-        <div className="main-form-card">
-          
-          <div className="form-header-row">
-            <div className="form-instructions">
-              <h4>Evaluation Form</h4>
-              <p>Select all observations that apply. Click headers to expand. Use the search bar to find keywords.</p>
-            </div>
-            <div className="form-search">
-              <SearchBar searchQuery={searchQuery} handleSearchChange={setSearchQuery} />
-            </div>
-          </div>
-
-          <Form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
-            <Accordion defaultActiveKey="0" className="custom-accordion">
-              {responses.map((section, originalIndex) => {
-                const normalizedTitle = normalizeTitle(section.title);
-                const matchesSearch = searchQuery === '' ||
-                  section.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  section.options.some(option =>
-                    option.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase())
-                  );
-
-                if (!matchesSearch) {
-                  return null;
-                }
-
-                return (
-                  <Card key={originalIndex} className="accordion-card">
-                    <Card.Header className="accordion-header-custom">
-                      <CustomToggle eventKey={String(originalIndex)}>
-                        {section.title}
-                      </CustomToggle>
-                    </Card.Header>
-                    <Accordion.Collapse eventKey={String(originalIndex)}>
-                      <Card.Body className="accordion-body-custom">
-                        {section.options.map((option, optionIndex) => {
-                          const showOption = searchQuery === '' ||
-                            option.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            (normalizedTitle !== 'Additional Feedback' && (option.feedbackText || '').toLowerCase().includes(searchQuery.toLowerCase()));
-
-                          if (!showOption && normalizedTitle !== 'Additional Feedback') {
-                            return null;
-                          }
-
-                          return (
-                            <div key={optionIndex} className="option-item">
-                              {normalizedTitle !== 'Additional Feedback' ? (
-                                <Form.Check
-                                  type="checkbox"
-                                  id={`checkbox-${originalIndex}-${optionIndex}`}
-                                  label={option.description}
-                                  checked={option.selected}
-                                  onChange={() => handleCheckboxChange(originalIndex, optionIndex)}
-                                  className="custom-checkbox"
-                                />
-                              ) : (
-                                <p className="additional-feedback-label">{option.description}</p>
-                              )}
-                              {option.showFeedback && (
-                                <div className="feedback-area">
-                                  <TextArea
-                                    value={option.feedbackText || ''}
-                                    placeholder="Add specific comments here..."
-                                    onChange={(e) => handleFeedbackChange(originalIndex, optionIndex, e.target.value)}
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </Card.Body>
-                    </Accordion.Collapse>
-                  </Card>
-                );
-              })}
-            </Accordion>
+      <div id="evaluation-container-v3">
+        <div className="eval-page-bg">
+          <div className="container py-5 position-relative">
             
-            <div className="form-footer">
-              <Button type="submit" className="btn-baylor-save">
-                SAVE AND CONTINUE
-              </Button>
+            <div className="eval-main-intro text-center mb-5">
+              <h1 className="eval-page-heading">Teaching Evaluation Form</h1>
+              <p className="eval-page-subtext">Comprehensive Assessment & Observations</p>
             </div>
-          </Form>
+
+            <div className="search-container-v3 mb-4 mx-auto">
+                <SearchBar searchQuery={searchQuery} handleSearchChange={setSearchQuery} />
+            </div>
+
+            <Form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+              <div className="eval-sections-wrapper" style={{ minHeight: '400px' }}>
+                {(() => {
+                  const searchLower = searchQuery.toLowerCase();
+                  const filteredSections = responses.filter(section => {
+                    const titleMatches = section.title.toLowerCase().includes(searchLower);
+                    const hasMatchingOptions = section.options.some(option => 
+                      option.description.toLowerCase().includes(searchLower) ||
+                      (option.feedbackText || '').toLowerCase().includes(searchLower)
+                    );
+                    return titleMatches || hasMatchingOptions;
+                  });
+
+                  if (searchQuery !== '' && filteredSections.length === 0) {
+                    return (
+                      <Card className="eval-section-card border-0 mb-4 shadow-sm p-5 text-center">
+                        <div className="py-4">
+                          <Search size={48} className="text-muted mb-3" />
+                          <h4 className="eval-section-title mb-2">No results found</h4>
+                          <p className="text-muted">No sections, criteria or comments match your search for "{searchQuery}"</p>
+                          <Button 
+                            variant="link" 
+                            className="text-success font-weight-bold" 
+                            onClick={() => setSearchQuery('')}
+                          >
+                            Clear Search
+                          </Button>
+                        </div>
+                      </Card>
+                    );
+                  }
+
+                  return responses.map((section, originalIndex) => {
+                    const key = String(originalIndex);
+                    const isExpanded = openSections.includes(key);
+                    const sectionNum = getSectionNumber(section.title);
+                    const cleanTitle = normalizeTitle(section.title);
+
+                    const titleMatches = section.title.toLowerCase().includes(searchLower);
+                    const filteredOptions = section.options.filter(option => 
+                      titleMatches || 
+                      option.description.toLowerCase().includes(searchLower) ||
+                      (option.feedbackText || '').toLowerCase().includes(searchLower)
+                    );
+
+                    if (filteredOptions.length === 0 && !titleMatches) return null;
+
+                    return (
+                      <Card key={originalIndex} className="eval-section-card border-0 mb-4 shadow-sm">
+                        <Card.Header 
+                          className={`p-0 border-0 bg-transparent eval-card-header d-flex align-items-center justify-content-between p-4 ${isExpanded ? 'active-header' : ''}`}
+                          onClick={() => toggleSection(key)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <div className="d-flex align-items-center">
+                            {sectionNum && <div className="section-badge-circle mr-3">{sectionNum}</div>}
+                            <h5 className="mb-0 eval-section-title">{cleanTitle}</h5>
+                          </div>
+                          <ChevronDown className={`chevron-icon ${isExpanded ? 'rotate-180' : ''}`} />
+                        </Card.Header>
+                        <Collapse in={isExpanded}>
+                          <div>
+                            <Card.Body className="eval-section-body p-4 pt-0">
+                              <div className="eval-options-grid mt-3">
+                                {filteredOptions.map((option, optionIndex) => {
+                                  const actualOptionIndex = section.options.findIndex(opt => opt.description === option.description);
+                                  return (
+                                  <div key={optionIndex} className="eval-option-item p-3 mb-3 rounded-3">
+                                    {cleanTitle !== 'Additional Feedback' ? (
+                                      <Form.Check
+                                        type="checkbox"
+                                        id={`check-${originalIndex}-${actualOptionIndex}`}
+                                        label={option.description}
+                                        checked={option.selected}
+                                        onChange={() => handleCheckboxChange(originalIndex, actualOptionIndex)}
+                                        className="eval-custom-check"
+                                      />
+                                    ) : (
+                                      <div className="additional-label mb-2 font-weight-bold">{option.description}</div>
+                                    )}
+                                    
+                                    {option.showFeedback && (
+                                      <div className="eval-feedback-box mt-3">
+                                        <TextArea
+                                          value={option.feedbackText || ''}
+                                          placeholder="Provide specific details or evidence..."
+                                          onChange={(e) => handleFeedbackChange(originalIndex, actualOptionIndex, e.target.value)}
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
+                                );})}
+                              </div>
+                            </Card.Body>
+                          </div>
+                        </Collapse>
+                      </Card>
+                    );
+                  });
+                })()}
+              </div>
+              
+              <div className="eval-action-footer-container w-100 d-flex justify-content-center my-4" style={{ position: 'sticky', bottom: '30px', zIndex: 1000, pointerEvents: 'none' }}>
+                  <Button type="submit" className="eval-submit-btn-v3 w-auto" style={{ pointerEvents: 'auto' }}>
+                    SAVE AND CONTINUE
+                  </Button>
+              </div>
+            </Form>
+          </div>
         </div>
       </div>
     </>

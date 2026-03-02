@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './intro.css';
-import './mainform.css';
 import Header from '../../components/Header/header';
 import axios from 'axios';
 import { API_BASE_URL } from '../../constants';
+import { PersonBadge, Book, CalendarDate, Clock, JournalText, CheckCircle } from 'react-bootstrap-icons';
 
 const CombinedForm = () => {
   const navigate = useNavigate();
@@ -24,7 +24,6 @@ const CombinedForm = () => {
 
   const [formErrors, setFormErrors] = useState({})
 
-  // auto populating the instructor information from local storage
   useEffect(() => {
     setFormData((prev) => ({
       ...prev,
@@ -36,29 +35,16 @@ const CombinedForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    setFormErrors(prev => ({
-      ...prev,
-      [name]: false
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormErrors(prev => ({ ...prev, [name]: false }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Validate form before submission
-    console.log("starting validation")
-    if (!validateForm()) {
-      return;
-    }
-    console.log("Submitting formData:", formData);
+    if (!validateForm()) return;
 
     try {
-      console.log(formData);
       await axios.post(`${API_BASE_URL}/api/form/instructor`, formData);
-      // alert("Instructor information saved successfully!");
       localStorage.setItem('instructorFormSubmitted', 'true');
       navigate('/inshome');
     } catch (error) {
@@ -67,17 +53,12 @@ const CombinedForm = () => {
     }
   };
 
-
   const validateForm = () => {
     const requiredFields = ['courseTitle', 'courseDescription', 'topic', 'date', 'time', 'goal', 'outline', 'help'];
     const errors = {};
-
     requiredFields.forEach(field => {
-      if (!formData[field] || formData[field].trim() === '') {
-        errors[field] = true;
-      }
+      if (!formData[field] || formData[field].trim() === '') errors[field] = true;
     });
-
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -85,107 +66,145 @@ const CombinedForm = () => {
   return (
     <>
       <Header />
-      <div className="main-form-page">
-        <div className="main-form-card">
+      <div id="intro-form-scoped">
+        <div className="container py-5">
           
-          <div className="form-header-row">
-            <div className="form-instructions">
-              <h4>Instructor Information</h4>
-              <p>Please fill in all the details below before submitting the form.</p>
-            </div>
+          <div className="intro-hero text-center mb-5">
+            <h1 className="intro-main-title">Session Setup</h1>
+            <p className="intro-sub-title">Provide details for your upcoming observation</p>
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className="form-section">
-              <h2 style={{ fontSize: '1.5rem', color: '#154734', borderBottomColor: '#154734' }}>Personal Details</h2>
-              <div className="form-row">
-                <div className="form-group third-width">
-                  <label>First Name:</label>
-                  <input type="text" value={formData.instructorFirstName} disabled style={{ backgroundColor: '#f0f2f5' }} />
+          <form onSubmit={handleSubmit} className="intro-main-form">
+            
+            {/* Section 1: Personal */}
+            <div className="intro-card mb-4 shadow-sm border-0">
+              <div className="intro-card-header d-flex align-items-center mb-4">
+                <PersonBadge className="header-icon mr-3" />
+                <h2 className="mb-0">Instructor Profile</h2>
+              </div>
+              <div className="row">
+                <div className="col-md-4 mb-3">
+                  <label className="intro-label">First Name</label>
+                  <input type="text" className="form-control-v3 read-only" value={formData.instructorFirstName} readOnly />
                 </div>
-                <div className="form-group third-width">
-                  <label>Last Name:</label>
-                  <input type="text" value={formData.instructorLastName} disabled style={{ backgroundColor: '#f0f2f5' }} />
+                <div className="col-md-4 mb-3">
+                  <label className="intro-label">Last Name</label>
+                  <input type="text" className="form-control-v3 read-only" value={formData.instructorLastName} readOnly />
                 </div>
-                <div className="form-group third-width">
-                  <label>Email:</label>
-                  <input type="email" value={formData.instructorEmail} disabled style={{ backgroundColor: '#f0f2f5' }} />
+                <div className="col-md-4 mb-3">
+                  <label className="intro-label">Email</label>
+                  <input type="email" className="form-control-v3 read-only" value={formData.instructorEmail} readOnly />
                 </div>
               </div>
             </div>
 
-            <div className="form-section">
-              <h2 style={{ fontSize: '1.5rem', color: '#154734', borderBottomColor: '#154734' }}>Course Details</h2>
-              <div className="form-row">
-                <div className={`form-group third-width ${formErrors.courseTitle ? 'has-error' : ''}`}>
-                  <label>Course Title:</label>
-                  <input name="courseTitle" value={formData.courseTitle} onChange={handleChange} />
-                  {formErrors.courseTitle && (
-                    <span className="error-message">This field is required</span>
-                  )}
+            {/* Section 2: Course */}
+            <div className="intro-card mb-4 shadow-sm border-0">
+              <div className="intro-card-header d-flex align-items-center mb-4">
+                <Book className="header-icon mr-3" />
+                <h2 className="mb-0">Course Information</h2>
+              </div>
+              <div className="row">
+                <div className="col-md-4 mb-3">
+                  <label className="intro-label">Course Title</label>
+                  <input 
+                    name="courseTitle" 
+                    className={`form-control-v3 ${formErrors.courseTitle ? 'is-invalid-v3' : ''}`}
+                    value={formData.courseTitle} 
+                    onChange={handleChange} 
+                    placeholder="e.g. Introduction to Psychology"
+                  />
                 </div>
-                <div className={`form-group third-width ${formErrors.courseDescription ? 'has-error' : ''}`}>
-                  <label>Course Number:</label>
-                  <input name="courseDescription" value={formData.courseDescription} onChange={handleChange} />
-                  {formErrors.courseDescription && (
-                    <span className="error-message">This field is required</span>
-                  )}
+                <div className="col-md-4 mb-3">
+                  <label className="intro-label">Course Number</label>
+                  <input 
+                    name="courseDescription" 
+                    className={`form-control-v3 ${formErrors.courseDescription ? 'is-invalid-v3' : ''}`}
+                    value={formData.courseDescription} 
+                    onChange={handleChange} 
+                    placeholder="e.g. PSY 1305"
+                  />
                 </div>
-                <div className={`form-group third-width ${formErrors.topic ? 'has-error' : ''}`}>
-                  <label>Class Session Topic:</label>
-                  <input name="topic" value={formData.topic} onChange={handleChange} />
-                  {formErrors.topic && (
-                    <span className="error-message">This field is required</span>
-                  )}
+                <div className="col-md-4 mb-3">
+                  <label className="intro-label">Session Topic</label>
+                  <input 
+                    name="topic" 
+                    className={`form-control-v3 ${formErrors.topic ? 'is-invalid-v3' : ''}`}
+                    value={formData.topic} 
+                    onChange={handleChange} 
+                    placeholder="e.g. Cognitive Development"
+                  />
                 </div>
+              </div>
+              <div className="row mt-3">
+                <div className="col-md-6 mb-3">
+                  <label className="intro-label"><CalendarDate className="mr-2" /> Class Date</label>
+                  <input 
+                    type="date" 
+                    name="date" 
+                    className={`form-control-v3 ${formErrors.date ? 'is-invalid-v3' : ''}`}
+                    value={formData.date} 
+                    onChange={handleChange} 
+                  />
+                </div>
+                <div className="col-md-6 mb-3">
+                  <label className="intro-label"><Clock className="mr-2" /> Class Time</label>
+                  <input 
+                    type="time" 
+                    name="time" 
+                    className={`form-control-v3 ${formErrors.time ? 'is-invalid-v3' : ''}`}
+                    value={formData.time} 
+                    onChange={handleChange} 
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Section 3: Background */}
+            <div className="intro-card mb-5 shadow-sm border-0">
+              <div className="intro-card-header d-flex align-items-center mb-4">
+                <JournalText className="header-icon mr-3" />
+                <h2 className="mb-0">Session Context</h2>
               </div>
               
-              <div className="form-row">
-                <div className={`form-group half-width ${formErrors.date ? 'has-error' : ''}`}>
-                  <label>Class Date:</label>
-                  <input type="date" name="date" value={formData.date} onChange={handleChange} />
-                  {formErrors.date && (
-                    <span className="error-message">This field is required</span>
-                  )}
-                </div>
-                <div className={`form-group half-width ${formErrors.time ? 'has-error' : ''}`}>
-                  <label>Class Time:</label>
-                  <input type="time" name="time" value={formData.time} onChange={handleChange} />
-                  {formErrors.time && (
-                    <span className="error-message">This field is required</span>
-                  )}
-                </div>
+              <div className="mb-4">
+                <label className="intro-label">1. What are the learning objectives for today's session?</label>
+                <textarea 
+                  name="goal" 
+                  className={`form-control-v3 textarea-v3 ${formErrors.goal ? 'is-invalid-v3' : ''}`}
+                  value={formData.goal} 
+                  onChange={handleChange} 
+                  placeholder="Describe what students should achieve..."
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="intro-label">2. Provide a brief outline of how the session will proceed:</label>
+                <textarea 
+                  name="outline" 
+                  className={`form-control-v3 textarea-v3 ${formErrors.outline ? 'is-invalid-v3' : ''}`}
+                  value={formData.outline} 
+                  onChange={handleChange} 
+                  placeholder="Mini-lecture, small group discussion, etc..."
+                />
+              </div>
+
+              <div className="mb-2">
+                <label className="intro-label">3. How might the observer be helpful in the evaluation process?</label>
+                <textarea 
+                  name="help" 
+                  className={`form-control-v3 textarea-v3 ${formErrors.help ? 'is-invalid-v3' : ''}`}
+                  value={formData.help} 
+                  onChange={handleChange} 
+                  placeholder="Are there specific areas you want feedback on?"
+                />
               </div>
             </div>
 
-            <div className="form-section" style={{ borderBottom: 'none' }}>
-              <h2 style={{ fontSize: '1.5rem', color: '#154734', borderBottomColor: '#154734' }}>Course Background Information</h2>
-              <div className={`form-group ${formErrors.goal ? 'has-error' : ''}`}>
-                <label>1. What are the learning objectives for today's session?</label>
-                <textarea name="goal" value={formData.goal} onChange={handleChange} />
-                {formErrors.goal && (
-                  <span className="error-message">This field is required</span>
-                )}
-              </div>
-              <div className={`form-group ${formErrors.outline ? 'has-error' : ''}`}>
-                <label>2. Provide a brief outline of how the session will proceed (mini-lecture, small group, etc.):</label>
-                <textarea name="outline" value={formData.outline} onChange={handleChange} />
-                {formErrors.outline && (
-                  <span className="error-message">This field is required</span>
-                )}
-              </div>
-              <div className={`form-group ${formErrors.help ? 'has-error' : ''}`}>
-                <label>3. How might the observer be helpful in the evaluation process?</label>
-                <textarea name="help" value={formData.help} onChange={handleChange} />
-                {formErrors.help && (
-                  <span className="error-message">This field is required</span>
-                )}
-              </div>
-            </div>
-
-            <div className="form-footer">
-              <button type="submit" className="btn-baylor-save">
-                Submit Information
+            {/* Sticky Footer */}
+            <div className="intro-footer-sticky">
+              <button type="submit" className="btn-baylor-submit">
+                <CheckCircle className="mr-3" /> Submit Session Details
               </button>
             </div>
 
@@ -194,7 +213,6 @@ const CombinedForm = () => {
       </div>
     </>
   );
-
 };
 
 export default CombinedForm;

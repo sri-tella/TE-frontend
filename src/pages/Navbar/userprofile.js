@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../../components/Header/header';
 import './profile.css'; 
 import { authService, adminService } from '../../services/apiService';
+import { PersonCircle, ShieldLock, Mailbox, PersonBadge, ArrowRightCircle } from 'react-bootstrap-icons';
 
 const ProfilePage = () => {
   const [firstName, setFirstName] = useState('');
@@ -77,79 +78,103 @@ const ProfilePage = () => {
   return (
     <>
       <Header />
-      <div className="profile-container">
-        <div className="profile-wrapper">
-          <div className="profile-card">
-            <h2 className="profile-heading">Account Details</h2>
-            <div className="profile-form">
-              <div className="input-group">
-                <label>First Name</label>
-                <input type="text" className="profile-input read-only" value={firstName} readOnly />
-              </div>
-              <div className="input-group">
-                <label>Last Name</label>
-                <input type="text" className="profile-input read-only" value={lastName} readOnly />
-              </div>
-              <div className="input-group">
-                <label>Email Address</label>
-                <input type="email" className="profile-input read-only" value={email} readOnly />
+      <div id="profile-page-scoped">
+        <div className="profile-hero-section text-center mb-5">
+            <h1 className="profile-main-title">My Profile</h1>
+            <p className="profile-sub-title">Manage your account information and security</p>
+        </div>
+
+        <div className="container">
+          <div className="row justify-content-center">
+            
+            {/* Account Details Card */}
+            <div className="col-lg-5 mb-4">
+              <div className="profile-card h-100 shadow-sm border-0">
+                <div className="profile-card-header d-flex align-items-center mb-4">
+                  <PersonCircle className="header-icon mr-3" />
+                  <h2 className="mb-0">Account Details</h2>
+                </div>
+                
+                <div className="profile-form">
+                  <div className="input-group-custom">
+                    <label><PersonBadge className="mr-2" /> First Name</label>
+                    <input type="text" className="form-control read-only-input" value={firstName} readOnly />
+                  </div>
+                  <div className="input-group-custom">
+                    <label><PersonBadge className="mr-2" /> Last Name</label>
+                    <input type="text" className="form-control read-only-input" value={lastName} readOnly />
+                  </div>
+                  <div className="input-group-custom">
+                    <label><Mailbox className="mr-2" /> Email Address</label>
+                    <input type="email" className="form-control read-only-input" value={email} readOnly />
+                  </div>
+                </div>
+
+                {role === "INSTRUCTOR" && !requestSubmitted && (
+                    <div className="role-request-box mt-auto pt-4 border-top">
+                      <p className="text-muted small">Want to evaluate others?</p>
+                      <button className="btn btn-outline-baylor w-100" onClick={handleRequestDualRole} disabled={isLoading}>
+                        {isLoading ? 'Sending...' : 'Request Observer Access'}
+                      </button>
+                    </div>
+                )}
               </div>
             </div>
-            {role === "INSTRUCTOR" && !requestSubmitted && (
-                <div className="role-request-section">
-                  <p className="role-text">Want to evaluate others?</p>
-                  <button className="btn-secondary" onClick={handleRequestDualRole} disabled={isLoading}>
-                    {isLoading ? 'Sending...' : 'Request Observer Access'}
+
+            {/* Change Password Card */}
+            <div className="col-lg-5 mb-4">
+              <div className="profile-card h-100 shadow-sm border-0">
+                <div className="profile-card-header d-flex align-items-center mb-4">
+                  <ShieldLock className="header-icon mr-3" />
+                  <h2 className="mb-0">Security</h2>
+                </div>
+
+                <div className="profile-form">
+                  <div className="input-group-custom">
+                    <label>Current Password</label>
+                    <input
+                      type="password"
+                      placeholder="••••••••"
+                      className="form-control"
+                      value={oldPassword}
+                      onChange={(e) => setOldPassword(e.target.value)}
+                      autoComplete="current-password"
+                    />
+                  </div>
+                  <div className="input-group-custom">
+                    <label>New Password</label>
+                    <input
+                      type="password"
+                      placeholder="Enter new password"
+                      className="form-control"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      autoComplete="new-password"
+                    />
+                  </div>
+                  <div className="input-group-custom">
+                    <label>Confirm New Password</label>
+                    <input
+                      type="password"
+                      placeholder="Confirm new password"
+                      className="form-control"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      autoComplete="new-password"
+                    />
+                  </div>
+                  
+                  <button 
+                    className="btn btn-baylor-gold mt-auto" 
+                    onClick={handleChangePassword}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'UPDATING...' : 'UPDATE PASSWORD'} <ArrowRightCircle className="ml-2" />
                   </button>
                 </div>
-            )}
-          </div>
-
-          <div className="profile-card">
-            <h2 className="profile-heading">Change Password</h2>
-            <div className="profile-form">
-              <div className="input-group">
-                <label>Current Password</label>
-                <input
-                  type="password"
-                  placeholder="Enter current password"
-                  className="profile-input"
-                  value={oldPassword}
-                  onChange={(e) => setOldPassword(e.target.value)}
-                  autoComplete="current-password"
-                />
               </div>
-              <div className="input-group">
-                <label>New Password</label>
-                <input
-                  type="password"
-                  placeholder="Enter new password"
-                  className="profile-input"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  autoComplete="new-password"
-                />
-              </div>
-              <div className="input-group">
-                <label>Confirm New Password</label>
-                <input
-                  type="password"
-                  placeholder="Confirm new password"
-                  className="profile-input"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  autoComplete="new-password"
-                />
-              </div>
-              
-              <button 
-                className="btn profile-button text-center" 
-                onClick={handleChangePassword}
-                disabled={isLoading}
-              >
-                {isLoading ? 'UPDATING...' : 'UPDATE PASSWORD'}
-              </button>
             </div>
+
           </div>
         </div>
       </div>

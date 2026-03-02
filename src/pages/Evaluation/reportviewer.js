@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button, Spinner, Alert } from 'react-bootstrap';
+import { Button, Spinner, Alert, Card } from 'react-bootstrap';
+import { ArrowLeft, Save, FileEarmarkPdf, FileEarmarkWord, Robot } from 'react-bootstrap-icons';
 import Header from '../../components/Header/header';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -18,7 +19,6 @@ import ReportPdfDocument from './ReportPdfDocument';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { generateWordReport } from './WordGenerator';
 
-// Хелпер для предотвращения мелькания (минимум 800мс на выполнение)
 const withMinDelay = async (task, delay = 800) => {
     const start = Date.now();
     try {
@@ -35,10 +35,7 @@ const withMinDelay = async (task, delay = 800) => {
 
 const formatAiResponse = (text) => {
     if (!text) return '';
-    // Clean markdown and unwanted markers/headers
     let cleanRaw = text.replace(/\*\*/g, '').replace(/##/g, '').replace(/^\s*\* /gm, '');
-    
-    // Remove "Institutional AI Analysis" variations
     cleanRaw = cleanRaw.replace(/\(?Institutional AI Analysis\)?[:\-]?/gi, '').trim();
 
     const sections = cleanRaw.split(/Recommendations for Improvement|Recommendations/i);
@@ -56,15 +53,15 @@ const formatAiResponse = (text) => {
         .join('<br/>') || '';
 
     return `
-        <div style="margin: 15px 0; padding: 5px 0; border-top: 1px solid #eee;">
+        <div style="margin: 15px 0; padding: 10px; border-radius: 8px; background-color: #f0fdf4; border: 1px solid #d1fae5;">
             <div style="margin-bottom: 8px;">
-                <strong style="color: #154734; font-size: 10.5pt; display: block; margin-bottom: 4px;">Observations</strong>
-                <div style="font-size: 10.5pt; color: #444; line-height: 1.4;">${obsPart}</div>
+                <strong style="color: #003015; font-size: 11pt; display: block; margin-bottom: 4px;">Institutional AI Analysis: Observations</strong>
+                <div style="font-size: 10.5pt; color: #374151; line-height: 1.5;">${obsPart}</div>
             </div>
             ${recPart ? `
-            <div style="margin-top: 10px;">
-                <strong style="color: #154734; font-size: 10.5pt; display: block; margin-bottom: 4px;">Recommendations</strong>
-                <div style="font-size: 10.5pt; color: #444; line-height: 1.4;">${recPart}</div>
+            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #d1fae5;">
+                <strong style="color: #003015; font-size: 11pt; display: block; margin-bottom: 4px;">Institutional AI Analysis: Recommendations</strong>
+                <div style="font-size: 10.5pt; color: #374151; line-height: 1.5;">${recPart}</div>
             </div>` : ''}
         </div>
     `;
@@ -73,21 +70,19 @@ const formatAiResponse = (text) => {
 const MenuBar = ({ editor }) => {
     if (!editor) return null;
     return (
-        <div className="tiptap-menubar">
-            <button onClick={() => editor.chain().focus().toggleBold().run()} className={editor.isActive('bold') ? 'is-active' : ''} type="button"><strong>B</strong></button>
-            <button onClick={() => editor.chain().focus().toggleItalic().run()} className={editor.isActive('italic') ? 'is-active' : ''} type="button"><em>I</em></button>
-            <button onClick={() => editor.chain().focus().toggleUnderline().run()} className={editor.isActive('underline') ? 'is-active' : ''} type="button"><u>U</u></button>
-            <span className="divider" />
-            <button onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={editor.isActive('heading', { level: 2 }) ? 'is-active' : ''} type="button">H2</button>
-            <button onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} className={editor.isActive('heading', { level: 3 }) ? 'is-active' : ''} type="button">H3</button>
-            <button onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()} className={editor.isActive('heading', { level: 4 }) ? 'is-active' : ''} type="button">H4</button>
-            <span className="divider" />
-            <button onClick={() => editor.chain().focus().toggleBulletList().run()} className={editor.isActive('bulletList') ? 'is-active' : ''} type="button">• List</button>
-            <button onClick={() => editor.chain().focus().toggleOrderedList().run()} className={editor.isActive('orderedList') ? 'is-active' : ''} type="button">1. List</button>
-            <span className="divider" />
-            <button onClick={() => editor.chain().focus().setTextAlign('left').run()} className={editor.isActive({ textAlign: 'left' }) ? 'is-active' : ''} type="button">← Left</button>
-            <button onClick={() => editor.chain().focus().setTextAlign('center').run()} className={editor.isActive({ textAlign: 'center' }) ? 'is-active' : ''} type="button">↔ Center</button>
-            <button onClick={() => editor.chain().focus().setTextAlign('right').run()} className={editor.isActive({ textAlign: 'right' }) ? 'is-active' : ''} type="button">→ Right</button>
+        <div className="tiptap-menubar bg-light border-bottom p-2 d-flex flex-wrap gap-1 rounded-top">
+            <button onClick={() => editor.chain().focus().toggleBold().run()} className={`btn btn-sm ${editor.isActive('bold') ? 'btn-dark' : 'btn-outline-secondary'}`} type="button"><strong>B</strong></button>
+            <button onClick={() => editor.chain().focus().toggleItalic().run()} className={`btn btn-sm ${editor.isActive('italic') ? 'btn-dark' : 'btn-outline-secondary'}`} type="button"><em>I</em></button>
+            <button onClick={() => editor.chain().focus().toggleUnderline().run()} className={`btn btn-sm ${editor.isActive('underline') ? 'btn-dark' : 'btn-outline-secondary'}`} type="button"><u>U</u></button>
+            <span className="mx-1 border-left" />
+            <button onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={`btn btn-sm ${editor.isActive('heading', { level: 2 }) ? 'btn-dark' : 'btn-outline-secondary'}`} type="button">H2</button>
+            <button onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} className={`btn btn-sm ${editor.isActive('heading', { level: 3 }) ? 'btn-dark' : 'btn-outline-secondary'}`} type="button">H3</button>
+            <span className="mx-1 border-left" />
+            <button onClick={() => editor.chain().focus().toggleBulletList().run()} className={`btn btn-sm ${editor.isActive('bulletList') ? 'btn-dark' : 'btn-outline-secondary'}`} type="button">• List</button>
+            <button onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`btn btn-sm ${editor.isActive('orderedList') ? 'btn-dark' : 'btn-outline-secondary'}`} type="button">1. List</button>
+            <span className="mx-1 border-left" />
+            <button onClick={() => editor.chain().focus().setTextAlign('left').run()} className={`btn btn-sm ${editor.isActive({ textAlign: 'left' }) ? 'btn-dark' : 'btn-outline-secondary'}`} type="button">Left</button>
+            <button onClick={() => editor.chain().focus().setTextAlign('center').run()} className={`btn btn-sm ${editor.isActive({ textAlign: 'center' }) ? 'btn-dark' : 'btn-outline-secondary'}`} type="button">Center</button>
         </div>
     );
 };
@@ -133,14 +128,14 @@ const ReportViewer = () => {
 
         const manualOrder = ["Introduction", "Organization", "Content", "Visual Aids and Technology", "Delivery", "Activities", "Student Behavior", "Conclusion"];
         const categoryQuestions = {
-            "Introduction": "Introduction: In what ways did the introduction capture your (and students') interest? How were the first few minutes of class related to the purpose of the class session overall?",
-            "Organization": "Organization: How was the class time organized? How were materials used? Were transitions between activities or materials clear and effective?",
-            "Content": "Content: How well did the instructor demonstrate thorough understanding of the content? Did the instructor support his or her points? How was the instructor's level of content competence related to students' learning?",
-            "Visual Aids and Technology": "Visual Aids and Technology: How were visual aids used? How was technology used? Were the visual aids/technology appropriate for the lesson and context? How did the visual aids/technology enhance or improve the learning process?",
-            "Delivery": "Delivery: Was the instructor's teaching persona effective? Consider tone and volume of voice, gestures, posture, and expressions. What strengths of delivery did you observe? Any recommendations in the area of delivery?",
-            "Activities": "Activities: How did the instructor encourage student participation or create the environment for students to participate? How well did these activities relate to the goal, objective, or purpose of the class session? How well did the instructor direct students' behavior to promote learning? How did the instructor engage with or respond to student's contributions?",
-            "Student Behavior": "Student Behavior: How engaged were students in the class session? Did students seem to be aware of the learning goal, objective, or purpose of the class session? In what ways did students interact with the professor and each other? How would you describe the attitude of students?",
-            "Conclusion": "Conclusion: Did the instructor end the class session effectively? Did he/she summarize key points? Leave time for questions? Tease the next topic?"
+            "Introduction": "Introduction",
+            "Organization": "Organization",
+            "Content": "Content",
+            "Visual Aids and Technology": "Visual Aids and Technology",
+            "Delivery": "Delivery",
+            "Activities": "Activities",
+            "Student Behavior": "Student Behavior",
+            "Conclusion": "Conclusion"
         };
 
         const renderListWithFeedback = (items) => {
@@ -152,7 +147,7 @@ const ReportViewer = () => {
             }).join('')}</ul>`;
         };
 
-        let report = `<h2>Teaching Evaluation Report</h2><h3>Observation Information</h3><p><strong>Instructor:</strong> ${instructorName}</p><p><strong>Date:</strong> ${formattedDate}</p><p><strong>Time:</strong> ${formattedTime}</p><p><strong>Class Topic:</strong> ${classTopic}</p><p><strong>Observer:</strong> ${observerName}</p><h3>Background Information</h3><p><strong>Learning Goal/Objective:</strong><br>${bgInfo.goal || 'N/A'}</p><p><strong>Outline:</strong><br>${bgInfo.outline || 'N/A'}</p><h3>Observation</h3>`;
+        let report = `<h2>Teaching Evaluation Report</h2><hr/><h3>Observation Information</h3><p><strong>Instructor:</strong> ${instructorName}</p><p><strong>Date:</strong> ${formattedDate}</p><p><strong>Time:</strong> ${formattedTime}</p><p><strong>Class Topic:</strong> ${classTopic}</p><p><strong>Observer:</strong> ${observerName}</p><h3>Background Information</h3><p><strong>Learning Goal/Objective:</strong><br>${bgInfo.goal || 'N/A'}</p><p><strong>Outline:</strong><br>${bgInfo.outline || 'N/A'}</p><h3>Observation Details</h3>`;
 
         manualOrder.forEach((category, index) => {
             const secData = sections[category] || { observations: [], recommendations: [] };
@@ -163,6 +158,7 @@ const ReportViewer = () => {
             if (aiFbs[category]) {
                 report += aiFbs[category];
             }
+            report += '<hr/>';
         });
 
         report += `<h3>Additional Feedback</h3><h4>Did the class session meet the instructor's goal or objective?</h4><p>${feedbacks['Additional Feedback'] || '<em>No additional feedback provided.</em>'}</p>`;
@@ -224,7 +220,17 @@ const ReportViewer = () => {
                     .map(cat => `${cat}: ${structuredData.sections[cat]?.observations.join('; ')}`)
                     .join('\n\n');
 
-                const prompt = `You are a pedagogical consultant. Analyze observations and provide Institutional AI Analysis for EACH section. Structure your response: [Section Name] ## Key Observations (text) ## Recommendations for Improvement (text). Sections: ${sectionsToAnalyze}`;
+                const prompt = `You are a pedagogical consultant. Analyze observations and provide Institutional AI Analysis for EACH section listed below. 
+                For EACH section, use its EXACT name from the list.
+                Structure your response for each section as follows:
+                [Actual Section Name]
+                ## Key Observations
+                (your text here)
+                ## Recommendations for Improvement
+                (your text here)
+
+                Sections to analyze:
+                ${sectionsToAnalyze}`;
 
                 const res = await model.generateContent(prompt);
                 const fullText = res.response.text();
@@ -236,7 +242,7 @@ const ReportViewer = () => {
                     if (sectionMatch) newAiFeedbacks[cat] = formatAiResponse(sectionMatch[0]);
                 });
                 setAiFeedbacks(newAiFeedbacks);
-            }, 1200); // Для AI чуть дольше, чтобы не моргало
+            }, 1200);
         } catch (e) {
             const msg = e.message?.includes('429') ? "Quota exceeded (20 requests/day). Use another key or wait." : "AI Error: " + e.message;
             setErrorMessage(msg);
@@ -277,45 +283,85 @@ const ReportViewer = () => {
     return (
         <>
             <Header />
-            <div className="main-form-page">
-                <div className="main-form-card">
-                    <div className="form-header-row">
-                        <div className="form-instructions">
-                            <h4>Final Report</h4>
-                            <p>Review the generated report below.</p>
+            <div id="evaluation-container-v3">
+                <div className="eval-page-bg">
+                    <div className="container py-5">
+                        
+                        <div className="eval-main-intro text-center mb-5">
+                            <h1 className="eval-page-heading">Final Report</h1>
+                            <p className="eval-page-subtext">Review, Edit, and Export</p>
+                        </div>
+
+                        <Card className="eval-section-card border-0 mb-5 shadow-sm overflow-hidden p-0" style={{ minHeight: '500px' }}>
+                            {errorMessage && <Alert variant="danger" onClose={() => setErrorMessage('')} dismissible className="m-3">{errorMessage}</Alert>}
+                            
+                            <div className="tiptap-editor-wrapper">
+                                <MenuBar editor={editor} />
+                                <EditorContent editor={editor} className="p-4" />
+                            </div>
+                        </Card>
+
+                        {successMessage && <Alert variant={successMessage.includes('Failed') ? 'danger' : 'success'} className="mb-4 text-center">{successMessage}</Alert>}
+
+                        <div className="eval-action-footer-container w-100 d-flex justify-content-center flex-wrap gap-3 py-4" style={{ position: 'sticky', bottom: '30px', zIndex: 1000, pointerEvents: 'none' }}>
+                            <Button 
+                                variant="outline-secondary" 
+                                onClick={() => navigate(-1)} 
+                                className="eval-btn-secondary-v3 px-4 py-3 rounded-pill font-weight-bold shadow"
+                                style={{ pointerEvents: 'auto' }}
+                            >
+                                <ArrowLeft className="mr-2" /> GO BACK
+                            </Button>
+
+                            <Button 
+                                variant="outline-primary" 
+                                onClick={handleAiSupportForAllSections} 
+                                className="eval-btn-secondary-v3 px-4 py-3 rounded-pill font-weight-bold shadow"
+                                disabled={loading.ai}
+                                style={{ pointerEvents: 'auto' }}
+                            >
+                                <Robot className="mr-2" /> {loading.ai ? 'ANALYZING...' : 'AI FEEDBACK'}
+                            </Button>
+
+                            <Button 
+                                onClick={handleSaveEvaluation} 
+                                className="eval-submit-btn-v3 px-5 py-3 rounded-pill font-weight-bold shadow w-auto" 
+                                disabled={loading.save}
+                                style={{ pointerEvents: 'auto' }}
+                            >
+                                <Save className="mr-2" /> {loading.save ? 'SAVING...' : 'SAVE REPORT'}
+                            </Button>
+
+                            {reportContent && (
+                                <PDFDownloadLink 
+                                    document={<ReportPdfDocument htmlContent={reportContent} />} 
+                                    fileName="Teaching_Evaluation_Report.pdf"
+                                    style={{ textDecoration: 'none', pointerEvents: 'auto' }}
+                                >
+                                    {({ loading: pdfLoading }) => (
+                                        <Button className="eval-btn-secondary-v3 px-4 py-3 rounded-pill font-weight-bold shadow" disabled={pdfLoading}>
+                                            <FileEarmarkPdf className="mr-2" /> {pdfLoading ? '...' : 'PDF'}
+                                        </Button>
+                                    )}
+                                </PDFDownloadLink>
+                            )}
+
+                            <Button 
+                                onClick={handleDownloadDoc} 
+                                className="eval-btn-secondary-v3 px-4 py-3 rounded-pill font-weight-bold shadow" 
+                                disabled={loading.doc}
+                                style={{ pointerEvents: 'auto' }}
+                            >
+                                <FileEarmarkWord className="mr-2" /> WORD
+                            </Button>
                         </div>
                     </div>
-
-                    {errorMessage && <Alert variant="danger" onClose={() => setErrorMessage('')} dismissible className="mb-4">{errorMessage}</Alert>}
-
-                    <div className="tiptap-editor-wrapper">
-                        <MenuBar editor={editor} />
-                        <EditorContent editor={editor} />
-                    </div>
-
-                    <div className="form-footer-actions">
-                        <Button onClick={() => navigate(-1)} className="btn-baylor-secondary">GO BACK</Button>
-                        <Button onClick={handleAiSupportForAllSections} className="btn-baylor-secondary" disabled={loading.ai}>GENERATE AI FEEDBACK</Button>
-                        <Button onClick={handleSaveEvaluation} className="btn-baylor-save" disabled={loading.save}>SAVE REPORT</Button>
-
-                        {structuredData && (
-                            <PDFDownloadLink 
-                                document={<ReportPdfDocument data={structuredData} aiFeedbacks={aiFeedbacks} backgroundInfo={backgroundInfo} />} 
-                                fileName="Teaching_Evaluation_Report.pdf"
-                                className="btn btn-baylor-secondary"
-                            >
-                                {({ loading }) => (loading ? 'PREPARING...' : 'DOWNLOAD PDF')}
-                            </PDFDownloadLink>
-                        )}
-                        <Button onClick={handleDownloadDoc} className="btn-baylor-secondary" disabled={loading.doc}>DOWNLOAD WORD</Button>
-                    </div>
-                    {successMessage && <div className={`mt-3 alert ${successMessage.includes('Failed') ? 'alert-danger' : 'alert-success'}`}>{successMessage}</div>}
                 </div>
             </div>
             {isBusy && (
-                <div className="loading-overlay" style={{ animation: 'fadeIn 0.3s' }}>
+                <div className="loading-overlay">
                     <Spinner animation="border" variant="light" />
-                    <h5 className="mt-3">Processing...</h5>
+                    <h5 className="mt-3 text-white">Processing Report...</h5>
                 </div>
             )}
         </>

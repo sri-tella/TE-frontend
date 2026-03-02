@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './auth.css';
 import { API_BASE_URL } from '../../constants';
+import logo from "../../images/Baylor_Athletics_logo.svg.png";
 
 const Signup = () => {
   const [firstname, setFirstName] = useState('');
@@ -51,7 +52,7 @@ const Signup = () => {
       })
       .then(data => {
         if (data.id) {
-          navigate('/'); // Redirect to login
+          navigate('/');
         } else {
           setError('Signup failed. Please try again.');
         }
@@ -66,123 +67,127 @@ const Signup = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card signup-card">
-        <h2 className="auth-heading">Create Account</h2>
-        <p className="auth-subtext">Join us today!</p>
-        
-        {error && <div className="auth-error-message">{error}</div>}
-
-        <form className="auth-form" onSubmit={handleSignup}>
+    <div id="auth-page-scoped">
+      <div className="auth-container">
+        <div className="auth-card signup-card shadow-lg border-0">
+          <div className="auth-logo-wrapper mb-4 text-center">
+            <img src={logo} alt="Baylor logo" className="auth-logo-img" />
+          </div>
+          <h2 className="auth-heading text-center">Create Account</h2>
+          <p className="auth-subtext text-center">Join the Teaching Evaluation system</p>
           
-          {/* Row for First Name and Last Name */}
-          <div className="form-row">
-            <div className="input-group half-width">
-              <label>First Name</label>
+          {error && <div className="auth-error-message animated shake">{error}</div>}
+
+          <form className="auth-form" onSubmit={handleSignup}>
+            
+            <div className="form-row-v3 d-flex gap-3 mb-3">
+              <div className="input-group-v3 flex-grow-1">
+                <label>First Name</label>
+                <input
+                  type="text"
+                  placeholder="First Name"
+                  className="form-control-v3"
+                  value={firstname}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="input-group-v3 flex-grow-1">
+                <label>Last Name</label>
+                <input
+                  type="text"
+                  placeholder="Last Name"
+                  className="form-control-v3"
+                  value={lastname}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="input-group-v3 mb-3">
+              <label>Email Address</label>
               <input
-                type="text"
-                placeholder="First Name"
-                className="auth-input"
-                value={firstname}
-                onChange={(e) => setFirstName(e.target.value)}
+                type="email"
+                placeholder="example@baylor.edu"
+                className="form-control-v3"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
-            <div className="input-group half-width">
-              <label>Last Name</label>
+
+            <div className="input-group-v3 mb-3">
+              <label>Confirm Email</label>
               <input
-                type="text"
-                placeholder="Last Name"
-                className="auth-input"
-                value={lastname}
-                onChange={(e) => setLastName(e.target.value)}
+                type="email"
+                placeholder="Confirm your email"
+                className="form-control-v3"
+                value={confirmEmail}
+                onChange={(e) => setConfirmEmail(e.target.value)}
                 required
               />
             </div>
-          </div>
 
-          <div className="input-group">
-            <label>Email Address</label>
-            <input
-              type="email"
-              placeholder="example@email.com"
-              className="auth-input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Confirm Email</label>
-            <input
-              type="email"
-              placeholder="Confirm your email"
-              className="auth-input"
-              value={confirmEmail}
-              onChange={(e) => setConfirmEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="form-row">
-            <div className="input-group half-width">
-              <label>Password</label>
-              <input
-                type="password"
-                placeholder="Password"
-                className="auth-input"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+            <div className="form-row-v3 d-flex gap-3 mb-3">
+              <div className="input-group-v3 flex-grow-1">
+                <label>Password</label>
+                <input
+                  type="password"
+                  placeholder="Password"
+                  className="form-control-v3"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="input-group-v3 flex-grow-1">
+                <label>Confirm</label>
+                <input
+                  type="password"
+                  placeholder="Confirm"
+                  className="form-control-v3"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
             </div>
-            <div className="input-group half-width">
-              <label>Confirm</label>
-              <input
-                type="password"
-                placeholder="Confirm"
-                className="auth-input"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-            </div>
-          </div>
 
-          <div className="input-group">
-            <label>Select Role</label>
-            <select 
-              className="auth-input"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              required
+            <div className="input-group-v3 mb-4">
+              <label>Choose Your Role</label>
+              <select 
+                className="form-control-v3 select-v3"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                required
+              >
+                <option value="" disabled>Select a role...</option>
+                <option value="OBSERVER">Observer</option>
+                <option value="INSTRUCTOR">Instructor</option>
+              </select>
+            </div>
+
+            <button 
+              type="submit" 
+              className="btn btn-baylor-gold w-100" 
+              disabled={isLoading}
             >
-              <option value="" disabled>Choose a role...</option>
-              <option value="OBSERVER">Observer</option>
-              <option value="INSTRUCTOR">Instructor</option>
-            </select>
+              {isLoading ? (
+                 <>
+                  <span className="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
+                  CREATING ACCOUNT...
+                 </>
+              ) : (
+                'SIGN UP'
+              )}
+            </button>
+          </form>
+          
+          <div className="auth-footer text-center mt-4">
+            <span className="auth-text text-muted">Already have an account? </span>
+            <Link to="/" className="auth-link-v3">Sign In</Link>
           </div>
-
-          <button 
-            type="submit" 
-            className="btn auth-button w-100 text-center" 
-            disabled={isLoading}
-          >
-            {isLoading ? (
-               <>
-                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                CREATING ACCOUNT...
-               </>
-            ) : (
-              'SIGN UP'
-            )}
-          </button>
-        </form>
-        
-        <div className="auth-footer">
-          <span className="auth-text">Already have an account? </span>
-          <Link to="/" className="auth-link">Sign In</Link>
         </div>
       </div>
     </div>
