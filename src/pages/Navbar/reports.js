@@ -17,7 +17,7 @@ const Reports = () => {
   useEffect(() => {
     reportService.fetchReports()
       .then(response => {
-        // Убедимся, что данные - это массив
+        console.log("REPORTS API DATA:", response.data);
         setReports(Array.isArray(response.data) ? response.data : []);
       })
       .catch(error => {
@@ -25,6 +25,21 @@ const Reports = () => {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  const getInstructorName = (report) => {
+    if (report.instructorName) return report.instructorName;
+    if (report.instructorFirstName && report.instructorLastName) {
+      return `${report.instructorFirstName} ${report.instructorLastName}`;
+    }
+    if (report.firstName && report.lastName) {
+      return `${report.firstName} ${report.lastName}`;
+    }
+    return 'Instructor #' + (report.instructorId || report.instructor_id || 'N/A');
+  };
+
+  const getCourseTitle = (report) => {
+    return report.courseTitle || report.title || report.courseName || 'Course #' + (report.classId || report.class_id || 'N/A');
+  };
 
   const handleDownloadPDF = async (reportId) => {
     if (downloadingId) return;
@@ -49,8 +64,8 @@ const Reports = () => {
   };
 
   const filteredReports = reports.filter(r => 
-    (r.instructorName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (r.courseTitle || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    getInstructorName(r).toLowerCase().includes(searchTerm.toLowerCase()) ||
+    getCourseTitle(r).toLowerCase().includes(searchTerm.toLowerCase()) ||
     (String(r.report_id)).includes(searchTerm)
   );
 
@@ -111,13 +126,13 @@ const Reports = () => {
                           <td>
                             <div className="d-flex align-items-center">
                               <div className="instructor-avatar mr-2">
-                                {(report.instructorName || 'U').charAt(0)}
+                                {getInstructorName(report).charAt(0)}
                               </div>
-                              <span className="instructor-name">{report.instructorName || 'N/A'}</span>
+                              <span className="instructor-name">{getInstructorName(report)}</span>
                             </div>
                           </td>
                           <td>
-                            <span className="course-title-text">{report.courseTitle || 'N/A'}</span>
+                            <span className="course-title-text">{getCourseTitle(report)}</span>
                           </td>
                           <td className="text-muted">
                             {new Date(report.createdAt).toLocaleDateString('en-US', { 
