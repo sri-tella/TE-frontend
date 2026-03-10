@@ -1,59 +1,62 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
-/* Global Scrollbar Styles (Pure CSS) */
-::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f8f9fa;
-  border-radius: 10px;
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #154734; /* Baylor Green */
-  border-radius: 10px;
-  border: 3px solid #f8f9fa;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: #FFB81C; /* Baylor Gold */
-  border: 2px solid #f8f9fa;
-}
-
-/* Scrollbar Buttons (Arrows) */
-::-webkit-scrollbar-button:single-button {
-  background-color: #f8f9fa;
-  display: block;
-  background-repeat: no-repeat;
-  background-size: 50%;
+/* GLOBAL SHARED BACKGROUND - PREVENTS BLINKING */
+.app-main-layout {
+  background: linear-gradient(rgba(21, 71, 52, 0.6), rgba(21, 71, 52, 0.4)), url('./assets/bgimg.avif');
+  background-size: cover;
   background-position: center;
+  background-attachment: fixed;
+  min-height: 100vh;
+  width: 100%;
 }
 
-::-webkit-scrollbar-button:single-button:vertical:decrement {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%23154734'><polygon points='50,00 0,100 100,100'/></svg>");
+/* SIMPLEBAR MODERN THIN SCROLLBAR */
+.simplebar-scrollbar::before {
+  background: #FFB81C !important;
+  border-radius: 10px !important;
+  opacity: 0.5 !important;
+  left: 4px !important;
+  right: 4px !important;
+  width: 6px !important;
 }
 
-::-webkit-scrollbar-button:single-button:vertical:increment {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='%23154734'><polygon points='50,100 0,0 100,0'/></svg>");
+.simplebar-scrollbar.simplebar-visible::before {
+  opacity: 0.8 !important;
+  box-shadow: 0 0 10px rgba(255, 184, 28, 0.3);
 }
 
-/* Firefox support */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #154734 #f8f9fa;
+.simplebar-track:hover .simplebar-scrollbar::before {
+  background: #ffffff !important; 
+  opacity: 1 !important;
+}
+
+.simplebar-track {
+  background: rgba(255, 255, 255, 0.03) !important;
+  width: 12px !important;
+}
+
+body {
+  margin: 0;
+  display: block;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
 }

@@ -91,7 +91,7 @@
 
 /* NOTIFICATIONS */
 .notification-wrapper {
-  position: relative; /* Обязательно для позиционирования дропдауна */
+  position: relative;
   display: flex;
   align-items: center;
 }
@@ -142,7 +142,7 @@
   box-shadow: 0 10px 40px rgba(0,0,0,0.25);
   z-index: 2000;
   border: 1px solid rgba(0,0,0,0.08);
-  overflow: hidden; /* Чтобы углы не вылезали */
+  overflow: hidden;
   animation: slideDown 0.3s ease-out;
 }
 
@@ -165,16 +165,6 @@
 .notification-list-container {
   max-height: 400px;
   overflow-y: auto;
-  scrollbar-width: thin;
-}
-
-/* Стилизация скроллбара */
-.notification-list-container::-webkit-scrollbar {
-  width: 6px;
-}
-.notification-list-container::-webkit-scrollbar-thumb {
-  background: #cbd5e0;
-  border-radius: 10px;
 }
 
 .notification-item {
@@ -206,7 +196,6 @@
   cursor: pointer;
   padding: 0 5px;
   transition: color 0.2s;
-  line-height: 1;
 }
 
 .btn-close-notif:hover {
@@ -237,4 +226,5 @@
 
 .logout-btn:hover {
   background: #fff;
+  transform: translateY(-2px);
 }
