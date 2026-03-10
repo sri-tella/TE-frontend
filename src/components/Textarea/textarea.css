@@ -1,30 +1,13 @@
-.full-width-textarea {
-  width: 100% !important;
-  padding: 15px !important;
-  border-radius: 8px !important;
-  border: 1px solid #e9ecef !important;
-  font-size: 1rem !important;
-  color: #333 !important;
-  background-color: #ffffff !important; /* Белый фон по умолчанию */
-  transition: all 0.2s ease !important;
+.custom-textarea {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 15px;
+  font-size: 0.95rem;
   resize: vertical;
+  transition: all 0.2s ease;
 }
 
-.full-width-textarea:focus {
-  border-color: #003015 !important;
-  background-color: #ffffff !important;
-  box-shadow: 0 0 0 4px rgba(0, 48, 21, 0.1) !important;
-  outline: none !important;
-}
-
-.full-width-textarea:focus::placeholder {
-  color: transparent;
-}
-
-.heading {
-  font-size: 1rem !important;
-  font-weight: 600 !important;
-  color: #495057 !important;
-  margin-top: 15px !important;
-  margin-bottom: 10px !important;
+.custom-textarea:focus {
+  border-color: #154734;
+  box-shadow: 0 0 0 4px rgba(21, 71, 52, 0.1) !important;
 }
