@@ -16,7 +16,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { API_BASE_URL } from '../../constants';
 import { classService, reportService } from '../../services/apiService';
 import ReportPdfDocument from './ReportPdfDocument';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { PDFDownloadLink, pdf } from '@react-pdf/renderer';
 import { generateWordReport } from './WordGenerator';
 
 const withMinDelay = async (task, delay = 800) => {
@@ -146,12 +146,21 @@ const ReportViewer = () => {
             "Conclusion": "Conclusion"
         };
 
-        const renderListWithFeedback = (items) => {
-            if (!items || items.length === 0) return '<p><em>No observations recorded.</em></p>';
+        const renderRecommendationsList = (items) => {
+            if (!items || items.length === 0) return '<p><em>No recommendations recorded.</em></p>';
             return `<ul>${items.map(item => {
                 let content = item.description || item;
-                let comment = item.feedbackText ? `<br/><em><small>&nbsp;&nbsp;(Comment: ${item.feedbackText})</small></em>` : '';
-                return `<li>${content}${comment}</li>`;
+                return `<li>${content}</li>`;
+            }).join('')}</ul>`;
+        };
+
+        const renderObservationsList = (items, recommendations) => {
+            if (!items || items.length === 0) return '<p><em>No observations recorded.</em></p>';
+            return `<ul>${items.map(obsText => {
+                // Find if there's a comment for this observation in the recommendations array
+                const relatedRec = recommendations.find(r => r.observedDescription === obsText);
+                const comment = relatedRec?.feedbackText ? `<br/><em><small>&nbsp;&nbsp;(Comment: ${relatedRec.feedbackText})</small></em>` : '';
+                return `<li>${obsText}${comment}</li>`;
             }).join('')}</ul>`;
         };
 
@@ -160,9 +169,8 @@ const ReportViewer = () => {
         manualOrder.forEach((category, index) => {
             const secData = sections[category] || { observations: [], recommendations: [] };
             report += `<h4>${index + 1}. ${categoryQuestions[category]}</h4>`;
-            const obsContent = secData.observations.length > 0 ? `<ul>${secData.observations.map(obs => `<li>${obs}</li>`).join('')}</ul>` : '<p><em>No observations recorded.</em></p>';
-            report += `<p><strong>Observations:</strong></p>${obsContent}`;
-            report += `<p><strong>Recommendations:</strong></p>${renderListWithFeedback(secData.recommendations)}`;
+            report += `<p><strong>Observations:</strong></p>${renderObservationsList(secData.observations, secData.recommendations)}`;
+            report += `<p><strong>Recommendations:</strong></p>${renderRecommendationsList(secData.recommendations)}`;
             if (aiFbs[category]) {
                 report += aiFbs[category];
             }
@@ -177,7 +185,7 @@ const ReportViewer = () => {
     useEffect(() => {
         if (!location.state) { navigate('/reports'); return; }
         
-        const { reportId, selectedRecommendations, feedbacks, observerId, instructorId, classId } = location.state;
+        const { reportId, evaluationId: stateEvalId, selectedRecommendations, feedbacks, observerId, instructorId, classId } = location.state;
 
         if (reportId && !selectedRecommendations) {
             reportService.fetchReportDetails(reportId)
@@ -201,11 +209,11 @@ const ReportViewer = () => {
                     });
                     setBackgroundInfo({ goal: data.classGoal, outline: data.classOutline, help: data.classHelp });
                     
-                    // Сохраняем ID для возможного пересохранения
                     setSaveData({
-                        observerId: data.observerId,
-                        instructorId: data.instructorId,
-                        classId: data.classId,
+                        observerId: data.observerId || data.observer_id,
+                        instructorId: data.instructorId || data.instructor_id,
+                        classId: data.classId || data.class_id,
+                        evaluationId: data.evaluationId || data.evaluation_id || stateEvalId,
                         recommendations: data.recommendations
                     });
                 })
@@ -272,7 +280,7 @@ const ReportViewer = () => {
 
         try {
             await withMinDelay(async () => {
-                const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+                const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
                 const sectionsToAnalyze = Object.keys(structuredData.sections)
                     .map(cat => `${cat}: ${structuredData.sections[cat]?.observations.join('; ')}`)
                     .join('\n\n');
@@ -309,22 +317,51 @@ const ReportViewer = () => {
     };
 
     const handleSaveEvaluation = async () => {
-        if (!saveData.instructorId) return;
+        if (!saveData.instructorId) {
+            alert("Instructor data is missing. Cannot save.");
+            return;
+        }
         setLoadingState('save', true);
         try {
-            await withMinDelay(async () => {
-                const evaluationData = {
-                    date: new Date().toISOString().split('T')[0],
-                    observerId: saveData.observerId, 
-                    instructorId: saveData.instructorId, 
-                    classId: saveData.classId,
-                    recommendations: saveData.recommendations.map(rec => ({ ...rec, selected: true }))
-                };
-                await fetch(`${API_BASE_URL}/api/evaluations/save`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(evaluationData) });
+            // 1. Save evaluation data
+            const evaluationData = {
+                date: new Date().toISOString().split('T')[0],
+                observerId: saveData.observerId, 
+                instructorId: saveData.instructorId, 
+                classId: saveData.classId,
+                recommendations: saveData.recommendations.map(rec => ({ ...rec, selected: true }))
+            };
+            
+            let evaluationId = saveData.evaluationId;
+
+            // If we don't have eval ID, we create a new one (though usually we should have it from history)
+            if (!evaluationId) {
+                const evalRes = await fetch(`${API_BASE_URL}/api/evaluations/save`, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify(evaluationData) 
+                });
+                const evalData = await evalRes.json();
+                evaluationId = evalData.evaluation_id;
+            }
+
+            // 2. Generate PDF and save it to Reports list
+            const doc = <ReportPdfDocument htmlContent={reportContent} />;
+            const blob = await pdf(doc).toBlob();
+            const formData = new FormData();
+            formData.append('file', new File([blob], "report.pdf", { type: 'application/pdf' }));
+            formData.append('evaluationId', evaluationId);
+
+            await axios.post(`${API_BASE_URL}/api/reports/save-pdf`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
-            setSuccessMessage('Report saved successfully!');
-            setTimeout(() => setSuccessMessage(''), 3000);
-        } catch { setSuccessMessage('Failed to save report.'); }
+
+            setSuccessMessage('Report saved successfully! A new version has been added to your history.');
+            setTimeout(() => setSuccessMessage(''), 5000);
+        } catch (err) { 
+            console.error(err);
+            setSuccessMessage('Failed to save report.'); 
+        }
         finally { setLoadingState('save', false); }
     };
 
@@ -372,24 +409,29 @@ const ReportViewer = () => {
                                 <ArrowLeft className="mr-2" /> GO BACK
                             </Button>
 
-                            <Button 
-                                variant="outline-primary" 
-                                onClick={handleAiSupportForAllSections} 
-                                className="eval-btn-secondary-v3 px-4 py-3 rounded-pill font-weight-bold shadow"
-                                disabled={loading.ai}
-                                style={{ pointerEvents: 'auto' }}
-                            >
-                                <Robot className="mr-2" /> {loading.ai ? 'ANALYZING...' : 'AI FEEDBACK'}
-                            </Button>
+                            {/* Show AI and SAVE buttons ONLY if we are NOT viewing an archived report */}
+                            {!location.state?.reportId && (
+                                <>
+                                    <Button 
+                                        variant="outline-primary" 
+                                        onClick={handleAiSupportForAllSections} 
+                                        className="eval-btn-secondary-v3 px-4 py-3 rounded-pill font-weight-bold shadow"
+                                        disabled={loading.ai}
+                                        style={{ pointerEvents: 'auto' }}
+                                    >
+                                        <Robot className="mr-2" /> {loading.ai ? 'ANALYZING...' : 'AI FEEDBACK'}
+                                    </Button>
 
-                            <Button 
-                                onClick={handleSaveEvaluation} 
-                                className="eval-submit-btn-v3 px-5 py-3 rounded-pill font-weight-bold shadow w-auto" 
-                                disabled={loading.save}
-                                style={{ pointerEvents: 'auto' }}
-                            >
-                                <Save className="mr-2" /> {loading.save ? 'SAVING...' : 'SAVE REPORT'}
-                            </Button>
+                                    <Button 
+                                        onClick={handleSaveEvaluation} 
+                                        className="eval-submit-btn-v3 px-5 py-3 rounded-pill font-weight-bold shadow w-auto" 
+                                        disabled={loading.save}
+                                        style={{ pointerEvents: 'auto' }}
+                                    >
+                                        <Save className="mr-2" /> {loading.save ? 'SAVING...' : 'SAVE REPORT'}
+                                    </Button>
+                                </>
+                            )}
 
                             {reportContent && (
                                 <PDFDownloadLink 

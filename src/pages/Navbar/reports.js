@@ -155,7 +155,10 @@ const Reports = () => {
                               <Button 
                                 variant="success" 
                                 className="btn-action-baylor-solid"
-                                onClick={() => navigate(`/viewReport`, { state: { reportId: report.report_id } })}
+                                onClick={() => navigate(`/viewReport`, { state: { 
+                                  reportId: report.report_id,
+                                  evaluationId: report.evaluation?.evaluation_id 
+                                } })}
                                 title="View Details"
                               >
                                 <Eye />
