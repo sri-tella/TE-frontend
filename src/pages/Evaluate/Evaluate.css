@@ -1,0 +1,99 @@
+#evaluation-container-v3 {
+  background: linear-gradient(rgba(21, 71, 52, 0.6), rgba(21, 71, 52, 0.4)), url('../../assets/bgimg.avif');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  min-height: 100vh;
+  padding: 40px 0 100px 0; /* Добавлен отступ снизу */
+  font-family: 'Inter', sans-serif;
+}
+
+.eval-page-heading {
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 3rem;
+  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.eval-page-subtext {
+  color: #FFB81C;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.eval-section-card {
+  border-radius: 20px !important;
+  background: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  margin-bottom: 24px;
+}
+
+.active-header {
+  border-left: 8px solid #154734 !important;
+}
+
+.eval-section-title {
+  color: #154734;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.section-badge-circle {
+  background: #154734;
+  color: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  margin-right: 15px;
+}
+
+.eval-option-item {
+  background-color: #f8fafc;
+  border: 1px solid #edf2f7;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+/* ФИКС STICKY КНОПКИ */
+.eval-action-footer-container {
+  position: fixed; /* Используем fixed для гарантии видимости */
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.3));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  pointer-events: none;
+}
+
+.eval-submit-btn-v3 {
+  pointer-events: auto;
+  padding: 16px 80px !important;
+  background: #FFB81C !important;
+  color: #154734 !important;
+  border: 3px solid white !important;
+  border-radius: 50px !important;
+  font-size: 1.2rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1.5px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.eval-submit-btn-v3:hover {
+  background: #154734 !important;
+  color: #FFB81C !important;
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: 0 15px 40px rgba(21, 71, 52, 0.5) !important;
+}
