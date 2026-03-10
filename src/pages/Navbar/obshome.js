@@ -171,7 +171,7 @@ classService.updateArchiveStatus(classId, status)
             <div className="dnd-column">
               <h3>
                 <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                  <JournalCheck /> Available Classes
+                  <JournalCheck /> Active Observations
                 </div>
                 <span className="column-count">{activeClasses.length}</span>
               </h3>
