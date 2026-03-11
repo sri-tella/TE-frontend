@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form } from 'react-bootstrap';
-import './TextArea.css';
+import './textarea.css';
 
 const TextArea = ({ value, placeholder, onChange }) => {
   return (

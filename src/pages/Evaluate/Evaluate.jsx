@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, Button, Form, Collapse } from 'react-bootstrap';
 import { Search, ChevronDown } from 'react-bootstrap-icons';
 import SearchBar from '../../components/SearchBar/SearchBar.jsx';
-import TextArea from '../../components/TextArea/TextArea';
+import TextArea from '../../components/TextArea/TextArea.jsx';
 import { EVALUATION_SECTIONS } from '../../constants/evaluationSections';
 import './Evaluate.css';
 
