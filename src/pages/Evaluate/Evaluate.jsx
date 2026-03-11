@@ -2,7 +2,7 @@ import React, { useState, useEffect, useLayoutEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, Button, Form, Collapse } from 'react-bootstrap';
 import { Search, ChevronDown } from 'react-bootstrap-icons';
-import SearchBar from '../../components/SearchBar/SearchBar';
+import SearchBar from '../../components/SearchBar/SearchBar.jsx';
 import TextArea from '../../components/TextArea/TextArea';
 import { EVALUATION_SECTIONS } from '../../constants/evaluationSections';
 import './Evaluate.css';
