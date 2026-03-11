@@ -16,7 +16,7 @@ import {
   Person, 
   Bell 
 } from 'react-bootstrap-icons';
-import './Header.css';
+import './header.css';
 
 const Header = () => {
   const { user, logout, isAuthenticated } = useAuthStore();

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, InputGroup } from 'react-bootstrap';
 import { Search } from 'react-bootstrap-icons';
-import './SearchBar.css';
+import './searchbar.css';
 
 const SearchBar = ({ searchQuery, handleSearchChange }) => {
   return (
