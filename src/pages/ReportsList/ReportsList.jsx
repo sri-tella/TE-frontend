@@ -68,10 +68,18 @@ const ReportsList = () => {
 
     // 3. Filter by User Role
     const roles = Array.isArray(user?.roles) ? user.roles : (user?.role ? [user.role] : []);
-    const isOnlyInstructor = roles.includes('INSTRUCTOR') && !roles.includes('ADMIN') && !roles.includes('OBSERVER');
+    const isAdmin = roles.includes('ADMIN');
+    const isObserver = roles.includes('OBSERVER');
+    const isInstructor = roles.includes('INSTRUCTOR');
 
-    if (isOnlyInstructor) {
-      list = list.filter(r => r.evaluation?.instructor?.id === user?.id);
+    if (!isAdmin) {
+      if (isObserver) {
+        // Observers see only reports they authored
+        list = list.filter(r => (r.evaluation?.observer?.observer_id || r.evaluation?.observer?.id) === user?.observerId);
+      } else if (isInstructor) {
+        // Instructors see only reports about them
+        list = list.filter(r => (r.evaluation?.instructor?.instructor_id || r.evaluation?.instructor?.id) === user?.instructorId);
+      }
     }
 
     // 4. Apply Search Filter

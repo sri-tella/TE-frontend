@@ -1,0 +1,19 @@
+{
+  "files": {
+    "main.css": "/static/css/main.46189c59.css",
+    "main.js": "/static/js/main.ccf1cd76.js",
+    "static/js/238.201726c1.chunk.js": "/static/js/238.201726c1.chunk.js",
+    "static/js/453.f9d4dcc1.chunk.js": "/static/js/453.f9d4dcc1.chunk.js",
+    "static/media/Baylor-University-Logo.jpg": "/static/media/Baylor-University-Logo.926fe3f22f5442a2f1e8.jpg",
+    "static/media/bgimg.avif": "/static/media/bgimg.52601b3747c78575606f.avif",
+    "index.html": "/index.html",
+    "main.46189c59.css.map": "/static/css/main.46189c59.css.map",
+    "main.ccf1cd76.js.map": "/static/js/main.ccf1cd76.js.map",
+    "238.201726c1.chunk.js.map": "/static/js/238.201726c1.chunk.js.map",
+    "453.f9d4dcc1.chunk.js.map": "/static/js/453.f9d4dcc1.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.46189c59.css",
+    "static/js/main.ccf1cd76.js"
+  ]
+}

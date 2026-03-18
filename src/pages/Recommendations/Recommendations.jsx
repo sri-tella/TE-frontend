@@ -10,7 +10,15 @@ import './Recommendations.css';
 const Recommendations = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { evaluationId, observerId, instructorId, classId, allObservations = [] } = location.state || {};
+  const { evaluationId, observerId, instructorId, classId, allObservations: stateObs } = location.state || {};
+
+  const allObservations = useMemo(() => {
+    if (stateObs && stateObs.length > 0) return stateObs;
+    if (evaluationId) {
+      return JSON.parse(localStorage.getItem(`responses_${evaluationId}`) || '[]');
+    }
+    return [];
+  }, [stateObs, evaluationId]);
 
   const normalizeTitle = (title) => title.replace(/^\d+\.\s*/, '');
   const getSectionNumber = (title) => {
@@ -38,7 +46,7 @@ const Recommendations = () => {
             return {
               description: recommendation,
               observedDescription: observation,
-              selected: isSelectedByPrevStep || (storedOption?.selected ?? false),
+              selected: storedOption?.selected ?? false,
               showFeedback: isSelectedByPrevStep || (storedOption?.selected ?? false),
               feedbackText: storedOption?.feedbackText || (isSelectedByPrevStep ? (matchedObs?.feedbackText || '') : '')
             };
@@ -51,7 +59,11 @@ const Recommendations = () => {
     if (additionalSection) {
       initial.push({
         title: '9. Additional Feedback',
-        options: additionalSection.options.map(opt => ({ ...opt, selected: true, showFeedback: true }))
+        options: additionalSection.options.map(opt => ({ 
+          ...opt, 
+          selected: !!opt.feedbackText?.trim(), 
+          showFeedback: true 
+        }))
       });
     }
     return initial;

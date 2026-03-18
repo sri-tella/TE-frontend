@@ -41,25 +41,19 @@ const MenuBar = ({ editor }) => {
   );
 };
 
-const formatAiResponse = (text) => {
+const formatAiResponse = (text, category) => {
     if (!text) return '';
-    let cleanRaw = text.replace(/\*\*/g, '').replace(/##/g, '').replace(/^\s*\* /gm, '');
-    cleanRaw = cleanRaw.replace(/\(?Institutional AI Analysis\)?[:\-]?/gi, '').trim();
-    const sections = cleanRaw.split(/Recommendations for Improvement|Recommendations/i);
-    const obsPart = sections[0].replace(/Key Observations|Observations/i, '').split('\n').map(l => l.trim()).filter(l => l.length > 0).join('<br/>');
-    const recPart = sections[1]?.split('\n').map(l => l.trim()).filter(l => l.length > 0).join('<br/>') || '';
+    // Clean up markers
+    let clean = text.replace(/\*\*/g, '').replace(/##/g, '').replace(/^\s*\* /gm, '');
+    // Remove the category name itself from the start if it exists
+    const catEscaped = category.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const headerRegex = new RegExp(`^${catEscaped}[:\\-]?\\s*`, 'i');
+    clean = clean.replace(headerRegex, '').trim();
 
     return `
         <div class="ai-analysis-block">
-            <div style="margin-bottom: 10px;">
-                <strong style="color: #154734; font-size: 11pt; display: block; margin-bottom: 5px;">Institutional AI Analysis: Observations</strong>
-                <div style="font-size: 10.5pt; color: #374151; line-height: 1.5;">${obsPart}</div>
-            </div>
-            ${recPart ? `
-            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #d1fae5;">
-                <strong style="color: #154734; font-size: 11pt; display: block; margin-bottom: 5px;">Institutional AI Analysis: Recommendations</strong>
-                <div style="font-size: 10.5pt; color: #374151; line-height: 1.5;">${recPart}</div>
-            </div>` : ''}
+            <strong style="color: #154734; font-size: 11pt; display: block; margin-bottom: 8px;">Institutional AI Analysis</strong>
+            <div style="font-size: 10.5pt; color: #374151; line-height: 1.6;">${clean.replace(/\n/g, '<br/>')}</div>
         </div>
     `;
 };
@@ -77,8 +71,27 @@ const ReportViewer = () => {
   const [reportHtml, setReportContent] = useState('');
   const [classData, setClassData] = useState(null);
 
-  const canonicalSections = ["Introduction", "Organization", "Content", "Visual Aids and Technology", "Delivery", "Activities", "Student Behavior", "Conclusion"];
-  const sectionMapping = { "Specific Activities": "Activities", "Student-Instructor Interactions": "Activities", "Content Focused Instructor Choices": "Content", "Expectations for Student Behavior": "Student Behavior", "Pacing": "Delivery", "Affect": "Delivery", "Speech & Delivery": "Delivery", "Visuals & PPT": "Visual Aids and Technology" };
+  const canonicalSections = [
+    "Specific Activities", 
+    "Student-Instructor Interactions", 
+    "Content Focused Instructor Choices", 
+    "Expectations for Student Behavior", 
+    "Pacing", 
+    "Affect", 
+    "Speech & Delivery", 
+    "Visuals & PPT"
+  ];
+  
+  const sectionMapping = {
+    "Specific Activities": "Specific Activities",
+    "Student-Instructor Interactions": "Student-Instructor Interactions",
+    "Content Focused Instructor Choices": "Content Focused Instructor Choices",
+    "Expectations for Student Behavior": "Expectations for Student Behavior",
+    "Pacing": "Pacing",
+    "Affect": "Affect",
+    "Speech & Delivery": "Speech & Delivery",
+    "Visuals & PPT": "Visuals & PPT"
+  };
 
   const genAI = useMemo(() => {
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -116,32 +129,85 @@ const ReportViewer = () => {
     const recs = state.allRecommendations || [];
 
     obs.forEach(section => {
-      const target = sectionMapping[section.title.replace(/^\d+\.\s*/, '')];
-      if (target) section.options.forEach(opt => { if (opt.selected) groupedData[target].observations.push({ text: opt.description, comment: opt.feedbackText }); });
+      const normalized = section.title.replace(/^\d+\.\s*/, '');
+      const target = sectionMapping[normalized];
+      if (target) {
+        section.options.forEach(opt => {
+          if (opt.selected) {
+            groupedData[target].observations.push({ text: opt.description, comment: opt.feedbackText });
+          }
+        });
+      }
     });
+
     recs.forEach(section => {
-      const target = sectionMapping[section.title.replace(/^\d+\.\s*/, '')];
-      if (target) section.options.forEach(rec => { if (rec.selected) groupedData[target].recommendations.push({ text: rec.description, comment: rec.feedbackText }); });
+      const normalized = section.title.replace(/^\d+\.\s*/, '');
+      const target = sectionMapping[normalized];
+      if (target) {
+        section.options.forEach(rec => {
+          if (rec.selected) {
+            groupedData[target].recommendations.push({ text: rec.description, comment: rec.feedbackText });
+          }
+        });
+      }
     });
 
     canonicalSections.forEach((sectionName, index) => {
-      html += `<h4>${index + 1}. ${sectionName}</h4><p><strong>Observations:</strong></p>`;
+      html += `<h4>${index + 1}. ${sectionName}</h4>`;
+      
+      // Observations
+      html += `<p><strong>Observations:</strong></p>`;
       if (groupedData[sectionName].observations.length > 0) {
-        html += `<ul>${groupedData[sectionName].observations.map(o => `<li>${o.text}${o.comment ? `<br/><em>Comment: ${o.comment}</em>` : ''}</li>`).join('')}</ul>`;
-      } else { html += `<p>No observations recorded.</p>`; }
+        html += `<ul>${groupedData[sectionName].observations.map(o => 
+          `<li>${o.text}${o.comment ? `<br/><em>Observation Note: ${o.comment}</em>` : ''}</li>`
+        ).join('')}</ul>`;
+      } else {
+        html += `<p>No observations recorded.</p>`;
+      }
+
+      // Recommendations
       html += `<p><strong>Recommendations:</strong></p>`;
       if (groupedData[sectionName].recommendations.length > 0) {
-        html += `<ul>${groupedData[sectionName].recommendations.map(r => `<li>${r.text}</li>`).join('')}</ul>`;
-      } else { html += `<p>No recommendations recorded.</p>`; }
-      if (aiFbs && aiFbs[sectionName]) html += aiFbs[sectionName];
+        html += `<ul>${groupedData[sectionName].recommendations.map(r => 
+          `<li>${r.text}${r.comment ? `<br/><em>Recommendation Note: ${r.comment}</em>` : ''}</li>`
+        ).join('')}</ul>`;
+      } else {
+        html += `<p>No recommendations recorded.</p>`;
+      }
+
+      // AI Analysis for this section
+      if (aiFbs && aiFbs[sectionName]) {
+        html += aiFbs[sectionName];
+      }
+      
       html += `<br/>`;
     });
 
-    const additional = recs.find(r => r.title.includes('Additional Feedback'));
-    html += `<h3>Additional Feedback</h3>`;
-    if (additional) {
-      additional.options.forEach(opt => { html += `<h4>${opt.description}</h4><p>${opt.feedbackText || 'No additional feedback provided.'}</p>`; });
-    }
+    // Additional Feedback (Section 9)
+    const additionalObs = (state.allObservations || []).find(r => r.title.includes('Additional Feedback'));
+    const additionalRecs = (state.allRecommendations || []).find(r => r.title.includes('Additional Feedback'));
+    const additional = additionalRecs || additionalObs;
+
+    html += `<h3 style="color: #154734;">Additional Feedback</h3>`;
+    
+    const standardQuestions = [
+      "Did the class session meet the instructor's goal or objective?",
+      "Other Comments or Recommendations"
+    ];
+
+    standardQuestions.forEach(qText => {
+      const opt = additional?.options?.find(o => o.description.includes(qText.split(' ')[0])); 
+      const answer = opt?.feedbackText?.trim();
+      
+      // h4 already has the "gray block + green border" style in CSS
+      html += `<h4>${qText}</h4>`;
+      if (answer) {
+        html += `<p style="color: #374151; line-height: 1.6; padding-left: 5px; margin-bottom: 20px;">${answer}</p>`;
+      } else {
+        html += `<p style="color: #6b7280; font-style: italic; padding-left: 5px; margin-bottom: 20px;">No additional feedback provided.</p>`;
+      }
+    });
+    
     return html;
   }, [state, user]);
 
@@ -197,21 +263,57 @@ const ReportViewer = () => {
         const groupedForAi = {};
         canonicalSections.forEach(s => groupedForAi[s] = []);
         (state.allObservations || []).forEach(section => {
-            const target = sectionMapping[section.title.replace(/^\d+\.\s*/, '')];
-            if (target) section.options.forEach(opt => groupedForAi[target].push(opt.description));
+            const normalized = section.title.replace(/^\d+\.\s*/, '');
+            const target = sectionMapping[normalized];
+            if (target) section.options.forEach(opt => {
+              if (opt.selected) groupedForAi[target].push(opt.description);
+            });
         });
-        const sectionsToAnalyze = Object.keys(groupedForAi).filter(cat => groupedForAi[cat].length > 0).map(cat => `${cat}: ${groupedForAi[cat].join('; ')}`).join('\n\n');
-        const res = await model.generateContent(`Pedagogical analysis: ${sectionsToAnalyze}`);
+        
+        const sectionsToAnalyze = Object.keys(groupedForAi)
+          .filter(cat => groupedForAi[cat].length > 0)
+          .map(cat => `${cat}: ${groupedForAi[cat].join('; ')}`)
+          .join('\n\n');
+
+        if (!sectionsToAnalyze) {
+          toast.info("No observations selected for AI analysis.");
+          setLoading(prev => ({ ...prev, ai: false }));
+          return;
+        }
+
+        const res = await model.generateContent(`
+            Perform a pedagogical analysis for the following observations from a SINGLE class session.
+            
+            Observations:
+            ${sectionsToAnalyze}
+            
+            Instructions for your response:
+            1. Provide a detailed analysis for EACH category provided above.
+            2. For each category, start with the exact category name followed by a colon (e.g., "Specific Activities:").
+            3. Produce ONLY prose paragraphs. 
+            4. Do NOT use bullet points or numbered lists.
+            5. Address the instructor in the SECOND PERSON (use "you", "your").
+            6. Keep the tone professional, encouraging, and focused on this specific class session.
+        `);
+
         const fullText = res.response.text();
         const newAiFeedbacks = {};
+        
         canonicalSections.forEach(cat => {
-            const regex = new RegExp(`${cat.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[\\s\\S]*?(?=\\n\\n[A-Z]|$)`, 'i');
-            const sectionMatch = fullText.match(regex);
-            if (sectionMatch) newAiFeedbacks[cat] = formatAiResponse(sectionMatch[0]);
+            const catEscaped = cat.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`${catEscaped}[:\\-]?\\s*([\\s\\S]*?)(?=\\n+(?:${canonicalSections.map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})[:\\-]?|$)`, 'i');
+            const match = fullText.match(regex);
+            if (match && match[1].trim()) {
+                newAiFeedbacks[cat] = formatAiResponse(match[1].trim(), cat);
+            }
         });
+
         editor.commands.setContent(constructFullReport(classData, newAiFeedbacks));
         toast.success("AI Analysis generated!");
-    } catch (err) { toast.error("AI Analysis failed."); }
+    } catch (err) { 
+        console.error("AI Analysis error:", err);
+        toast.error("AI Analysis failed."); 
+    }
     finally { setLoading(prev => ({ ...prev, ai: false })); }
   };
 

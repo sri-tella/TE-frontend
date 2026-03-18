@@ -70,8 +70,8 @@ const Evaluate = () => {
     initialResponses.push({
       title: '9. Additional Feedback',
       options: [
-        { description: "Did the class session meet the instructor's goal or objective?", feedbackText: storedAdditional?.options?.[0]?.feedbackText || '', selected: true, showFeedback: true },
-        { description: "Other Comments or Recommendations", feedbackText: storedAdditional?.options?.[1]?.feedbackText || '', selected: true, showFeedback: true }
+        { description: "Did the class session meet the instructor's goal or objective?", feedbackText: storedAdditional?.options?.[0]?.feedbackText || '', selected: !!storedAdditional?.options?.[0]?.feedbackText, showFeedback: true },
+        { description: "Other Comments or Recommendations", feedbackText: storedAdditional?.options?.[1]?.feedbackText || '', selected: !!storedAdditional?.options?.[1]?.feedbackText, showFeedback: true }
       ]
     });
     setResponses(initialResponses);
