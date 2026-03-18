@@ -24,9 +24,6 @@ export const reportApi = {
     return apiClient('/api/reports/save-pdf', {
       method: 'POST',
       body: formData,
-      headers: {
-        'Content-Type': undefined 
-      }
     });
   }
 };

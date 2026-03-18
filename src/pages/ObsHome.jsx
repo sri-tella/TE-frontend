@@ -181,7 +181,7 @@ const ObsHome = () => {
                     />
                   ))}
                   {provided.placeholder}
-                  {!loading && activeClasses.length === 0 && <p className="empty-msg">No active classes available</p>}
+                  {!loading && activeClasses.length === 0 && <p className="empty-msg">No active observations available</p>}
                 </div>
               )}
             </Droppable>
