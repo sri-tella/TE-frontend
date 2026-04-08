@@ -180,11 +180,15 @@ const Recommendations = () => {
                                     }} className="eval-custom-check mb-2" />
                                   )}
                                   {responses[sIdx].options[originalOptIdx].showFeedback && (
-                                    <TextArea value={responses[sIdx].options[originalOptIdx].feedbackText} onChange={(e) => {
-                                      const updated = [...responses];
-                                      updated[sIdx].options[originalOptIdx].feedbackText = e.target.value;
-                                      updateState(updated);
-                                    }} />
+                                    <TextArea 
+                                      value={responses[sIdx].options[originalOptIdx].feedbackText} 
+                                      placeholder="Add additional comments or examples here"
+                                      onChange={(e) => {
+                                        const updated = [...responses];
+                                        updated[sIdx].options[originalOptIdx].feedbackText = e.target.value;
+                                        updateState(updated);
+                                      }} 
+                                    />
                                   )}
                                 </div>
                               );

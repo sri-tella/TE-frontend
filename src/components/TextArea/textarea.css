@@ -5,6 +5,13 @@
   font-size: 0.95rem;
   resize: vertical;
   transition: all 0.2s ease;
+  color: #334155; /* Darker color for user input */
+}
+
+.custom-textarea::placeholder {
+  color: #94a3b8 !important; /* Lighter gray for placeholder */
+  font-style: italic; /* Adding italics to make it look clearly like a tip */
+  opacity: 0.8;
 }
 
 .custom-textarea:focus {

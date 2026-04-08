@@ -1,37 +1,32 @@
 export const EVALUATION_SECTIONS = [
   { title: "1. Specific Activities", options: [
-    { section_id: 1, description: "Students giving fact responses" },
+    { section_id: 1, description: "Students giving mostly fact responses" },
     { section_id: 2, description: "Instructor and/or students producing a lot of information" },
     { section_id: 3, description: "Students form their own groups, with some left out, not inclusive or functioning well" },
-    { section_id: 4, description: "Long lecture/students distracted/few students participating"},
-    { section_id: 5, description: "Some students not contributing/some dominating"},
-    { section_id: 6, description: "Class ends w/o recap or reinforcing main points"},
+    { section_id: 4, description: "Long lecture with students distracted, or few students participating"},
+    { section_id: 5, description: "Group work with some students not contributing or some dominating"},
     { section_id: 7, description: "Students not all participating in activities and/or not enjoying"},
     { section_id: 8, description: "Discussion activities not eliciting robust or critical responses"},
     { section_id: 9, description: "Lecture dominates, especially as instructor demonstration of skills"},
-    { section_id: 10, description: "Lack of indication of student understanding/seeming confusion toward end of class"},
-    { section_id: 11, description: "Lecture dominates/apparent confusion/students quiet"},
-    { section_id: 12, description: "Lack of indication of student understanding/Students not all participating in activities and/or not enjoying"},
+    { section_id: 11, description: "Lecture dominates with apparent confusion or students quiet"},
+    { section_id: 12, description: "Students not all participating in activities"},
     { section_id: 13, description: "Students appear off task or unengaged, few or no students volunteer to answer instructor questions"}
   ] },
   { title: "2. Student-Instructor Interactions", options: [
-      { section_id: 14, description: "Lecture dominates, with lots of facts, no indication of student comprehension" },
-      { section_id: 15, description: "A few students dominate discussion, many not speaking/students distracted" },
+      { section_id: 14, description: "Lecture dominates with no indication of student comprehension" },
+      { section_id: 15, description: "A few students dominate whole class discussion" },
       { section_id: 16, description: "Instructor asks questions that leave little room for student explanation or error" },
-      { section_id: 18, description: "Few students dominate, many not speaking/instructor moves on after single response" },
-      { section_id: 19, description: "Little indication of student understanding/a few “bright” students dominate" },
-      { section_id: 20, description: "Students offered unsupported or erroneous claims, instructor quickly affirmed or corrected student responses"},
+      { section_id: 18, description: "Instructor moves on after single response" },
+      { section_id: 19, description: "Little indication of student understanding with a few bright students dominating" },
+      { section_id: 20, description: "Students offered unsupported or erroneous claims"},
       { section_id: 21, description: "Instructor answers his/her own question, gives students many hints to get correct answer"}
   ] },
   { title: "3. Content Focused Instructor Choices", options: [
     { section_id: 22, description: "Learning activities had unclear or tenuous connection to learning objectives"},
-    { section_id: 23, description: "Most questions are fact-focused/memory" },
-    { section_id: 24, description: "Little or no time spent correcting errors or misunderstandings" },
-    { section_id: 25, description: "Lecture dominates, especially with fact-based content" },
-    { section_id: 26, description: "Students confused or uncooperative/an activity is abrupt or novel" },
+    { section_id: 23, description: "Most instructor questions are fact focused" },
+    { section_id: 26, description: "Students confused or uncooperative or an activity is abrupt or novel" },
     { section_id: 27, description: "Instructor identifies correct and incorrect answers but offers little help for improvement" },
     { section_id: 28, description: "Class ends abruptly, class ends early, class session incorporated many disparate ideas" },
-    { section_id: 29, description: "Student understanding is not clear, misunderstandings possible" },
     { section_id: 30, description: "Class session rife with facts, disconnected, meaning or import of material not explicit" }
   ] },
   { title: "4. Expectations for Student Behavior", options: [
@@ -40,8 +35,9 @@ export const EVALUATION_SECTIONS = [
     { section_id: 33, description: "Little participation"}
   ] },
   { title: "5. Pacing", options: [
+    { section_id: 6, description: "Class ends without recap or reinforcing main points"},
+    { section_id: 10, description: "Lack of indication of student understanding or seeming confusion toward the end of class"},
     { section_id: 34, description: "Class starts with no explicit plan, no hook, no connection to course trajectory"},
-    { section_id: 35, description: "Facts dominate, students are confused or show no indication of deep understanding"},
     { section_id: 36, description: "Pace of speech or activities increases"},
     { section_id: 37, description: "Students doing single activity for more than 30 mins"},
     { section_id: 38, description: "students appear confused about what is expected of them or why they are being asked to do something"}

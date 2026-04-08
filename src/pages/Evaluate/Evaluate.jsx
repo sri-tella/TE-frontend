@@ -150,11 +150,15 @@ const Evaluate = () => {
                                 <div className="fw-bold mb-2">{option.description}</div>
                               )}
                               {responses[sIdx].options[oIdx].showFeedback && (
-                                <TextArea value={responses[sIdx].options[oIdx].feedbackText} onChange={(e) => {
-                                  const updated = [...responses];
-                                  updated[sIdx].options[oIdx].feedbackText = e.target.value;
-                                  updateState(updated);
-                                }} />
+                                <TextArea 
+                                  value={responses[sIdx].options[oIdx].feedbackText} 
+                                  placeholder="Add additional comments or examples here"
+                                  onChange={(e) => {
+                                    const updated = [...responses];
+                                    updated[sIdx].options[oIdx].feedbackText = e.target.value;
+                                    updateState(updated);
+                                  }} 
+                                />
                               )}
                             </div>
                           );

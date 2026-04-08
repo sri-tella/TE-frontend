@@ -2,7 +2,7 @@ import React from 'react';
 import { Form } from 'react-bootstrap';
 import './textarea.css';
 
-const TextArea = ({ value, placeholder, onChange }) => {
+const TextArea = ({ value, placeholder = "Add additional comments or examples here", onChange }) => {
   return (
     <Form.Control
       as="textarea"
