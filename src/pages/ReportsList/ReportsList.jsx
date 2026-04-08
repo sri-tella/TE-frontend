@@ -75,10 +75,16 @@ const ReportsList = () => {
     if (!isAdmin) {
       if (isObserver) {
         // Observers see only reports they authored
-        list = list.filter(r => (r.evaluation?.observer?.observer_id || r.evaluation?.observer?.id) === user?.observerId);
+        list = list.filter(r => {
+          const obsId = r.evaluation?.observer?.observer_id || r.evaluation?.observer?.id;
+          return obsId == user?.observerId;
+        });
       } else if (isInstructor) {
         // Instructors see only reports about them
-        list = list.filter(r => (r.evaluation?.instructor?.instructor_id || r.evaluation?.instructor?.id) === user?.instructorId);
+        list = list.filter(r => {
+          const insId = r.evaluation?.instructor?.Instructor_id || r.evaluation?.instructor?.instructor_id || r.evaluation?.instructor?.id;
+          return insId == user?.instructorId;
+        });
       }
     }
 
