@@ -4,6 +4,7 @@ import { Card, Button, Form, Collapse } from 'react-bootstrap';
 import { Search, ChevronDown, ArrowLeft } from 'react-bootstrap-icons';
 import SearchBar from '../../components/SearchBar/SearchBar.jsx';
 import TextArea from '../../components/TextArea/TextArea.jsx';
+import ActivityLog from '../../components/ActivityLog/ActivityLog.jsx';
 import recommendationsMapping from '../../constants/recommendationsMapping';
 import './Recommendations.css';
 
@@ -128,6 +129,7 @@ const Recommendations = () => {
 
   return (
     <div id="recommendations-container-v3">
+      <ActivityLog />
       <div className="container py-5">
         <div className="text-center mb-5">
           <h1 className="eval-page-heading">Possible Recommendations</h1>

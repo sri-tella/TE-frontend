@@ -18,10 +18,13 @@ import { PDFDownloadLink, pdf } from '@react-pdf/renderer';
 import { toast } from 'react-toastify';
 
 import ReportPdfDocument from '../../components/Report/ReportPdfDocument';
+import ActivityLog from '../../components/ActivityLog/ActivityLog.jsx';
+import { useEvaluationStore } from '../../store/evaluationStore';
 import { generateWordReport } from '../../utils/WordGenerator';
 import { useAuthStore } from '../../store/authStore';
 import { classApi } from '../../api/classApi';
 import { reportApi } from '../../api/reportApi';
+import { evaluationApi } from '../../api/evaluationApi';
 import './ReportViewer.css';
 
 const MenuBar = ({ editor }) => {
@@ -62,6 +65,7 @@ const ReportViewer = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const { activityLog, clearLog, setActivityLog } = useEvaluationStore();
   
   const state = useMemo(() => location.state || {}, [location.state]);
   
@@ -98,6 +102,22 @@ const ReportViewer = () => {
     return apiKey ? new GoogleGenerativeAI(apiKey) : null;
   }, []);
 
+  useEffect(() => {
+    const fetchEvalData = async () => {
+      if (evaluationId && state.isReadOnly) {
+        try {
+          const evalData = await evaluationApi.getEvaluation(evaluationId);
+          if (evalData?.activityLog) {
+            setActivityLog(JSON.parse(evalData.activityLog));
+          }
+        } catch (err) {
+          console.error("Failed to fetch evaluation activity log:", err);
+        }
+      }
+    };
+    fetchEvalData();
+  }, [evaluationId, state.isReadOnly, setActivityLog]);
+
   const editor = useEditor({
     extensions: [StarterKit, Underline, TextAlign.configure({ types: ['heading', 'paragraph'] }), Link.configure({ openOnClick: false }), TextStyle, Color],
     content: '',
@@ -120,6 +140,7 @@ const ReportViewer = () => {
     let html = `<h2>Teaching Evaluation Report</h2><hr/>`;
     html += `<h3>Observation Information</h3><p><strong>Instructor:</strong> ${instructorName}</p><p><strong>Date:</strong> ${dateStr}</p><p><strong>Time:</strong> ${timeStr}</p><p><strong>Class Topic:</strong> ${cData?.courseTitle || cData?.title || 'Loading...'}</p><p><strong>Observer:</strong> ${observerName}</p>`;
     html += `<h3>Background Information</h3><p><strong>Learning Goal/Objective:</strong><br/>${cData?.goal || 'Loading...'}</p><p><strong>Outline:</strong><br/>${cData?.outline || 'Loading...'}</p><hr/>`;
+    
     html += `<h3>Observation Details</h3>`;
 
     const groupedData = {};
@@ -155,6 +176,18 @@ const ReportViewer = () => {
     canonicalSections.forEach((sectionName, index) => {
       html += `<h4>${index + 1}. ${sectionName}</h4>`;
       
+      // Integration of Activity Log into Section 2: Student-Instructor Interactions
+      if (sectionName === "Student-Instructor Interactions") {
+        const validLogs = activityLog.filter(log => log.time.trim() || log.activity.trim());
+        if (validLogs.length > 0) {
+          html += `<p><strong>Activity Timeline:</strong></p><ul>`;
+          validLogs.forEach(log => {
+            html += `<li><strong>${log.time} ${log.period}</strong> — ${log.activity}</li>`;
+          });
+          html += `</ul>`;
+        }
+      }
+
       // Observations
       html += `<p><strong>Observations:</strong></p>`;
       if (groupedData[sectionName].observations.length > 0) {
@@ -209,7 +242,7 @@ const ReportViewer = () => {
     });
     
     return html;
-  }, [state, user]);
+  }, [state, user, activityLog]);
 
   // Load report data if we only have reportId
   useEffect(() => {
@@ -325,11 +358,20 @@ const ReportViewer = () => {
 
     setLoading(prev => ({ ...prev, init: true }));
     try {
+      // 1. Save Activity Log to DB
+      const validLogs = activityLog.filter(log => log.time.trim() || log.activity.trim());
+      if (validLogs.length > 0) {
+        await evaluationApi.updateActivityLog(evaluationId, validLogs);
+      }
+
+      // 2. Save PDF Report
       const doc = <ReportPdfDocument htmlContent={reportHtml} />;
       const blob = await pdf(doc).toBlob();
       const file = new File([blob], `Evaluation_Report_${evaluationId}.pdf`, { type: 'application/pdf' });
       await reportApi.savePdfReport(file, evaluationId);
+      
       toast.success("Report saved successfully!");
+      clearLog(); // Clear the log after successful completion
       navigate('/reports');
     } catch (err) {
       console.error("Failed to save report:", err);
@@ -350,6 +392,7 @@ const ReportViewer = () => {
         </div>
       )}
       <div id="evaluation-container-v3">
+        <ActivityLog />
         <div className="container py-5">
           <div className="text-center mb-5">
             <h1 className="eval-page-heading">Final Report</h1>
