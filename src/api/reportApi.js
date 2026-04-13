@@ -15,15 +15,18 @@ export const reportApi = {
     window.URL.revokeObjectURL(url);
   },
 
-  savePdfReport: async (file, evaluationId) => {
+  savePdfReport: (file, evaluationId, reportContent) => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('evaluationId', evaluationId);
+    if (reportContent) {
+      formData.append('reportContent', reportContent);
+    }
 
-    // We don't set Content-Type header here, let the browser set it for FormData
     return apiClient('/api/reports/save-pdf', {
       method: 'POST',
       body: formData,
     });
   }
+
 };

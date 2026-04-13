@@ -100,6 +100,15 @@ const ObsHome = () => {
       const response = await evaluationApi.startEvaluation(payload);
       const evaluationId = response.evaluation_id || response.evaluationId || response.id;
       
+      // HARD RESET for new evaluation
+      localStorage.removeItem('evaluation-storage'); // Reset Zustand Activity Log
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('responses_') || key.startsWith('recs_') || key.startsWith('eval_')) {
+          localStorage.removeItem(key);
+        }
+      });
+      sessionStorage.clear(); 
+
       toast.success("Evaluation started!");
       navigate('/evaluate', {
         state: { evaluationId, observerId: payload.observerId, instructorId: payload.instructorId, classId: payload.classId }

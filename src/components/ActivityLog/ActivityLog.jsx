@@ -28,6 +28,10 @@ const ActivityLog = () => {
     }
   };
 
+  const handleAddClick = () => {
+    addLogEntry();
+  };
+
   if (isCollapsed) {
     return (
       <div className="activity-log-sticky collapsed" onClick={() => setIsCollapsed(false)} title="Open Activity Log">
@@ -95,7 +99,7 @@ const ActivityLog = () => {
             ))}
           </tbody>
         </table>
-        <button className="add-log-btn" onClick={addLogEntry}>
+        <button className="add-log-btn" onClick={handleAddClick}>
           <Plus /> Add Event
         </button>
       </div>

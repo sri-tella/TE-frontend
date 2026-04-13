@@ -52,7 +52,6 @@ const recommendationsMapping = {
   },
   "Speech & Delivery": {
     "Instructor remains in one physical location": ["Move around the room"],
-    "Instructor presents crucial information only once, without repeating or rephrasing": ["Repeat yourself"],
     "Instructor often responds immediately to students contributions that were complex or hard to hear": ["Repeat or summarize student comments/questions"],
     "Instructor speech is fast, difficult to understand": ["Slow down speech"],
     "Instructor speech is hard to hear": ["Speak more loudly"],
@@ -60,13 +59,12 @@ const recommendationsMapping = {
     "Instructor speaks in monotone": ["Vary delivery of speech"]
   },
   "Visuals & PPT": {
-    "PowerPoints slides begin with course logistics or content": ["Add organization slide to PPT"],
-    "Students struggle to take notes based on PowerPoint, or students write only verbatim": ["Consider how PPT is used by students"],
+    "PowerPoints slides begin with subject matter content": ["Add organization slide to PPT"],
     "PowerPoint slides are text and graphic only; lecture using PowerPoint is long (more than 15 minutes)": ["Incorporate outside resources (e.g., videos)"],
     "PowerPoint slides often have more than 20 words per slide; or significant extraneous information": ["Reduce extra information on PPT slides"],
     "Images and texts are overlapping, making it hard to see or read": ["Separate text from Images on slides"],
     "Slides use “traditional” method: a Title/topic heading with elaboration details in body": ["Use Assertion- Evidence method"],
-    "Instructor does not use projector, white board, or doc cam when these tools could help present or organize material": [],
+    "For visual aids, instructor uses only PowerPoint": ["Use available additional presentation methods, such as white board or doc cam"],
     "Visual presentation of material is confusing or indiscriminate": ["Use available presentation methods"]
   },
 };

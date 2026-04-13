@@ -51,7 +51,6 @@ export const EVALUATION_SECTIONS = [
   ] },
   { title: "7. Speech & Delivery", options: [
     { section_id: 45, description: "Instructor remains in one physical location"},
-    { section_id: 46, description: "Instructor presents crucial information only once, without repeating or rephrasing"},
     { section_id: 47, description: "Instructor often responds immediately to students contributions that were complex or hard to hear"},
     { section_id: 48, description: "Instructor speech is fast, difficult to understand"},
     { section_id: 49, description: "Instructor speech is hard to hear"},
@@ -59,13 +58,12 @@ export const EVALUATION_SECTIONS = [
     { section_id: 51, description: "Instructor speaks in monotone"}
   ] },
   { title: "8. Visuals & PPT", options: [
-   { section_id: 52, description: "PowerPoints slides begin with course logistics or content"},
-   { section_id: 53, description: "Students struggle to take notes based on PowerPoint, or students write only verbatim"},
+   { section_id: 52, description: "PowerPoints slides begin with subject matter content"},
    { section_id: 54, description: "PowerPoint slides are text and graphic only; lecture using PowerPoint is long (more than 15 minutes)"},
    { section_id: 55, description: "PowerPoint slides often have more than 20 words per slide; or significant extraneous information"},
    { section_id: 56, description: "Images and texts are overlapping, making it hard to see or read"},
    { section_id: 57, description: "Slides use “traditional” method: a Title/topic heading with elaboration details in body"},
-   { section_id: 58, description: "Instructor does not use projector, white board, or doc cam when these tools could help present or organize material"},
+   { section_id: 58, description: "For visual aids, instructor uses only PowerPoint"},
    { section_id: 59, description: "Visual presentation of material is confusing or indiscriminate"}
   ] }
 ];

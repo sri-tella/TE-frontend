@@ -5,13 +5,22 @@ import { Search, ChevronDown } from 'react-bootstrap-icons';
 import SearchBar from '../../components/SearchBar/SearchBar.jsx';
 import TextArea from '../../components/TextArea/TextArea.jsx';
 import ActivityLog from '../../components/ActivityLog/ActivityLog.jsx';
+import { useEvaluationStore } from '../../store/evaluationStore';
 import { EVALUATION_SECTIONS } from '../../constants/evaluationSections';
 import './Evaluate.css';
 
 const Evaluate = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { clearLog } = useEvaluationStore();
   const { evaluationId, observerId, instructorId, classId } = location.state || {};
+  
+  // Clear log on mount for a new evaluation
+  useEffect(() => {
+    if (evaluationId) {
+      clearLog();
+    }
+  }, [evaluationId, clearLog]);
 
   const [responses, setResponses] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
