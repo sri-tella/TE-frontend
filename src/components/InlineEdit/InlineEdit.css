@@ -1,0 +1,83 @@
+.inline-edit-block {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.inline-edit-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.inline-edit-input {
+  border: 2px solid #154734;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  background: white;
+  min-width: 260px;
+  text-align: center;
+}
+
+.inline-edit-input:focus { outline: none; }
+
+.btn-inline-edit {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #154734;
+  opacity: 0.35;
+  padding: 0 4px;
+  font-size: 0.75em;
+  transition: opacity 0.2s;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.btn-inline-edit:hover { opacity: 1; }
+
+.ie-btn-save,
+.ie-btn-cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ie-btn-save {
+  background: #154734;
+  color: #FFB81C;
+}
+
+.ie-btn-save:hover { opacity: 0.85; }
+.ie-btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.ie-btn-cancel {
+  background: #e9ecef;
+  color: #555;
+}
+
+.ie-btn-cancel:hover { background: #dee2e6; }
+.ie-btn-cancel:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.editable-btn-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}

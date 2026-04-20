@@ -4,17 +4,70 @@ import './ObsHome.css';
 import { classApi, evaluationApi } from '../api/classApi';
 import { useAuthStore } from '../store/authStore';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { JournalCheck, Archive, PlayCircleFill, PersonBadge, Book, CheckCircleFill } from 'react-bootstrap-icons';
+import { JournalCheck, Archive, PlayCircleFill, PersonBadge, Book, CheckCircleFill, PencilSquare, CheckCircle, XCircle } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
+import InlineEdit from '../components/InlineEdit/InlineEdit';
+import { getPageContent, savePageContent } from '../api/contentApi';
+
+const ObsStartButton = ({ canEdit, disabled, onClick, starting }) => {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState('Start Evaluation');
+  const [saved, setSaved] = useState('Start Evaluation');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    getPageContent('obs-btn-start')
+      .then(data => { const t = data?.htmlContent || 'Start Evaluation'; setValue(t); setSaved(t); })
+      .catch(() => {});
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await savePageContent('obs-btn-start', value);
+      setSaved(value);
+      setEditing(false);
+      toast.success('Saved');
+    } catch { toast.error('Failed to save'); }
+    finally { setSaving(false); }
+  };
+
+  if (editing) {
+    return (
+      <div className="obs-btn-edit-wrap">
+        <input className="inline-edit-input" value={value} onChange={e => setValue(e.target.value)} autoFocus />
+        <button className="ie-btn-save" onClick={handleSave} disabled={saving}><CheckCircle /> {saving ? '...' : 'Save'}</button>
+        <button className="ie-btn-cancel" onClick={() => { setValue(saved); setEditing(false); }} disabled={saving}><XCircle /></button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="obs-btn-wrap">
+      <button className="btn obs-button" disabled={disabled || starting} onClick={onClick}>
+        <PlayCircleFill size={22} style={{ marginRight: '10px' }} />
+        {starting ? 'Starting...' : value}
+      </button>
+      {canEdit && (
+        <button className="btn-inline-edit" onClick={() => setEditing(true)}>
+          <PencilSquare />
+        </button>
+      )}
+    </div>
+  );
+};
 
 const ObsHome = () => {
   const [activeClasses, setActiveClasses] = useState([]);
   const [archivedClasses, setArchivedClasses] = useState([]);
   const [selectedClassId, setSelectedClassId] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+  const [starting, setStarting] = useState(false);
+
   const { user } = useAuthStore();
   const navigate = useNavigate();
+  const roles = Array.isArray(user?.roles) ? user.roles : (user?.role ? [user.role] : []);
+  const canEdit = roles.includes('ADMIN') || !!user?.canEditContent;
 
   useEffect(() => {
     fetchClasses();
@@ -90,9 +143,16 @@ const ObsHome = () => {
       return;
     }
 
+    const observerId = user.observerId || user.id;
+    if (!observerId) {
+      toast.error("Observer profile not found. Please log in again.");
+      return;
+    }
+
+    setStarting(true);
     try {
       const payload = {
-        observerId: user.id || user.observerId,
+        observerId,
         instructorId: selectedClass.instructorId,
         classId: selectedClass.classId,
         date: new Date().toISOString().split('T')[0]
@@ -115,6 +175,7 @@ const ObsHome = () => {
       });
     } catch (error) {
       toast.error("Failed to start evaluation.");
+      setStarting(false);
     }
   };
 
@@ -162,7 +223,7 @@ const ObsHome = () => {
 
   return (
     <div className="obs-container">
-      <h1 className="obs-heading">Teaching Evaluation</h1>
+      <InlineEdit pageKey="obs-heading" defaultValue="Teaching Evaluation" canEdit={canEdit} tag="h1" className="obs-heading" />
       
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="dnd-container">
@@ -170,7 +231,8 @@ const ObsHome = () => {
           <div className="dnd-column">
             <h3>
               <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                <JournalCheck /> Active Observations
+                <JournalCheck />
+                <InlineEdit pageKey="obs-col-active" defaultValue="Active Observations" canEdit={canEdit} tag="span" />
               </div>
               <span className="column-count">{loading ? '...' : activeClasses.length}</span>
             </h3>            <Droppable droppableId="active">
@@ -199,7 +261,8 @@ const ObsHome = () => {
           <div className="dnd-column archive-column">
             <h3>
               <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                <Archive /> Archived Sessions
+                <Archive />
+                <InlineEdit pageKey="obs-col-archive" defaultValue="Archived Sessions" canEdit={canEdit} tag="span" />
               </div>
               <span className="column-count">{loading ? '...' : archivedClasses.length}</span>
             </h3>
@@ -230,13 +293,12 @@ const ObsHome = () => {
       </DragDropContext>
 
       <div className="actions-area">
-          <button
-          className="btn obs-button"
+        <ObsStartButton
+          canEdit={canEdit}
           disabled={!selectedClassId || loading}
           onClick={handleStartObservation}
-          >
-          <PlayCircleFill size={22} style={{marginRight: '10px'}} /> Start Evaluation
-          </button>
+          starting={starting}
+        />
       </div>
     </div>
   );

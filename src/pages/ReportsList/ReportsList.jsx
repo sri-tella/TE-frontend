@@ -6,6 +6,7 @@ import { reportApi } from '../../api/reportApi';
 import { useAuthStore } from '../../store/authStore';
 import { Eye, FileText, Search, FileEarmarkPdf, Clock, Person } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
+import InlineEdit from '../../components/InlineEdit/InlineEdit';
 import './ReportsList.css';
 
 const ReportsList = () => {
@@ -13,6 +14,9 @@ const ReportsList = () => {
   const { user } = useAuthStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [downloadingId, setDownloadingId] = useState(null);
+
+  const roles = Array.isArray(user?.roles) ? user.roles : (user?.role ? [user.role] : []);
+  const canEdit = roles.includes('ADMIN') || !!user?.canEditContent;
 
   const { data: reports = [], isLoading, isError } = useQuery({
     queryKey: ['reports'],
@@ -116,8 +120,20 @@ const ReportsList = () => {
   return (
     <div id="reports-page-scoped">
       <div className="reports-hero-section text-center mb-5">
-          <h1 className="reports-main-title">Evaluation Reports</h1>
-          <p className="reports-sub-title">View and manage teaching assessment history</p>
+        <InlineEdit
+          pageKey="reports-title"
+          defaultValue="Evaluation Reports"
+          canEdit={canEdit}
+          tag="h1"
+          className="reports-main-title"
+        />
+        <InlineEdit
+          pageKey="reports-subtitle"
+          defaultValue="View and manage teaching assessment history"
+          canEdit={canEdit}
+          tag="p"
+          className="reports-sub-title"
+        />
       </div>
 
       <div className="container pb-5">

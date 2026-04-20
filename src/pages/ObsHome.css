@@ -172,3 +172,26 @@
     flex-direction: column;
   }
 }
+
+.obs-btn-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.obs-btn-edit-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.obs-btn-wrap .btn-inline-edit {
+  color: #FFB81C;
+  opacity: 0.6;
+}
+
+.obs-btn-wrap .btn-inline-edit:hover {
+  opacity: 1;
+}

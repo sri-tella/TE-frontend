@@ -47,6 +47,20 @@ const AdminManagement = () => {
     }
   });
 
+  const { data: observers = [], isLoading: isLoadingObservers } = useQuery({
+    queryKey: ['observers'],
+    queryFn: adminApi.fetchObservers
+  });
+
+  const togglePermissionMutation = useMutation({
+    mutationFn: ({ userId, canEditContent }) => adminApi.toggleContentPermission(userId, canEditContent),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['observers']);
+      toast.success("Permission updated");
+    },
+    onError: () => toast.error("Failed to update permission")
+  });
+
   // 3. Handlers
   const handleAddAdmin = (e) => {
     e.preventDefault();
@@ -123,6 +137,38 @@ const AdminManagement = () => {
                 </button>
               </li>
             ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Observers Content Edit Permission */}
+      <div className="admin-list">
+        <h4>Content Edit Permission (Observers)</h4>
+        {isLoadingObservers ? (
+          <div className="text-center p-3"><Spinner variant="success" /></div>
+        ) : (
+          <ul>
+            {observers.length === 0 ? (
+              <p className="text-muted">No observers found.</p>
+            ) : (
+              observers.map(observer => (
+                <li key={observer.id}>
+                  <span className="admin-info">
+                    <strong>{observer.firstName} {observer.lastName}</strong> — {observer.email}
+                  </span>
+                  <button
+                    className={observer.canEditContent ? 'delete-button' : 'approve-button'}
+                    disabled={togglePermissionMutation.isPending}
+                    onClick={() => togglePermissionMutation.mutate({
+                      userId: observer.id,
+                      canEditContent: !observer.canEditContent
+                    })}
+                  >
+                    {observer.canEditContent ? 'Revoke Edit' : 'Grant Edit'}
+                  </button>
+                </li>
+              ))
+            )}
           </ul>
         )}
       </div>

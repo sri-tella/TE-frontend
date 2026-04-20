@@ -10,13 +10,16 @@ export const adminApi = {
   fetchRoleRequests: () => apiClient('/api/admins/roleRequests'),
   approveRequest: (requestId) => apiClient(`/api/admins/roleRequests/${requestId}/approve`, { method: 'POST' }),
   
-  // Method from new project (keep it)
   requestDualRole: async (userId) => {
     return apiClient('/api/admins/roleRequests', {
-      body: {
-        id: userId,
-        requestedRole: 'OBSERVER'
-      }
+      body: { id: userId, requestedRole: 'OBSERVER' }
     });
-  }
+  },
+
+  fetchObservers: () => apiClient('/api/admins/observers'),
+  toggleContentPermission: (userId, canEditContent) =>
+    apiClient(`/api/admins/users/${userId}/content-permission`, {
+      method: 'PATCH',
+      body: { canEditContent }
+    }),
 };

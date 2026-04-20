@@ -97,3 +97,43 @@
   transform: translateY(-5px) scale(1.03);
   box-shadow: 0 15px 40px rgba(21, 71, 52, 0.5) !important;
 }
+
+.section-text-view {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.section-text-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.eval-inline-input {
+  border: none;
+  border-bottom: 2px solid #154734;
+  background: transparent;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  outline: none;
+  min-width: 200px;
+  padding: 2px 4px;
+}
+
+.ie-btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  display: inline-flex;
+  align-items: center;
+  color: #154734;
+  font-size: 0.9rem;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.ie-btn-icon:hover { opacity: 1; }
+.ie-btn-icon.cancel { color: #999; }

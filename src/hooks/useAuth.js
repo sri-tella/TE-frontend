@@ -21,6 +21,8 @@ export const useAuth = () => {
         roles: data.roles ? data.roles.replace(/[\[\]]/g, '').split(', ') : [],
         instructorId: data.instructorId,
         observerId: data.observerId,
+        userId: data.userId,
+        canEditContent: data.canEditContent === 'true',
       };
 
       loginStore(userData, token);
