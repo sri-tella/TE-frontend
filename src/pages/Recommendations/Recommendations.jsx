@@ -84,7 +84,7 @@ const Recommendations = () => {
               observedDescription: observation,
               selected: storedOption?.selected ?? isSelectedByPrevStep,
               showFeedback: isSelectedByPrevStep || (storedOption?.selected ?? false),
-              feedbackText: storedOption?.feedbackText || (isSelectedByPrevStep ? (matchedObs?.feedbackText || '') : '')
+              feedbackText: storedOption?.feedbackText || ''
             };
           })
         )

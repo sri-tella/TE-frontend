@@ -186,17 +186,49 @@ const ReportViewer = () => {
     toast.info("Timeline synced!");
   }, [editor, classData, constructFullReport]);
 
+  const handleAiFeedback = useCallback(async () => {
+    if (!genAI) { toast.error("AI not configured. Add VITE_GEMINI_API_KEY."); return; }
+    setLoading(prev => ({ ...prev, ai: true }));
+    try {
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const aiFeedbacks = {};
+      for (const sectionName of canonicalSections) {
+        const obs = state.allObservations || [];
+        const recs = state.allRecommendations || [];
+        const sectionObs = obs.find(s => s.title.replace(/^\d+\.\s*/, '') === sectionName);
+        const sectionRecs = recs.find(s => s.title.replace(/^\d+\.\s*/, '') === sectionName);
+        const selected = sectionObs?.options?.filter(o => o.selected).map(o => o.description) || [];
+        const recSelected = sectionRecs?.options?.filter(r => r.selected).map(r => r.description) || [];
+        if (selected.length === 0 && recSelected.length === 0) continue;
+        const prompt = `You are an educational consultant. For the teaching category "${sectionName}", the observer noted: ${selected.join('; ')}. Recommended strategies: ${recSelected.join('; ')}. Provide a brief 2-3 sentence constructive analysis.`;
+        const result = await model.generateContent(prompt);
+        aiFeedbacks[sectionName] = formatAiResponse(result.response.text(), sectionName);
+      }
+      const newHtml = constructFullReport(classData, aiFeedbacks);
+      editor.commands.setContent(newHtml);
+      setReportContent(newHtml);
+      toast.success("AI analysis added!");
+    } catch (err) {
+      toast.error("AI generation failed.");
+    } finally {
+      setLoading(prev => ({ ...prev, ai: false }));
+    }
+  }, [genAI, state, classData, editor, constructFullReport, canonicalSections]);
+
   // Unified Loader
   useEffect(() => {
     const init = async () => {
       if (!editor || hasSetInitialContent.current) return;
       try {
+        let resolvedClassId = classId || state.classId;
+
         if (state.reportId) {
           const reports = await reportApi.fetchReports();
           const myReport = reports.find(r => r.report_id === state.reportId);
           if (myReport) {
             if (!evaluationId) setEvaluationId(myReport.evaluation?.evaluation_id);
-            if (!classId) setClassId(myReport.evaluation?.className?.class_id);
+            resolvedClassId = resolvedClassId || myReport.evaluation?.className?.class_id;
+            if (!classId) setClassId(resolvedClassId);
             if (myReport.reportContent) {
               editor.commands.setContent(myReport.reportContent);
               setReportContent(myReport.reportContent);
@@ -206,12 +238,14 @@ const ReportViewer = () => {
             }
           }
         }
-        if (!state.isReadOnly) {
-          let cData = classData;
-          if (!cData && (classId || state.classId)) {
-            cData = await classApi.fetchClassDetails(classId || state.classId);
-            setClassData(cData);
-          }
+
+        // Build report from scratch (new evaluation OR read-only with no saved content)
+        let cData = classData;
+        if (!cData && resolvedClassId) {
+          cData = await classApi.fetchClassDetails(resolvedClassId);
+          setClassData(cData);
+        }
+        if (cData) {
           const html = constructFullReport(cData, {});
           editor.commands.setContent(html);
           setReportContent(html);
@@ -270,7 +304,14 @@ const ReportViewer = () => {
         </Card>
         <div className="report-actions-footer">
           <Button onClick={() => navigate(-1)} className="btn-report-utility"><ArrowLeft /> BACK</Button>
-          {!state.isReadOnly && <Button onClick={handleSaveReport} disabled={loading.init} className="btn-report-save"><Save /> SAVE REPORT</Button>}
+          {!state.isReadOnly && (
+            <>
+              <Button onClick={handleAiFeedback} disabled={loading.ai || loading.init} className="btn-report-utility">
+                {loading.ai ? <Spinner size="sm" /> : <Robot />} AI FEEDBACK
+              </Button>
+              <Button onClick={handleSaveReport} disabled={loading.init} className="btn-report-save"><Save /> SAVE REPORT</Button>
+            </>
+          )}
           {reportHtml && (
             <PDFDownloadLink document={<ReportPdfDocument htmlContent={reportHtml} />} fileName="Report.pdf">
               <Button className="btn-report-utility">PDF</Button>
