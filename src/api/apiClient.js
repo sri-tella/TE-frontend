@@ -28,7 +28,6 @@ export async function apiClient(endpoint, { body, ...customConfig } = {}) {
     config.body = JSON.stringify(body);
   } else if (body instanceof FormData) {
     config.body = body;
-    // Ensure we don't have Content-Type: application/json
     delete config.headers['Content-Type'];
   }
 
@@ -45,9 +44,8 @@ export async function apiClient(endpoint, { body, ...customConfig } = {}) {
         const text = await response.text();
         try {
           data = text ? JSON.parse(text) : null;
-        } catch (jsonErr) {
-          console.error("Malformed JSON received from server:", text);
-          throw new Error("Server returned invalid data format. Please check backend logs.");
+        } catch (_) {
+          throw new Error("Server returned invalid data format.");
         }
       } else {
         data = await response.text();
@@ -55,8 +53,6 @@ export async function apiClient(endpoint, { body, ...customConfig } = {}) {
     }
 
     if (response.status === 401) {
-      // Token expired or invalid
-      console.warn("Unauthorized request, logging out...");
       useAuthStore.getState().logout();
       window.location.href = '/login';
       throw new Error("Session expired. Please log in again.");
@@ -68,7 +64,6 @@ export async function apiClient(endpoint, { body, ...customConfig } = {}) {
     
     throw new Error(data?.message || (typeof data === 'string' ? data : null) || response.statusText);
   } catch (err) {
-    console.error(`API Error (${endpoint}):`, err);
     throw err;
   }
 }

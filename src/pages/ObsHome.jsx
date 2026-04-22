@@ -80,16 +80,14 @@ const ObsHome = () => {
         setActiveClasses(data.filter(item => !item.isArchived));
         setArchivedClasses(data.filter(item => item.isArchived));
       })
-      .catch(error => {
-        console.error("Fetch error:", error);
+      .catch(() => {
         toast.error("Failed to load classes.");
       })
       .finally(() => setLoading(false));
   };
 
   const updateArchiveStatus = (classId, status) => {
-    classApi.updateArchiveStatus(classId, status).catch(err => {
-        console.error("Archive update error:", err);
+    classApi.updateArchiveStatus(classId, status).catch(() => {
         toast.error("Sync error. Please refresh.");
     });
   };

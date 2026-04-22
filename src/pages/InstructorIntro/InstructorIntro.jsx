@@ -59,8 +59,7 @@ const InstructorIntro = () => {
       await apiClient('/api/form/instructor', { body: formData });
       localStorage.setItem(`instructorFormSubmitted_${user?.id}`, 'true');
       navigate('/ins-home');
-    } catch (error) {
-      console.error("Error saving instructor info:", error);
+    } catch (_) {
       alert("Failed to save instructor info. Please try again.");
     }
   };

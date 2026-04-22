@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button, Spinner, Card } from 'react-bootstrap';
 import { 
-  ArrowLeft, Save, FileEarmarkPdf, FileEarmarkWord, Robot,
+  ArrowLeft, Save, FileEarmarkPdf, Robot,
   TypeBold, TypeItalic, TypeUnderline, ListUl, 
   TypeH3, TextLeft, TextCenter, ArrowClockwise
 } from 'react-bootstrap-icons';
@@ -251,7 +251,7 @@ const ReportViewer = () => {
           setReportContent(html);
           hasSetInitialContent.current = true;
         }
-      } catch (err) { console.error(err); }
+      } catch (_) { }
       finally { setLoading(prev => ({ ...prev, init: false })); }
     };
     init();

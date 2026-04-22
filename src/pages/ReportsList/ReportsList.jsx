@@ -49,8 +49,7 @@ const ReportsList = () => {
     setDownloadingId(reportId);
     try {
       await reportApi.downloadPdf(reportId);
-    } catch (error) {
-      console.error('Error downloading PDF:', error);
+    } catch (_) {
       toast.error("Failed to download PDF.");
     } finally {
       setDownloadingId(null);
