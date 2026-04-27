@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
@@ -6,6 +6,7 @@ import Container from 'react-bootstrap/Container';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../../store/authStore';
 import { useRoles } from '../../hooks/useRoles';
+import { useClickOutside } from '../../hooks/useClickOutside';
 import { notificationApi } from '../../api/notificationApi';
 import logo from '../../assets/logo.png';
 import { 
@@ -25,6 +26,8 @@ const Header = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showDropdown, setShowDropdown] = useState(false);
+  const notificationRef = useRef(null);
+  useClickOutside(notificationRef, useCallback(() => setShowDropdown(false), []));
 
   // 2. Fetch notifications for all roles
   const { data: notifications = [] } = useQuery({
@@ -104,7 +107,7 @@ const Header = () => {
               </div>
             )}
 
-            <div className="notification-wrapper">
+            <div className="notification-wrapper" ref={notificationRef}>
               <div className="nav-icon-btn" onClick={() => setShowDropdown(!showDropdown)}>
                 <Bell size={20} className="bi-bell" />
                 {notifications.length > 0 && <span className="notification-badge">{notifications.length}</span>}

@@ -17,6 +17,10 @@
   background: #48705C;
 }
 
+.main-content-padded {
+  animation: pageFadeIn 0.22s ease;
+}
+
 .page-loading {
   min-height: 100vh;
   display: flex;

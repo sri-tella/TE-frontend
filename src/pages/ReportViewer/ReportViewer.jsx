@@ -18,6 +18,7 @@ import { PDFDownloadLink, pdf } from '@react-pdf/renderer';
 import { toast } from 'react-toastify';
 
 import ReportPdfDocument from '../../components/Report/ReportPdfDocument';
+import ProgressStepper from '../../components/ProgressStepper/ProgressStepper';
 import ActivityLog from '../../components/ActivityLog/ActivityLog.jsx';
 import { useEvaluationStore } from '../../store/evaluationStore';
 import { generateWordReport } from '../../utils/WordGenerator';
@@ -310,6 +311,7 @@ const ReportViewer = () => {
       )}
       <ActivityLog />
       <div className="container py-5">
+        <ProgressStepper currentStep={3} />
         <div className="text-center mb-5">
           <h1 className="eval-page-heading">Final Report</h1>
           <p className="eval-page-subtext">Review and Edit</p>

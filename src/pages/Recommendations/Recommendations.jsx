@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import ProgressStepper from '../../components/ProgressStepper/ProgressStepper.jsx';
+import { useSaveIndicator } from '../../hooks/useSaveIndicator';
 import { Card, Button, Form, Collapse } from 'react-bootstrap';
 import { ChevronDown } from 'react-bootstrap-icons';
 import SearchBar from '../../components/SearchBar/SearchBar.jsx';
@@ -77,6 +79,8 @@ const Recommendations = () => {
     return initial;
   });
 
+  const { saved, flash } = useSaveIndicator();
+
   const { searchQuery, setSearchQuery, openSections, toggleSection, filteredData } = useEvalPageState({
     evaluationId,
     responses,
@@ -90,12 +94,14 @@ const Recommendations = () => {
   const updateState = (updated) => {
     setResponses(updated);
     localStorage.setItem(storageKeys.recsData(evaluationId), JSON.stringify(updated));
+    flash();
   };
 
   return (
     <div id="recommendations-container-v3">
       <ActivityLog />
       <div className="container py-5">
+        <ProgressStepper currentStep={2} />
         <div className="text-center mb-5">
           <InlineEdit pageKey="recommendations-title" defaultValue="Possible Recommendations" canEdit={canEdit} tag="h1" className="eval-page-heading" />
           <InlineEdit pageKey="recommendations-subtitle" defaultValue="Review and select based on observations" canEdit={canEdit} tag="p" className="eval-page-subtext" />
@@ -228,6 +234,7 @@ const Recommendations = () => {
             )}
           </div>
           <div className="eval-action-footer-container">
+            <span className={`autosave-indicator ${saved ? 'visible' : ''}`}>✓ Draft saved</span>
             <EditableButton pageKey="recommendations-btn-back" defaultValue="GO BACK" canEdit={canEdit} className="eval-btn-secondary-v3" onClick={() => navigate(-1)} />
             <EditableButton pageKey="recommendations-btn-submit" defaultValue="SAVE AND VIEW REPORT" canEdit={canEdit} type="submit" className="eval-submit-btn-v3" />
           </div>

@@ -64,3 +64,31 @@ body {
     background-color: #ffffff;
   }
 }
+
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.autosave-indicator {
+  position: fixed;
+  bottom: 120px;
+  right: 24px;
+  background: rgba(21, 71, 52, 0.92);
+  color: var(--color-accent);
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  z-index: 2001;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.autosave-indicator.visible {
+  opacity: 1;
+  transform: translateY(0);
+}

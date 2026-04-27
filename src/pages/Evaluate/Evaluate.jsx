@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import ProgressStepper from '../../components/ProgressStepper/ProgressStepper.jsx';
+import { useSaveIndicator } from '../../hooks/useSaveIndicator';
 import { Card, Button, Form, Collapse } from 'react-bootstrap';
 import { ChevronDown } from 'react-bootstrap-icons';
 import SearchBar from '../../components/SearchBar/SearchBar.jsx';
@@ -56,6 +58,8 @@ const Evaluate = () => {
     });
   });
 
+  const { saved, flash } = useSaveIndicator();
+
   const { searchQuery, setSearchQuery, openSections, toggleSection, filteredData } = useEvalPageState({
     evaluationId,
     responses,
@@ -69,12 +73,14 @@ const Evaluate = () => {
   const updateState = (updated) => {
     setResponses(updated);
     localStorage.setItem(storageKeys.evalResponses(evaluationId), JSON.stringify(updated));
+    flash();
   };
 
   return (
     <div id="evaluation-container-v3">
       <ActivityLog />
       <div className="container py-5">
+        <ProgressStepper currentStep={1} />
         <div className="text-center mb-5">
           <InlineEdit pageKey="evaluate-title" defaultValue="Teaching Evaluation Form" canEdit={canEdit} tag="h1" className="eval-page-heading" />
           <InlineEdit pageKey="evaluate-subtitle" defaultValue="Search by criteria or your notes" canEdit={canEdit} tag="p" className="eval-page-subtext" />
@@ -194,6 +200,7 @@ const Evaluate = () => {
             )}
           </div>
           <div className="eval-action-footer-container">
+            <span className={`autosave-indicator ${saved ? 'visible' : ''}`}>✓ Draft saved</span>
             <EditableButton pageKey="evaluate-btn-submit" defaultValue="SAVE AND CONTINUE" canEdit={canEdit} type="submit" className="eval-submit-btn-v3" />
           </div>
         </Form>

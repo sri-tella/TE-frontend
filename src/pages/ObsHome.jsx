@@ -64,10 +64,20 @@ const ObsHome = () => {
   const [selectedClassId, setSelectedClassId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
+  const [classSearch, setClassSearch] = useState('');
 
   const { user } = useAuthStore();
   const { canEdit } = useRoles();
   const navigate = useNavigate();
+
+  const filteredActiveClasses = classSearch.trim()
+    ? activeClasses.filter(c =>
+        c.title?.toLowerCase().includes(classSearch.toLowerCase()) ||
+        `${c.instructorFirstName} ${c.instructorLastName}`.toLowerCase().includes(classSearch.toLowerCase())
+      )
+    : activeClasses;
+
+  const selectedClass = activeClasses.find(c => c.classId === selectedClassId);
 
   useEffect(() => {
     fetchClasses();
@@ -181,8 +191,8 @@ const ObsHome = () => {
     }
   };
 
-  const ClassCard = ({ info, index, isSelected, isClickable = true }) => (
-    <Draggable draggableId={String(info.classId)} index={index}>
+  const ClassCard = ({ info, index, isSelected, isClickable = true, isDragDisabled = false }) => (
+    <Draggable draggableId={String(info.classId)} index={index} isDragDisabled={isDragDisabled}>
       {(provided, snapshot) => (
         <div
           ref={provided.innerRef}
@@ -242,8 +252,23 @@ const ObsHome = () => {
                 <JournalCheck />
                 <InlineEdit pageKey="obs-col-active" defaultValue="Active Observations" canEdit={canEdit} tag="span" />
               </div>
-              <span className="column-count">{loading ? '...' : activeClasses.length}</span>
-            </h3>            <Droppable droppableId="active">
+              <span className="column-count">
+                {loading ? '...' : (classSearch.trim() ? `${filteredActiveClasses.length}/${activeClasses.length}` : activeClasses.length)}
+              </span>
+            </h3>
+            <div className="obs-search-wrap">
+              <input
+                className="obs-search-input"
+                type="text"
+                placeholder="Search by class or instructor..."
+                value={classSearch}
+                onChange={e => setClassSearch(e.target.value)}
+              />
+              {classSearch && (
+                <button className="obs-search-clear" onClick={() => setClassSearch('')}>×</button>
+              )}
+            </div>
+            <Droppable droppableId="active">
               {(provided, snapshot) => (
                 <div
                   {...provided.droppableProps}
@@ -251,16 +276,21 @@ const ObsHome = () => {
                   className={`class-list ${snapshot.isDraggingOver ? 'dragging-over' : ''}`}
                 >
                   {loading && <div className="text-center mt-5 text-muted">Loading classes...</div>}
-                  {!loading && activeClasses.map((info, index) => (
-                    <ClassCard 
-                      key={info.classId} 
-                      info={info} 
-                      index={index}
+                  {!loading && filteredActiveClasses.map((info, index) => (
+                    <ClassCard
+                      key={info.classId}
+                      info={info}
+                      index={activeClasses.indexOf(info)}
                       isSelected={selectedClassId === info.classId}
+                      isDragDisabled={!!classSearch.trim()}
                     />
                   ))}
                   {provided.placeholder}
-                  {!loading && activeClasses.length === 0 && <p className="empty-msg">No active observations available</p>}
+                  {!loading && filteredActiveClasses.length === 0 && (
+                    <p className="empty-msg">
+                      {classSearch.trim() ? 'No classes match your search' : 'No active observations available'}
+                    </p>
+                  )}
                 </div>
               )}
             </Droppable>
@@ -301,6 +331,16 @@ const ObsHome = () => {
       </DragDropContext>
 
       <div className="actions-area">
+        {selectedClass && (
+          <div className="selected-class-preview">
+            <Book size={15} className="preview-icon" />
+            <span className="preview-title">{selectedClass.title}</span>
+            <span className="preview-divider">·</span>
+            <span className="preview-instructor">
+              {selectedClass.instructorFirstName} {selectedClass.instructorLastName}
+            </span>
+          </div>
+        )}
         <ObsStartButton
           canEdit={canEdit}
           disabled={!selectedClassId || loading}
