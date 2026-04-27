@@ -114,14 +114,14 @@ const ReportViewer = () => {
   const constructFullReport = useCallback((cData, aiFbs) => {
     const observerName = `${user?.firstName || user?.firstname || ''} ${user?.lastName || user?.lastname || ''}`.trim();
     const ins = cData?.instructor;
-    const instructorName = ins ? `${ins.firstName || ins.firstname || ''} ${ins.lastName || ins.lastname || ''}`.trim() : "Loading...";
+    const instructorName = ins ? `${ins.firstName || ins.firstname || ''} ${ins.lastName || ins.lastname || ''}`.trim() : '—';
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
     let html = `<h2>Teaching Evaluation Report</h2><hr/>`;
-    html += `<h3>Observation Information</h3><p><strong>Instructor:</strong> ${instructorName}</p><p><strong>Date:</strong> ${dateStr}</p><p><strong>Time:</strong> ${timeStr}</p><p><strong>Class Topic:</strong> ${cData?.courseTitle || cData?.title || 'Loading...'}</p><p><strong>Observer:</strong> ${observerName}</p>`;
-    html += `<h3>Background Information</h3><p><strong>Learning Goal/Objective:</strong><br/>${cData?.goal || 'Loading...'}</p><p><strong>Outline:</strong><br/>${cData?.outline || 'Loading...'}</p><hr/>`;
+    html += `<h3>Observation Information</h3><p><strong>Instructor:</strong> ${instructorName}</p><p><strong>Date:</strong> ${dateStr}</p><p><strong>Time:</strong> ${timeStr}</p><p><strong>Class Topic:</strong> ${cData?.courseTitle || cData?.title || '—'}</p><p><strong>Observer:</strong> ${observerName}</p>`;
+    html += `<h3>Background Information</h3><p><strong>Learning Goal/Objective:</strong><br/>${cData?.goal || '<em>Not specified</em>'}</p><p><strong>Outline:</strong><br/>${cData?.outline || '<em>Not specified</em>'}</p><hr/>`;
     html += `<h3>Observation Details</h3>`;
 
     const groupedData = {};
@@ -156,11 +156,15 @@ const ReportViewer = () => {
       }
       html += `<p><strong>Observations:</strong></p>`;
       if (groupedData[sectionName].observations.length > 0) {
-        html += `<ul>${groupedData[sectionName].observations.map(o => `<li>${o.text}${o.comment ? `<br/><em>Observation Note: ${o.comment}</em>` : ''}</li>`).join('')}</ul>`;
+        html += `<ul>${groupedData[sectionName].observations.map(o =>
+          `<li>${o.text}</li>${o.comment ? `<li style="list-style-type:none;padding-left:20px;margin-top:-2px;color:#6b7280;font-size:0.88em;font-style:italic;">↳ ${o.comment}</li>` : ''}`
+        ).join('')}</ul>`;
       } else { html += `<p>No observations recorded.</p>`; }
       html += `<p><strong>Recommendations:</strong></p>`;
       if (groupedData[sectionName].recommendations.length > 0) {
-        html += `<ul>${groupedData[sectionName].recommendations.map(r => `<li>${r.text}${r.comment ? `<br/><em>Recommendation Note: ${r.comment}</em>` : ''}</li>`).join('')}</ul>`;
+        html += `<ul>${groupedData[sectionName].recommendations.map(r =>
+          `<li>${r.text}</li>${r.comment ? `<li style="list-style-type:none;padding-left:20px;margin-top:-2px;color:#6b7280;font-size:0.88em;font-style:italic;">↳ ${r.comment}</li>` : ''}`
+        ).join('')}</ul>`;
       } else { html += `<p>No recommendations recorded.</p>`; }
       if (aiFbs && aiFbs[sectionName]) html += aiFbs[sectionName];
       html += `<br/>`;
@@ -191,7 +195,7 @@ const ReportViewer = () => {
     if (!genAI) { toast.error("AI not configured. Add VITE_GEMINI_API_KEY."); return; }
     setLoading(prev => ({ ...prev, ai: true }));
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
       const aiFeedbacks = {};
       for (const sectionName of canonicalSections) {
         const obs = state.allObservations || [];
@@ -261,14 +265,12 @@ const ReportViewer = () => {
     init();
   }, [editor, state.reportId, evaluationId, classId, state.isReadOnly, constructFullReport, classData, state.classId]);
 
-  // REACTIVE LOG UPDATE
+  // REACTIVE LOG UPDATE — only when classData is loaded to prevent overwriting with "Loading..."
   useEffect(() => {
-    if (editor && hasSetInitialContent.current && !state.isReadOnly) {
-        // We only auto-update if the user hasn't made huge changes, 
-        // but for now, let's just make it update whenever log changes as requested.
-        const html = constructFullReport(classData, {});
-        editor.commands.setContent(html);
-        setReportContent(html);
+    if (editor && hasSetInitialContent.current && !state.isReadOnly && classData) {
+      const html = constructFullReport(classData, {});
+      editor.commands.setContent(html);
+      setReportContent(html);
     }
   }, [activityLog, editor, classData, constructFullReport, state.isReadOnly]);
 
