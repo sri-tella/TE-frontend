@@ -1,56 +1,26 @@
-import React, { useState, useEffect, useLayoutEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, Button, Form, Collapse } from 'react-bootstrap';
-import { ChevronDown, PencilSquare, CheckCircle, XCircle } from 'react-bootstrap-icons';
+import { ChevronDown } from 'react-bootstrap-icons';
 import SearchBar from '../../components/SearchBar/SearchBar.jsx';
 import TextArea from '../../components/TextArea/TextArea.jsx';
 import ActivityLog from '../../components/ActivityLog/ActivityLog.jsx';
+import SectionText from '../../components/SectionText/SectionText.jsx';
 import { useEvaluationStore } from '../../store/evaluationStore';
-import { useAuthStore } from '../../store/authStore';
+import { useRoles } from '../../hooks/useRoles';
 import { useEditableSections, buildDefaultSections } from '../../hooks/useEditableSections.js';
+import { useEvalPageState } from '../../hooks/useEvalPageState';
+import { storageKeys } from '../../utils/storageKeys';
 import InlineEdit from '../../components/InlineEdit/InlineEdit.jsx';
 import EditableButton from '../../components/InlineEdit/EditableButton.jsx';
 import './Evaluate.css';
-
-// Inline editable text with pencil icon — no separate DB save per field
-const SectionText = ({ value, onSave, canEdit, className, as: Tag = 'span' }) => {
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(value);
-
-  useEffect(() => { setDraft(value); }, [value]);
-
-  if (!canEdit) return <Tag className={className}>{value}</Tag>;
-
-  if (editing) return (
-    <span className="section-text-edit" onClick={e => e.stopPropagation()}>
-      <input
-        className="eval-inline-input"
-        value={draft}
-        onChange={e => setDraft(e.target.value)}
-        autoFocus
-        onKeyDown={e => { if (e.key === 'Enter') { onSave(draft); setEditing(false); } if (e.key === 'Escape') { setDraft(value); setEditing(false); } }}
-      />
-      <button type="button" className="ie-btn-icon" onClick={e => { e.stopPropagation(); onSave(draft); setEditing(false); }}><CheckCircle /></button>
-      <button type="button" className="ie-btn-icon cancel" onClick={e => { e.stopPropagation(); setDraft(value); setEditing(false); }}><XCircle /></button>
-    </span>
-  );
-
-  return (
-    <span className="section-text-view" onClick={e => e.stopPropagation()}>
-      <Tag className={className}>{value}</Tag>
-      <button type="button" className="btn-inline-edit" onClick={e => { e.stopPropagation(); setEditing(true); }}><PencilSquare /></button>
-    </span>
-  );
-};
 
 const Evaluate = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { clearLog } = useEvaluationStore();
-  const { user } = useAuthStore();
+  const { canEdit } = useRoles();
   const { evaluationId, observerId, instructorId, classId } = location.state || {};
-  const roles = Array.isArray(user?.roles) ? user.roles : (user?.role ? [user.role] : []);
-  const canEdit = roles.includes('ADMIN') || !!user?.canEditContent;
 
   const { sections, saveSectionTitle, saveOptionDescription } = useEditableSections();
 
@@ -66,7 +36,7 @@ const Evaluate = () => {
 
   const [responses, setResponses] = useState(() => {
     const defaults = buildDefaultSections();
-    const storedResponses = JSON.parse(localStorage.getItem(`responses_${evaluationId}`) || '[]');
+    const storedResponses = JSON.parse(localStorage.getItem(storageKeys.evalResponses(evaluationId)) || '[]');
     return defaults.map(section => {
       const normalized = normalizeTitle(section.title);
       const storedSection = storedResponses.find(res => normalizeTitle(res.title) === normalized) || {};
@@ -86,55 +56,19 @@ const Evaluate = () => {
     });
   });
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [openSections, setOpenSections] = useState(() => {
-    const saved = sessionStorage.getItem(`eval_open_${evaluationId}`);
-    return saved ? JSON.parse(saved) : ['0'];
+  const { searchQuery, setSearchQuery, openSections, toggleSection, filteredData } = useEvalPageState({
+    evaluationId,
+    responses,
+    storagePrefix: 'eval',
   });
-
-  useEffect(() => {
-    if (evaluationId) sessionStorage.setItem(`eval_open_${evaluationId}`, JSON.stringify(openSections));
-  }, [openSections, evaluationId]);
-
-  useLayoutEffect(() => {
-    const savedScroll = sessionStorage.getItem(`eval_scroll_${evaluationId}`);
-    if (savedScroll) requestAnimationFrame(() => window.scrollTo(0, parseInt(savedScroll)));
-    const handleScroll = () => sessionStorage.setItem(`eval_scroll_${evaluationId}`, window.scrollY.toString());
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [evaluationId]);
 
   useEffect(() => {
     if (!evaluationId) navigate('/obs-home');
   }, [evaluationId, navigate]);
 
-  const filteredData = useMemo(() => {
-    if (!searchQuery.trim()) return responses;
-    const lowerQuery = searchQuery.toLowerCase();
-    return responses.map((section, idx) => {
-      const titleMatch = section.title.toLowerCase().includes(lowerQuery);
-      const matchingOptions = section.options.filter(opt =>
-        titleMatch || opt.description.toLowerCase().includes(lowerQuery) || (opt.feedbackText || '').toLowerCase().includes(lowerQuery)
-      );
-      return matchingOptions.length > 0 ? { ...section, originalIdx: idx, options: matchingOptions } : null;
-    }).filter(Boolean);
-  }, [responses, searchQuery]);
-
-  useEffect(() => {
-    if (!searchQuery.trim()) return;
-    const lowerQuery = searchQuery.toLowerCase();
-    const indicesToOpen = responses.reduce((acc, section, idx) => {
-      const hasMatch = section.title.toLowerCase().includes(lowerQuery) ||
-        section.options.some(o => o.description.toLowerCase().includes(lowerQuery) || (o.feedbackText || '').toLowerCase().includes(lowerQuery));
-      if (hasMatch) acc.push(String(idx));
-      return acc;
-    }, []);
-    if (indicesToOpen.length > 0) setOpenSections(prev => Array.from(new Set([...prev, ...indicesToOpen])));
-  }, [searchQuery, responses]);
-
   const updateState = (updated) => {
     setResponses(updated);
-    localStorage.setItem(`responses_${evaluationId}`, JSON.stringify(updated));
+    localStorage.setItem(storageKeys.evalResponses(evaluationId), JSON.stringify(updated));
   };
 
   return (
@@ -148,30 +82,37 @@ const Evaluate = () => {
         <div className="search-container-v3 mb-4 mx-auto" style={{ maxWidth: '600px' }}>
           <SearchBar searchQuery={searchQuery} handleSearchChange={setSearchQuery} />
         </div>
-        <Form onSubmit={(e) => { e.preventDefault(); navigate('/recommendations', { state: { evaluationId, observerId, instructorId, classId, allObservations: responses } }); }}>
+        <Form onSubmit={(e) => {
+          e.preventDefault();
+          navigate('/recommendations', { state: { evaluationId, observerId, instructorId, classId, allObservations: responses } });
+        }}>
           <div className="eval-sections-wrapper" style={{ minHeight: '400px' }}>
             {filteredData.map((section) => {
-              const sIdx = section.originalIdx !== undefined ? section.originalIdx : responses.findIndex(r => r.title === section.title);
+              const sIdx = section.originalIdx !== undefined
+                ? section.originalIdx
+                : responses.findIndex(r => r.title === section.title);
               const isExpanded = openSections.includes(String(sIdx));
-              // sections and responses share the same order from buildDefaultSections()
-              const sectionInSections = sIdx;
               const isAdditional = normalizeTitle(section.title) === 'Additional Feedback';
 
               return (
                 <Card key={section.title} className="eval-section-card border-0 mb-4 shadow-sm">
                   <Card.Header
                     className={`eval-card-header d-flex align-items-center justify-content-between ${isExpanded ? 'active-header' : ''}`}
-                    onClick={() => setOpenSections(prev => prev.includes(String(sIdx)) ? prev.filter(k => k !== String(sIdx)) : [...prev, String(sIdx)])}
+                    onClick={() => toggleSection(sIdx)}
                   >
                     <div className="d-flex align-items-center gap-2">
-                      {getSectionNumber(section.title) && <div className="section-badge-circle">{getSectionNumber(section.title)}</div>}
+                      {getSectionNumber(section.title) && (
+                        <div className="section-badge-circle">{getSectionNumber(section.title)}</div>
+                      )}
                       {(() => {
-                        const titleVal = sections[sectionInSections] ? normalizeTitle(sections[sectionInSections].title) : normalizeTitle(section.title);
+                        const titleVal = sections[sIdx]
+                          ? normalizeTitle(sections[sIdx].title)
+                          : normalizeTitle(section.title);
                         return (
                           <SectionText
                             key={titleVal}
                             value={titleVal}
-                            onSave={val => saveSectionTitle(sectionInSections, `${getSectionNumber(section.title) ? getSectionNumber(section.title) + '. ' : ''}${val}`)}
+                            onSave={val => saveSectionTitle(sIdx, `${getSectionNumber(section.title) ? getSectionNumber(section.title) + '. ' : ''}${val}`)}
                             canEdit={canEdit}
                             as="h5"
                             className="mb-0 eval-section-title"
@@ -186,10 +127,9 @@ const Evaluate = () => {
                       <Card.Body className="eval-section-body p-4 pt-0">
                         {section.options.map((option, optDisplayIdx) => {
                           const oIdx = responses[sIdx]?.options.findIndex(o => o.description === option.description);
-                          // Use oIdx as position in sections too — same order as buildDefaultSections
                           const secOptIdx = oIdx >= 0 ? oIdx : optDisplayIdx;
-                          const currentDesc = (sectionInSections >= 0 && sections[sectionInSections]?.options[secOptIdx])
-                            ? sections[sectionInSections].options[secOptIdx].description
+                          const currentDesc = (sIdx >= 0 && sections[sIdx]?.options[secOptIdx])
+                            ? sections[sIdx].options[secOptIdx].description
                             : option.description;
 
                           return (
@@ -212,7 +152,7 @@ const Evaluate = () => {
                                   <SectionText
                                     key={currentDesc}
                                     value={currentDesc}
-                                    onSave={val => saveOptionDescription(sectionInSections, secOptIdx, val)}
+                                    onSave={val => saveOptionDescription(sIdx, secOptIdx, val)}
                                     canEdit={canEdit}
                                   />
                                 </div>
@@ -221,7 +161,7 @@ const Evaluate = () => {
                                   <SectionText
                                     key={currentDesc}
                                     value={currentDesc}
-                                    onSave={val => saveOptionDescription(sectionInSections, secOptIdx, val)}
+                                    onSave={val => saveOptionDescription(sIdx, secOptIdx, val)}
                                     canEdit={canEdit}
                                   />
                                 </div>

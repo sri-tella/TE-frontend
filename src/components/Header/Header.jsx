@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Container from 'react-bootstrap/Container';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../../store/authStore';
+import { useRoles } from '../../hooks/useRoles';
 import { notificationApi } from '../../api/notificationApi';
 import logo from '../../assets/logo.png';
 import { 
@@ -20,15 +21,10 @@ import './header.css';
 
 const Header = () => {
   const { user, logout, isAuthenticated } = useAuthStore();
+  const { roles, hasRole } = useRoles();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showDropdown, setShowDropdown] = useState(false);
-
-  // 1. Logic to get all user roles
-  const roles = React.useMemo(() => {
-    if (!user) return [];
-    return Array.isArray(user.roles) ? user.roles : (user.role ? [user.role] : []);
-  }, [user]);
 
   // 2. Fetch notifications for all roles
   const { data: notifications = [] } = useQuery({
@@ -66,7 +62,7 @@ const Header = () => {
   };
 
   const username = user?.firstName || user?.firstname || user?.email?.split('@')[0] || '';
-  const isAdmin = roles.includes('ADMIN');
+  const isAdmin = hasRole('ADMIN');
 
   return (
     <Navbar className="custom-navbar" expand="lg">

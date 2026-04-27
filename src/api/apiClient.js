@@ -4,7 +4,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 export async function apiClient(endpoint, { body, ...customConfig } = {}) {
   const token = useAuthStore.getState().token;
-  
+
   const headers = {};
 
   if (!(body instanceof FormData)) {
@@ -31,39 +31,35 @@ export async function apiClient(endpoint, { body, ...customConfig } = {}) {
     delete config.headers['Content-Type'];
   }
 
-  try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, config);
-    
-    let data = null;
-    const contentType = response.headers.get('content-type');
-    
-    if (response.status !== 204) {
-      if (customConfig.responseType === 'blob') {
-        data = await response.blob();
-      } else if (contentType && contentType.includes('application/json')) {
-        const text = await response.text();
-        try {
-          data = text ? JSON.parse(text) : null;
-        } catch (_) {
-          throw new Error("Server returned invalid data format.");
-        }
-      } else {
-        data = await response.text();
+  const response = await fetch(`${BASE_URL}${endpoint}`, config);
+
+  let data = null;
+  const contentType = response.headers.get('content-type');
+
+  if (response.status !== 204) {
+    if (customConfig.responseType === 'blob') {
+      data = await response.blob();
+    } else if (contentType && contentType.includes('application/json')) {
+      const text = await response.text();
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch {
+        throw new Error('Server returned invalid data format.');
       }
+    } else {
+      data = await response.text();
     }
-
-    if (response.status === 401) {
-      useAuthStore.getState().logout();
-      window.location.href = '/login';
-      throw new Error("Session expired. Please log in again.");
-    }
-
-    if (response.ok) {
-      return data;
-    }
-    
-    throw new Error(data?.message || (typeof data === 'string' ? data : null) || response.statusText);
-  } catch (err) {
-    throw err;
   }
+
+  if (response.status === 401) {
+    useAuthStore.getState().logout();
+    window.location.href = '/login';
+    throw new Error('Session expired. Please log in again.');
+  }
+
+  if (response.ok) {
+    return data;
+  }
+
+  throw new Error(data?.message || (typeof data === 'string' ? data : null) || response.statusText);
 }

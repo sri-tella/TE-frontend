@@ -1,4 +1,8 @@
 :root {
+  --color-primary: #154734;
+  --color-primary-dark: #003015;
+  --color-accent: #FFB81C;
+
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;

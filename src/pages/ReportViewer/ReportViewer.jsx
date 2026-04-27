@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button, Spinner, Card } from 'react-bootstrap';
+import { Button, Card } from 'react-bootstrap';
 import { 
   ArrowLeft, Save, FileEarmarkPdf, Robot,
   TypeBold, TypeItalic, TypeUnderline, ListUl, 
@@ -251,8 +251,11 @@ const ReportViewer = () => {
           setReportContent(html);
           hasSetInitialContent.current = true;
         }
-      } catch (_) { }
-      finally { setLoading(prev => ({ ...prev, init: false })); }
+      } catch (err) {
+        toast.error('Failed to load report.');
+      } finally {
+        setLoading(prev => ({ ...prev, init: false }));
+      }
     };
     init();
   }, [editor, state.reportId, evaluationId, classId, state.isReadOnly, constructFullReport, classData, state.classId]);
@@ -289,6 +292,22 @@ const ReportViewer = () => {
 
   return (
     <div id="evaluation-container-v3">
+      {loading.init && (
+        <div className="report-ai-overlay">
+          <div className="ai-analyzing-box">
+            <div className="ai-spinner-v3" />
+            <span className="ai-analyzing-text">Building Report</span>
+          </div>
+        </div>
+      )}
+      {loading.ai && (
+        <div className="report-ai-overlay">
+          <div className="ai-analyzing-box">
+            <div className="ai-spinner-v3" />
+            <span className="ai-analyzing-text">AI Analysis</span>
+          </div>
+        </div>
+      )}
       <ActivityLog />
       <div className="container py-5">
         <div className="text-center mb-5">
@@ -299,7 +318,6 @@ const ReportViewer = () => {
           <div className="tiptap-editor-wrapper">
             <MenuBar editor={editor} onRefresh={handleRefresh} />
             <EditorContent editor={editor} />
-            {loading.init && <div className="text-center p-4">Finalizing...</div>}
           </div>
         </Card>
         <div className="report-actions-footer">
@@ -307,7 +325,7 @@ const ReportViewer = () => {
           {!state.isReadOnly && (
             <>
               <Button onClick={handleAiFeedback} disabled={loading.ai || loading.init} className="btn-report-utility">
-                {loading.ai ? <Spinner size="sm" /> : <Robot />} AI FEEDBACK
+                <Robot /> AI FEEDBACK
               </Button>
               <Button onClick={handleSaveReport} disabled={loading.init} className="btn-report-save"><Save /> SAVE REPORT</Button>
             </>

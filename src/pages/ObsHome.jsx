@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './ObsHome.css';
 import { classApi, evaluationApi } from '../api/classApi';
 import { useAuthStore } from '../store/authStore';
+import { useRoles } from '../hooks/useRoles';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { JournalCheck, Archive, PlayCircleFill, PersonBadge, Book, CheckCircleFill, PencilSquare, CheckCircle, XCircle } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
@@ -65,12 +66,15 @@ const ObsHome = () => {
   const [starting, setStarting] = useState(false);
 
   const { user } = useAuthStore();
+  const { canEdit } = useRoles();
   const navigate = useNavigate();
-  const roles = Array.isArray(user?.roles) ? user.roles : (user?.role ? [user.role] : []);
-  const canEdit = roles.includes('ADMIN') || !!user?.canEditContent;
 
   useEffect(() => {
     fetchClasses();
+    // Prefetch evaluation flow chunks while user is selecting a class
+    import('./Evaluate/Evaluate');
+    import('./Recommendations/Recommendations');
+    import('./ReportViewer/ReportViewer');
   }, []);
 
   const fetchClasses = () => {
@@ -221,6 +225,12 @@ const ObsHome = () => {
 
   return (
     <div className="obs-container">
+      {starting && (
+        <div className="obs-starting-overlay">
+          <div className="spinner-border text-warning obs-starting-spinner" role="status" />
+          <span className="obs-starting-label">Starting evaluation...</span>
+        </div>
+      )}
       <InlineEdit pageKey="obs-heading" defaultValue="Teaching Evaluation" canEdit={canEdit} tag="h1" className="obs-heading" />
       
       <DragDropContext onDragEnd={onDragEnd}>

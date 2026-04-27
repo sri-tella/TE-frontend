@@ -4,7 +4,7 @@
   background-position: center;
   background-attachment: fixed;
   min-height: 100vh;
-  padding: 40px 0 100px 0; /* Добавлен отступ снизу */
+  padding: 40px 0 100px 0;
   font-family: 'Inter', sans-serif;
 }
 
@@ -16,7 +16,7 @@
 }
 
 .eval-page-subtext {
-  color: #FFB81C;
+  color: var(--color-accent);
   font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: 2px;
@@ -31,17 +31,17 @@
 }
 
 .active-header {
-  border-left: 8px solid #154734 !important;
+  border-left: 8px solid var(--color-primary) !important;
 }
 
 .eval-section-title {
-  color: #154734;
+  color: var(--color-primary);
   font-weight: 700;
   font-size: 1.25rem;
 }
 
 .section-badge-circle {
-  background: #154734;
+  background: var(--color-primary);
   color: #ffffff;
   width: 32px;
   height: 32px;
@@ -61,14 +61,13 @@
   margin-bottom: 15px;
 }
 
-/* ФИКС STICKY КНОПКИ */
 .eval-action-footer-container {
-  position: fixed; /* Используем fixed для гарантии видимости */
+  position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
   height: 100px;
-  background: linear-gradient(transparent, rgba(0,0,0,0.3));
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.3));
   display: flex;
   justify-content: center;
   align-items: center;
@@ -79,8 +78,8 @@
 .eval-submit-btn-v3 {
   pointer-events: auto;
   padding: 16px 80px !important;
-  background: #FFB81C !important;
-  color: #154734 !important;
+  background: var(--color-accent) !important;
+  color: var(--color-primary) !important;
   border: 3px solid white !important;
   border-radius: 50px !important;
   font-size: 1.2rem !important;
@@ -92,48 +91,8 @@
 }
 
 .eval-submit-btn-v3:hover {
-  background: #154734 !important;
-  color: #FFB81C !important;
+  background: var(--color-primary) !important;
+  color: var(--color-accent) !important;
   transform: translateY(-5px) scale(1.03);
   box-shadow: 0 15px 40px rgba(21, 71, 52, 0.5) !important;
 }
-
-.section-text-view {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.section-text-edit {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.eval-inline-input {
-  border: none;
-  border-bottom: 2px solid #154734;
-  background: transparent;
-  font-size: inherit;
-  font-weight: inherit;
-  color: inherit;
-  outline: none;
-  min-width: 200px;
-  padding: 2px 4px;
-}
-
-.ie-btn-icon {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 2px;
-  display: inline-flex;
-  align-items: center;
-  color: #154734;
-  font-size: 0.9rem;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-}
-
-.ie-btn-icon:hover { opacity: 1; }
-.ie-btn-icon.cancel { color: #999; }

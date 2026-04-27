@@ -15,7 +15,7 @@
 }
 
 .inline-edit-input {
-  border: 2px solid #154734;
+  border: 2px solid var(--color-primary);
   border-radius: 6px;
   padding: 4px 10px;
   font-size: inherit;
@@ -32,7 +32,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #154734;
+  color: var(--color-primary);
   opacity: 0.35;
   padding: 0 4px;
   font-size: 0.75em;
@@ -61,8 +61,8 @@
 }
 
 .ie-btn-save {
-  background: #154734;
-  color: #FFB81C;
+  background: var(--color-primary);
+  color: var(--color-accent);
 }
 
 .ie-btn-save:hover { opacity: 0.85; }
