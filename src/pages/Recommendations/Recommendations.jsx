@@ -53,11 +53,12 @@ const Recommendations = () => {
           recommendations.map(recommendation => {
             const matchedObs = allObservations.flatMap(s => s.options).find(o => o.description === observation);
             const storedOption = storedSection.options?.find(opt => opt.description === recommendation);
+            const obsSelected = matchedObs?.selected ?? false;
             return {
               description: recommendation,
               observedDescription: observation,
-              selected: storedOption?.selected ?? false,
-              showFeedback: storedOption?.selected ?? false,
+              selected: storedOption?.selected ?? obsSelected,
+              showFeedback: storedOption?.selected ?? obsSelected,
               feedbackText: storedOption?.feedbackText || ''
             };
           })
@@ -131,7 +132,7 @@ const Recommendations = () => {
 
               const sectionTitle = isAdditional
                 ? (additionalFeedbackSection ? normalizeTitle(additionalFeedbackSection.title) : 'Additional Feedback')
-                : (mappingSection ? mappingSection.title : normalizeTitle(section.title));
+                : (evalSections[sIdx] ? normalizeTitle(evalSections[sIdx].title) : normalizeTitle(section.title));
 
               return (
                 <Card key={section.title} className="eval-section-card border-0 mb-4 shadow-sm">
@@ -146,7 +147,7 @@ const Recommendations = () => {
                         value={sectionTitle}
                         onSave={val => isAdditional
                           ? saveEvalTitle(additionalFeedbackIdx, `9. ${val}`)
-                          : saveSectionTitle(sIdx, val)
+                          : saveEvalTitle(sIdx, `${sIdx + 1}. ${val}`)
                         }
                         canEdit={canEdit}
                         as="h5"

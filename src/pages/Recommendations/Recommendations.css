@@ -8,6 +8,16 @@
   font-family: 'Inter', sans-serif;
 }
 
+.eval-sections-wrapper {
+  padding-right: 272px;
+}
+
+@media (max-width: 1100px) {
+  .eval-sections-wrapper {
+    padding-right: 0;
+  }
+}
+
 .eval-page-heading {
   color: #ffffff;
   font-weight: 800;
