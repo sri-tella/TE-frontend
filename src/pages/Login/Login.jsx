@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema } from '../../schemas/authSchema';
 import { useAuth } from '../../hooks/useAuth';
-import { Eye, EyeSlash, CheckCircleFill, ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
+import { Eye, EyeSlash, CheckCircleFill, ChevronLeft, ChevronRight, EnvelopeFill, LockFill, ArrowRightShort } from 'react-bootstrap-icons';
 import InlineEdit from '../../components/InlineEdit/InlineEdit';
 import logo from "../../assets/logo.png";
 import './Login.css';
@@ -34,7 +34,9 @@ const Login = () => {
         {/* LEFT PANEL */}
         <div className={`auth-left${leftOpen ? '' : ' auth-left--collapsed'}`}>
           <div className="auth-left-inner">
-            <img src={logo} alt="Baylor University" className="auth-left-logo" />
+            <div className="auth-logo-wrap">
+              <img src={logo} alt="Baylor University" className="auth-left-logo" />
+            </div>
             <h1 className="auth-left-title">
               <InlineEdit pageKey="login-left-title" defaultValue="Teaching Evaluation" canEdit={false} />
             </h1>
@@ -43,25 +45,30 @@ const Login = () => {
             </p>
             <ul className="auth-feature-list">
               <li>
-                <CheckCircleFill size={18} className="auth-feature-icon" />
+                <CheckCircleFill size={16} className="auth-feature-icon" />
                 <InlineEdit pageKey="login-feature-1" defaultValue="44 structured evaluation criteria" canEdit={false} />
               </li>
               <li>
-                <CheckCircleFill size={18} className="auth-feature-icon" />
+                <CheckCircleFill size={16} className="auth-feature-icon" />
                 <InlineEdit pageKey="login-feature-2" defaultValue="AI-powered recommendations" canEdit={false} />
               </li>
               <li>
-                <CheckCircleFill size={18} className="auth-feature-icon" />
+                <CheckCircleFill size={16} className="auth-feature-icon" />
                 <InlineEdit pageKey="login-feature-3" defaultValue="Instant PDF report generation" canEdit={false} />
               </li>
             </ul>
+            <div className="auth-left-stat">
+              <span className="auth-stat-num">500+</span>
+              <span className="auth-stat-label">Evaluations completed</span>
+            </div>
           </div>
           <div className="auth-deco-circle auth-deco-1" />
           <div className="auth-deco-circle auth-deco-2" />
           <div className="auth-deco-circle auth-deco-3" />
+          <div className="auth-mesh" />
         </div>
 
-        {/* TOGGLE — вне панели, всегда виден */}
+        {/* TOGGLE */}
         <button
           className={`auth-panel-toggle${leftOpen ? '' : ' auth-panel-toggle--closed'}`}
           onClick={togglePanel}
@@ -74,6 +81,7 @@ const Login = () => {
         <div className="auth-right">
           <div className="auth-form-box">
             <div className="auth-form-header">
+              <div className="auth-badge">Baylor University</div>
               <h2 className="auth-heading">Welcome back</h2>
               <p className="auth-subtext">Sign in to your account to continue</p>
             </div>
@@ -87,17 +95,21 @@ const Login = () => {
             <form className="auth-form" onSubmit={handleSubmit(login)}>
               <div className="auth-field">
                 <label>Email address</label>
-                <input
-                  type="email"
-                  placeholder="you@baylor.edu"
-                  className="auth-input"
-                  {...register('email')}
-                />
+                <div className="auth-input-group">
+                  <span className="auth-input-icon"><EnvelopeFill size={14} /></span>
+                  <input
+                    type="email"
+                    placeholder="you@baylor.edu"
+                    className="auth-input"
+                    {...register('email')}
+                  />
+                </div>
               </div>
 
               <div className="auth-field">
                 <label>Password</label>
-                <div className="auth-input-wrap">
+                <div className="auth-input-group auth-input-wrap">
+                  <span className="auth-input-icon"><LockFill size={14} /></span>
                   <input
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
@@ -116,13 +128,14 @@ const Login = () => {
               </div>
 
               <button type="submit" className="auth-submit-btn" disabled={isLoading}>
-                {isLoading ? <span className="auth-spinner" /> : 'Sign In'}
+                {isLoading ? <span className="auth-spinner" /> : <><span>Sign In</span><ArrowRightShort size={22} /></>}
               </button>
             </form>
 
+            <div className="auth-divider"><span>New to the platform?</span></div>
+
             <p className="auth-switch">
-              Don't have an account?{' '}
-              <Link to="/signup" className="auth-link">Create account</Link>
+              <Link to="/signup" className="auth-link-btn">Create an account</Link>
             </p>
           </div>
         </div>

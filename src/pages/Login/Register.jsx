@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { authApi } from '../../api/authApi';
 import { toast } from 'react-toastify';
-import { Eye, EyeSlash, CheckCircleFill, EyeFill, MortarboardFill, ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
+import { Eye, EyeSlash, CheckCircleFill, EyeFill, MortarboardFill, ChevronLeft, ChevronRight, EnvelopeFill, LockFill, PersonFill, ArrowRightShort } from 'react-bootstrap-icons';
 import InlineEdit from '../../components/InlineEdit/InlineEdit';
 import logo from '../../assets/logo.png';
 import './Register.css';
@@ -11,13 +11,13 @@ import './Register.css';
 const ROLES = [
   {
     value: 'OBSERVER',
-    icon: <EyeFill size={22} />,
+    icon: <EyeFill size={20} />,
     label: 'Observer',
     desc: 'Conduct classroom evaluations',
   },
   {
     value: 'INSTRUCTOR',
-    icon: <MortarboardFill size={22} />,
+    icon: <MortarboardFill size={20} />,
     label: 'Instructor',
     desc: 'View your evaluation reports',
   },
@@ -81,7 +81,9 @@ const Register = () => {
         {/* LEFT PANEL */}
         <div className={`auth-left${leftOpen ? '' : ' auth-left--collapsed'}`}>
           <div className="auth-left-inner">
-            <img src={logo} alt="Baylor University" className="auth-left-logo" />
+            <div className="auth-logo-wrap">
+              <img src={logo} alt="Baylor University" className="auth-left-logo" />
+            </div>
             <h1 className="auth-left-title">
               <InlineEdit pageKey="register-left-title" defaultValue="Join the Platform" canEdit={false} />
             </h1>
@@ -90,25 +92,33 @@ const Register = () => {
             </p>
             <ul className="auth-feature-list">
               <li>
-                <CheckCircleFill size={14} className="auth-feature-icon" />
+                <CheckCircleFill size={15} className="auth-feature-icon" />
                 <InlineEdit pageKey="register-feature-1" defaultValue="Free to use for Baylor staff" canEdit={false} />
               </li>
               <li>
-                <CheckCircleFill size={14} className="auth-feature-icon" />
+                <CheckCircleFill size={15} className="auth-feature-icon" />
                 <InlineEdit pageKey="register-feature-2" defaultValue="Secure role-based access" canEdit={false} />
               </li>
               <li>
-                <CheckCircleFill size={14} className="auth-feature-icon" />
+                <CheckCircleFill size={15} className="auth-feature-icon" />
                 <InlineEdit pageKey="register-feature-3" defaultValue="Ready in under a minute" canEdit={false} />
               </li>
             </ul>
+            <div className="auth-left-stat">
+              <span className="auth-stat-num">2</span>
+              <span className="auth-stat-label">Roles available</span>
+              <span className="auth-stat-sep">·</span>
+              <span className="auth-stat-num">Free</span>
+              <span className="auth-stat-label">for Baylor staff</span>
+            </div>
           </div>
           <div className="auth-deco-circle auth-deco-1" />
           <div className="auth-deco-circle auth-deco-2" />
           <div className="auth-deco-circle auth-deco-3" />
+          <div className="auth-mesh" />
         </div>
 
-        {/* TOGGLE — вне панели, всегда виден */}
+        {/* TOGGLE */}
         <button
           className={`auth-panel-toggle${leftOpen ? '' : ' auth-panel-toggle--closed'}`}
           onClick={togglePanel}
@@ -121,6 +131,7 @@ const Register = () => {
         <div className="auth-right">
           <div className="auth-form-box auth-form-box--wide">
             <div className="auth-form-header">
+              <div className="auth-badge">Baylor University</div>
               <h2 className="auth-heading">Create account</h2>
               <p className="auth-subtext">Fill in your details below to get started</p>
             </div>
@@ -131,13 +142,19 @@ const Register = () => {
               <div className="auth-row">
                 <div className="auth-field">
                   <label>First name</label>
-                  <input type="text" name="firstName" placeholder="John" className="auth-input"
-                    value={formData.firstName} onChange={handleChange} required />
+                  <div className="auth-input-group">
+                    <span className="auth-input-icon"><PersonFill size={13} /></span>
+                    <input type="text" name="firstName" placeholder="John" className="auth-input"
+                      value={formData.firstName} onChange={handleChange} required />
+                  </div>
                 </div>
                 <div className="auth-field">
                   <label>Last name</label>
-                  <input type="text" name="lastName" placeholder="Doe" className="auth-input"
-                    value={formData.lastName} onChange={handleChange} required />
+                  <div className="auth-input-group">
+                    <span className="auth-input-icon"><PersonFill size={13} /></span>
+                    <input type="text" name="lastName" placeholder="Doe" className="auth-input"
+                      value={formData.lastName} onChange={handleChange} required />
+                  </div>
                 </div>
               </div>
 
@@ -145,13 +162,19 @@ const Register = () => {
               <div className="auth-row">
                 <div className="auth-field">
                   <label>Email address</label>
-                  <input type="email" name="email" placeholder="you@baylor.edu" className="auth-input"
-                    value={formData.email} onChange={handleChange} required />
+                  <div className="auth-input-group">
+                    <span className="auth-input-icon"><EnvelopeFill size={13} /></span>
+                    <input type="email" name="email" placeholder="you@baylor.edu" className="auth-input"
+                      value={formData.email} onChange={handleChange} required />
+                  </div>
                 </div>
                 <div className="auth-field">
                   <label>Confirm email</label>
-                  <input type="email" name="confirmEmail" placeholder="Confirm email" className="auth-input"
-                    value={formData.confirmEmail} onChange={handleChange} required />
+                  <div className="auth-input-group">
+                    <span className="auth-input-icon"><EnvelopeFill size={13} /></span>
+                    <input type="email" name="confirmEmail" placeholder="Confirm email" className="auth-input"
+                      value={formData.confirmEmail} onChange={handleChange} required />
+                  </div>
                 </div>
               </div>
 
@@ -159,23 +182,25 @@ const Register = () => {
               <div className="auth-row">
                 <div className="auth-field">
                   <label>Password</label>
-                  <div className="auth-input-wrap">
+                  <div className="auth-input-group auth-input-wrap">
+                    <span className="auth-input-icon"><LockFill size={13} /></span>
                     <input type={showPass ? 'text' : 'password'} name="password"
                       placeholder="••••••••" className="auth-input"
                       value={formData.password} onChange={handleChange} required />
                     <button type="button" className="auth-eye-btn" onClick={() => setShowPass(v => !v)} tabIndex={-1}>
-                      {showPass ? <EyeSlash size={15} /> : <Eye size={15} />}
+                      {showPass ? <EyeSlash size={14} /> : <Eye size={14} />}
                     </button>
                   </div>
                 </div>
                 <div className="auth-field">
                   <label>Confirm password</label>
-                  <div className="auth-input-wrap">
+                  <div className="auth-input-group auth-input-wrap">
+                    <span className="auth-input-icon"><LockFill size={13} /></span>
                     <input type={showConfirm ? 'text' : 'password'} name="confirmPassword"
                       placeholder="••••••••" className="auth-input"
                       value={formData.confirmPassword} onChange={handleChange} required />
                     <button type="button" className="auth-eye-btn" onClick={() => setShowConfirm(v => !v)} tabIndex={-1}>
-                      {showConfirm ? <EyeSlash size={15} /> : <Eye size={15} />}
+                      {showConfirm ? <EyeSlash size={14} /> : <Eye size={14} />}
                     </button>
                   </div>
                 </div>
@@ -204,13 +229,17 @@ const Register = () => {
               </div>
 
               <button type="submit" className="auth-submit-btn" disabled={signupMutation.isPending}>
-                {signupMutation.isPending ? <span className="auth-spinner" /> : 'Create Account'}
+                {signupMutation.isPending
+                  ? <span className="auth-spinner" />
+                  : <><span>Create Account</span><ArrowRightShort size={22} /></>
+                }
               </button>
             </form>
 
+            <div className="auth-divider"><span>Already have an account?</span></div>
+
             <p className="auth-switch">
-              Already have an account?{' '}
-              <Link to="/login" className="auth-link">Sign in</Link>
+              <Link to="/login" className="auth-link-btn">Sign in instead</Link>
             </p>
           </div>
         </div>
