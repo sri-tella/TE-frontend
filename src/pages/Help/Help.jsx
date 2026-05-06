@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
-import { Eye, PersonVideo3, ShieldLock, Envelope, ArrowRightCircle, PencilSquare, CheckCircle, XCircle } from 'react-bootstrap-icons';
+import { Eye, PersonVideo3, ShieldLock, Envelope, ArrowRightCircle, PencilSquare, CheckCircle, XCircle, BoxArrowInRight, PersonPlus } from 'react-bootstrap-icons';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -189,6 +189,103 @@ const FooterButton = ({ canEdit }) => {
   );
 };
 
+const LOGIN_FIELDS = [
+  { key: 'login-left-title',   label: 'Title',     placeholder: 'Teaching Evaluation' },
+  { key: 'login-left-sub',     label: 'Subtitle',  placeholder: 'Baylor University — structured classroom observation platform' },
+  { key: 'login-feature-1',    label: 'Feature 1', placeholder: '44 structured evaluation criteria' },
+  { key: 'login-feature-2',    label: 'Feature 2', placeholder: 'AI-powered recommendations' },
+  { key: 'login-feature-3',    label: 'Feature 3', placeholder: 'Instant PDF report generation' },
+];
+
+const REGISTER_FIELDS = [
+  { key: 'register-left-title', label: 'Title',     placeholder: 'Join the Platform' },
+  { key: 'register-left-sub',   label: 'Subtitle',  placeholder: 'Create your account and start using the Teaching Evaluation system today' },
+  { key: 'register-feature-1',  label: 'Feature 1', placeholder: 'Free to use for Baylor staff' },
+  { key: 'register-feature-2',  label: 'Feature 2', placeholder: 'Secure role-based access' },
+  { key: 'register-feature-3',  label: 'Feature 3', placeholder: 'Ready in under a minute' },
+];
+
+const AuthContentEditor = () => {
+  const initValues = (fields) => Object.fromEntries(fields.map(f => [f.key, '']));
+  const [loginVals, setLoginVals]       = useState(initValues(LOGIN_FIELDS));
+  const [registerVals, setRegisterVals] = useState(initValues(REGISTER_FIELDS));
+  const [saving, setSaving] = useState(null);
+
+  useEffect(() => {
+    const allFields = [...LOGIN_FIELDS, ...REGISTER_FIELDS];
+    Promise.all(
+      allFields.map(f =>
+        getPageContent(f.key)
+          .then(data => ({ key: f.key, value: data?.htmlContent || f.placeholder }))
+          .catch(() => ({ key: f.key, value: f.placeholder }))
+      )
+    ).then(results => {
+      const lv = {}, rv = {};
+      results.forEach(({ key, value }) => {
+        if (key.startsWith('login-')) lv[key] = value;
+        else rv[key] = value;
+      });
+      setLoginVals(lv);
+      setRegisterVals(rv);
+    });
+  }, []);
+
+  const handleSave = async (section) => {
+    const fields = section === 'login' ? LOGIN_FIELDS : REGISTER_FIELDS;
+    const vals   = section === 'login' ? loginVals   : registerVals;
+    setSaving(section);
+    try {
+      await Promise.all(fields.map(f => savePageContent(f.key, vals[f.key])));
+      toast.success(`${section === 'login' ? 'Login' : 'Register'} page content saved`);
+    } catch {
+      toast.error('Failed to save');
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const renderPanel = (fields, vals, setVals, section, icon, title) => (
+    <div className="ace-panel">
+      <div className="ace-panel-head">
+        <span className="ace-panel-icon">{icon}</span>
+        <span className="ace-panel-title">{title}</span>
+      </div>
+      <div className="ace-fields">
+        {fields.map(f => (
+          <div key={f.key} className="ace-field">
+            <label className="ace-label">{f.label}</label>
+            <input
+              className="ace-input"
+              value={vals[f.key] || ''}
+              placeholder={f.placeholder}
+              onChange={e => setVals(prev => ({ ...prev, [f.key]: e.target.value }))}
+            />
+          </div>
+        ))}
+      </div>
+      <button
+        className="ace-save-btn"
+        onClick={() => handleSave(section)}
+        disabled={saving === section}
+      >
+        {saving === section ? 'Saving…' : <><CheckCircle size={14} /> Save {title}</>}
+      </button>
+    </div>
+  );
+
+  return (
+    <div className="help-compact-section ace-wrapper">
+      <div className="help-section-header">
+        <h3><ShieldLock /> Auth Pages — Left Panel Content</h3>
+      </div>
+      <div className="ace-grid">
+        {renderPanel(LOGIN_FIELDS,    loginVals,    setLoginVals,    'login',    <BoxArrowInRight size={16}/>, 'Login Page')}
+        {renderPanel(REGISTER_FIELDS, registerVals, setRegisterVals, 'register', <PersonPlus size={16}/>,     'Register Page')}
+      </div>
+    </div>
+  );
+};
+
 const Help = () => {
   const { user } = useAuthStore();
   const roles = Array.isArray(user?.roles) ? user.roles : (user?.role ? [user.role] : []);
@@ -245,62 +342,7 @@ const Help = () => {
             />
           )}
 
-          {isAdmin && (
-            <div className="help-compact-section help-auth-editor">
-              <div className="help-section-header">
-                <h3><ShieldLock /> Auth Pages Content</h3>
-              </div>
-              <div className="auth-editor-grid">
-                <div className="auth-editor-panel">
-                  <h4 className="auth-editor-panel-title">Login Page — Left Panel</h4>
-                  <div className="auth-editor-field">
-                    <label>Title</label>
-                    <InlineEdit pageKey="login-left-title" defaultValue="Teaching Evaluation" canEdit={canEdit} />
-                  </div>
-                  <div className="auth-editor-field">
-                    <label>Subtitle</label>
-                    <InlineEdit pageKey="login-left-sub" defaultValue="Baylor University — structured classroom observation platform" canEdit={canEdit} />
-                  </div>
-                  <div className="auth-editor-field">
-                    <label>Feature 1</label>
-                    <InlineEdit pageKey="login-feature-1" defaultValue="44 structured evaluation criteria" canEdit={canEdit} />
-                  </div>
-                  <div className="auth-editor-field">
-                    <label>Feature 2</label>
-                    <InlineEdit pageKey="login-feature-2" defaultValue="AI-powered recommendations" canEdit={canEdit} />
-                  </div>
-                  <div className="auth-editor-field">
-                    <label>Feature 3</label>
-                    <InlineEdit pageKey="login-feature-3" defaultValue="Instant PDF report generation" canEdit={canEdit} />
-                  </div>
-                </div>
-
-                <div className="auth-editor-panel">
-                  <h4 className="auth-editor-panel-title">Register Page — Left Panel</h4>
-                  <div className="auth-editor-field">
-                    <label>Title</label>
-                    <InlineEdit pageKey="register-left-title" defaultValue="Join the Platform" canEdit={canEdit} />
-                  </div>
-                  <div className="auth-editor-field">
-                    <label>Subtitle</label>
-                    <InlineEdit pageKey="register-left-sub" defaultValue="Create your account and start using the Teaching Evaluation system today" canEdit={canEdit} />
-                  </div>
-                  <div className="auth-editor-field">
-                    <label>Feature 1</label>
-                    <InlineEdit pageKey="register-feature-1" defaultValue="Free to use for Baylor staff" canEdit={canEdit} />
-                  </div>
-                  <div className="auth-editor-field">
-                    <label>Feature 2</label>
-                    <InlineEdit pageKey="register-feature-2" defaultValue="Secure role-based access" canEdit={canEdit} />
-                  </div>
-                  <div className="auth-editor-field">
-                    <label>Feature 3</label>
-                    <InlineEdit pageKey="register-feature-3" defaultValue="Ready in under a minute" canEdit={canEdit} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          {isAdmin && <AuthContentEditor />}
         </div>
 
         <footer className="help-footer-simple">
