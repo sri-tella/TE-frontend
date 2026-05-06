@@ -1,13 +1,31 @@
 import React, { useState, useMemo } from 'react';
-import { Table, Button, Card, Spinner, Badge } from 'react-bootstrap';
+import { Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { reportApi } from '../../api/reportApi';
 import { useAuthStore } from '../../store/authStore';
-import { Eye, FileText, Search, FileEarmarkPdf, Clock, Person } from 'react-bootstrap-icons';
+import { Eye, FileText, Search, FileEarmarkPdf, Clock, Person, MortarboardFill, XCircle } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import InlineEdit from '../../components/InlineEdit/InlineEdit';
 import './ReportsList.css';
+
+const AVATAR_COLORS = [
+  '#154734','#1a5c40','#0a7c4f','#0d6e4a',
+  '#2d6a4f','#1b6ca8','#7b2d8b','#b5451b',
+];
+
+const getAvatarColor = (name) => {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+};
+
+const getInitials = (name) => {
+  const parts = name.trim().split(' ').filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+};
 
 const ReportsList = () => {
   const navigate = useNavigate();
@@ -27,7 +45,7 @@ const ReportsList = () => {
     const instructor = report.evaluation?.instructor;
     if (!instructor) return 'N/A';
     const first = (instructor.firstName !== undefined ? instructor.firstName : instructor.firstname) || '';
-    const last = (instructor.lastName !== undefined ? instructor.lastName : instructor.lastname) || '';
+    const last  = (instructor.lastName  !== undefined ? instructor.lastName  : instructor.lastname)  || '';
     return `${first} ${last}`.trim() || `Instructor #${instructor.id}`;
   };
 
@@ -35,7 +53,7 @@ const ReportsList = () => {
     const observer = report.evaluation?.observer;
     if (!observer) return 'N/A';
     const first = (observer.firstName !== undefined ? observer.firstName : observer.firstname) || '';
-    const last = (observer.lastName !== undefined ? observer.lastName : observer.lastname) || '';
+    const last  = (observer.lastName  !== undefined ? observer.lastName  : observer.lastname)  || '';
     return `${first} ${last}`.trim() || `Observer #${observer.id}`;
   };
 
@@ -45,12 +63,20 @@ const ReportsList = () => {
     return evalObj.className.courseTitle || evalObj.className.title || `Course #${evalObj.className.class_id}`;
   };
 
+  const formatDate = (dateStr) => {
+    if (!dateStr) return 'N/A';
+    return new Date(dateStr).toLocaleString('en-US', {
+      month: 'short', day: 'numeric', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
+  };
+
   const handleDownloadPDF = async (reportId) => {
     setDownloadingId(reportId);
     try {
       await reportApi.downloadPdf(reportId);
-    } catch (_) {
-      toast.error("Failed to download PDF.");
+    } catch {
+      toast.error('Failed to download PDF.');
     } finally {
       setDownloadingId(null);
     }
@@ -58,202 +84,186 @@ const ReportsList = () => {
 
   const filteredReports = useMemo(() => {
     let list = Array.isArray(reports) ? [...reports] : [];
-
-    // 1. Sort by date (newest first)
     list.sort((a, b) => {
-      const dateA = a.createdAt ? new Date(a.createdAt) : 0;
-      const dateB = b.createdAt ? new Date(b.createdAt) : 0;
-      return dateB - dateA;
+      const dA = a.createdAt ? new Date(a.createdAt) : 0;
+      const dB = b.createdAt ? new Date(b.createdAt) : 0;
+      return dB - dA;
     });
+    const latestId = list.length > 0 ? list[0].report_id : null;
 
-    // 2. Identify the ABSOLUTE LATEST report ID
-    const absoluteLatestId = list.length > 0 ? list[0].report_id : null;
-
-    // 3. Filter by User Role
-    const roles = Array.isArray(user?.roles) ? user.roles : (user?.role ? [user.role] : []);
-    const isAdmin = roles.includes('ADMIN');
-    const isObserver = roles.includes('OBSERVER');
+    const isAdmin      = roles.includes('ADMIN');
+    const isObserver   = roles.includes('OBSERVER');
     const isInstructor = roles.includes('INSTRUCTOR');
 
     if (!isAdmin) {
       if (isObserver) {
-        // Observers see only reports they authored
         list = list.filter(r => {
-          const obsId = r.evaluation?.observer?.observer_id || r.evaluation?.observer?.id;
-          return obsId == user?.observerId;
+          const id = r.evaluation?.observer?.observer_id || r.evaluation?.observer?.id;
+          return id == user?.observerId;
         });
       } else if (isInstructor) {
-        // Instructors see only reports about them
         list = list.filter(r => {
-          const insId = r.evaluation?.instructor?.Instructor_id || r.evaluation?.instructor?.instructor_id || r.evaluation?.instructor?.id;
-          return insId == user?.instructorId;
+          const id = r.evaluation?.instructor?.Instructor_id || r.evaluation?.instructor?.instructor_id || r.evaluation?.instructor?.id;
+          return id == user?.instructorId;
         });
       }
     }
 
-    // 4. Apply Search Filter
     if (searchTerm.trim()) {
-      const query = searchTerm.toLowerCase().trim();
-      list = list.filter(r => {
-        const instructor = getInstructorName(r).toLowerCase();
-        const observer = getObserverName(r).toLowerCase();
-        const course = getCourseTitle(r).toLowerCase();
-        const id = String(r.report_id).toLowerCase();
-        const evalId = String(r.evaluation?.evaluation_id || '').toLowerCase();
-
-        return instructor.includes(query) || 
-               observer.includes(query) || 
-               course.includes(query) || 
-               id.includes(query) || 
-               evalId.includes(query);
-      });
+      const q = searchTerm.toLowerCase();
+      list = list.filter(r =>
+        getInstructorName(r).toLowerCase().includes(q) ||
+        getObserverName(r).toLowerCase().includes(q)   ||
+        getCourseTitle(r).toLowerCase().includes(q)    ||
+        String(r.report_id).includes(q)
+      );
     }
 
-    // 5. Map with isLatest flag
-    return list.map(r => ({
-      ...r,
-      isLatest: r.report_id === absoluteLatestId
-    }));
+    return list.map(r => ({ ...r, isLatest: r.report_id === latestId }));
   }, [reports, user, searchTerm]);
 
   return (
     <div id="reports-page-scoped">
-      <div className="reports-hero-section text-center mb-5">
-        <InlineEdit
-          pageKey="reports-title"
-          defaultValue="Evaluation Reports"
-          canEdit={canEdit}
-          tag="h1"
-          className="reports-main-title"
-        />
-        <InlineEdit
-          pageKey="reports-subtitle"
-          defaultValue="View and manage teaching assessment history"
-          canEdit={canEdit}
-          tag="p"
-          className="reports-sub-title"
-        />
+
+      {/* HERO */}
+      <div className="rl-hero">
+        <InlineEdit pageKey="reports-title"    defaultValue="Evaluation Reports"                    canEdit={canEdit} tag="h1" className="rl-hero-title" />
+        <InlineEdit pageKey="reports-subtitle" defaultValue="View and manage teaching assessment history" canEdit={canEdit} tag="p"  className="rl-hero-sub" />
+
+        <div className="rl-stats-row">
+          <div className="rl-stat">
+            <span className="rl-stat-num">{reports.length}</span>
+            <span className="rl-stat-label">Total</span>
+          </div>
+          <div className="rl-stat-divider" />
+          <div className="rl-stat">
+            <span className="rl-stat-num">{filteredReports.length}</span>
+            <span className="rl-stat-label">Shown</span>
+          </div>
+          <div className="rl-stat-divider" />
+          <div className="rl-stat">
+            <span className="rl-stat-num">
+              {filteredReports.filter(r => {
+                const d = r.createdAt ? new Date(r.createdAt) : null;
+                if (!d) return false;
+                const now = new Date();
+                return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+              }).length}
+            </span>
+            <span className="rl-stat-label">This month</span>
+          </div>
+        </div>
       </div>
 
-      <div className="container pb-5">
-        <Card className="reports-main-card border-0 shadow-lg overflow-hidden">
-          <div className="reports-toolbar p-4 d-flex justify-content-between align-items-center bg-white border-bottom">
-            <div className="reports-count">
-              <Badge bg="success" className="baylor-badge">{filteredReports.length}</Badge> Total Reports
-            </div>
-            <div className="reports-search-box position-relative">
-              <Search className="search-icon" />
-              <input 
-                type="text" 
-                placeholder="Search reports..." 
-                className="form-control-v3 search-input"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
+      {/* CONTENT */}
+      <div className="rl-content">
 
-          <div className="reports-table-wrapper">
-            {isLoading ? (
-              <div className="p-5 text-center">
-                <Spinner animation="border" variant="success" />
-                <p className="mt-3 text-muted">Loading your reports...</p>
-              </div>
-            ) : isError ? (
-              <div className="p-5 text-center no-reports-area">
-                <h4 className="text-danger">Error loading reports</h4>
-                <p className="text-muted">Please try again later.</p>
-              </div>
-            ) : filteredReports.length === 0 ? (
-              <div className="p-5 text-center no-reports-area">
-                <FileText size={64} className="text-muted mb-3 opacity-25" />
-                <h4 className="text-muted">No reports found</h4>
-                {searchTerm && <Button variant="link" onClick={() => setSearchTerm('')}>Clear search</Button>}
-              </div>
-            ) : (
-              <Table responsive hover className="mb-0 custom-baylor-table">
-                <thead>
-                  <tr>
-                    <th className="ps-4">ID</th>
-                    <th>Instructor</th>
-                    <th>Observer</th>
-                    <th>Course / Session</th>
-                    <th>Created At</th>
-                    <th className="text-end pe-4">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredReports.map((report) => (
-                    <tr key={report.report_id} className={report.isLatest ? "table-success-light" : ""}>
-                      <td className="ps-4 text-muted fw-bold">
-                        #{report.report_id}
-                        {report.isLatest && <Badge bg="primary" className="ms-2" style={{fontSize: '0.65rem'}}>LATEST</Badge>}
-                      </td>
-                      <td>
-                        <div className="d-flex align-items-center">
-                          <div className="instructor-avatar">
-                            {getInstructorName(report).charAt(0)}
-                          </div>
-                          <span className="instructor-name">{getInstructorName(report)}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="d-flex align-items-center text-muted small">
-                          <Person size={14} className="me-1" />
-                          {getObserverName(report)}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="course-title-text">{getCourseTitle(report)}</div>
-                        <div className="text-muted" style={{fontSize: '0.75rem'}}>Eval ID: #{report.evaluation?.evaluation_id}</div>
-                      </td>
-                      <td className="text-muted small">
-                        <div className="d-flex align-items-center">
-                          <Clock size={14} className="me-1" />
-                          {report.createdAt ? new Date(report.createdAt).toLocaleString('en-US', { 
-                            month: 'short', 
-                            day: 'numeric', 
-                            year: 'numeric',
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                          }) : 'N/A'}
-                        </div>
-                      </td>
-                      <td className="text-end pe-4">
-                        <div className="d-flex justify-content-end gap-2">
-                          <Button 
-                            variant="outline-success" 
-                            className="btn-action-baylor"
-                            onClick={() => handleDownloadPDF(report.report_id)}
-                            disabled={downloadingId === report.report_id}
-                            title="Download PDF"
-                          >
-                            {downloadingId === report.report_id ? <Spinner size="sm" /> : <FileEarmarkPdf />}
-                          </Button>
-                          <Button 
-                            variant="success" 
-                            className="btn-action-baylor-solid"
-                            onClick={() => navigate(`/report-viewer`, { 
-                                state: { 
-                                  reportId: report.report_id,
-                                  evaluationId: report.evaluation?.evaluation_id,
-                                  classId: report.evaluation?.className?.class_id,
-                                  isReadOnly: true 
-                                } 
-                            })}
-                            title="View Report"
-                          >
-                            <Eye />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
+        {/* TOOLBAR */}
+        <div className="rl-toolbar">
+          <div className="rl-search-wrap">
+            <Search size={14} className="rl-search-icon" />
+            <input
+              type="text"
+              placeholder="Search by instructor, course, observer…"
+              className="rl-search-input"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
+            {searchTerm && (
+              <button className="rl-search-clear" onClick={() => setSearchTerm('')}>
+                <XCircle size={14} />
+              </button>
             )}
           </div>
-        </Card>
+        </div>
+
+        {/* LIST */}
+        {isLoading ? (
+          <div className="rl-state-box">
+            <Spinner animation="border" style={{ color: '#154734' }} />
+            <p>Loading reports…</p>
+          </div>
+        ) : isError ? (
+          <div className="rl-state-box">
+            <FileText size={48} className="rl-state-icon error" />
+            <p>Error loading reports. Please try again.</p>
+          </div>
+        ) : filteredReports.length === 0 ? (
+          <div className="rl-state-box">
+            <FileText size={52} className="rl-state-icon" />
+            <p>{searchTerm ? 'No reports match your search.' : 'No reports yet.'}</p>
+            {searchTerm && <button className="rl-clear-btn" onClick={() => setSearchTerm('')}>Clear search</button>}
+          </div>
+        ) : (
+          <div className="rl-list">
+            {filteredReports.map((report) => {
+              const instructorName = getInstructorName(report);
+              const observerName   = getObserverName(report);
+              const courseTitle    = getCourseTitle(report);
+              const avatarColor    = getAvatarColor(instructorName);
+
+              return (
+                <div key={report.report_id} className={`rl-card${report.isLatest ? ' rl-card--latest' : ''}`}>
+                  <div className="rl-card-avatar" style={{ background: avatarColor }}>
+                    {getInitials(instructorName)}
+                  </div>
+
+                  <div className="rl-card-body">
+                    <div className="rl-card-top">
+                      <span className="rl-course-name">{courseTitle}</span>
+                      {report.isLatest && <span className="rl-latest-pill">Latest</span>}
+                      <span className="rl-report-id">#{report.report_id}</span>
+                    </div>
+                    <div className="rl-card-meta">
+                      <span className="rl-meta-item">
+                        <MortarboardFill size={12} />
+                        {instructorName}
+                      </span>
+                      <span className="rl-meta-sep">·</span>
+                      <span className="rl-meta-item">
+                        <Person size={13} />
+                        {observerName}
+                      </span>
+                      <span className="rl-meta-sep">·</span>
+                      <span className="rl-meta-item">
+                        <Clock size={12} />
+                        {formatDate(report.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="rl-card-actions">
+                    <button
+                      className="rl-btn rl-btn--outline"
+                      onClick={() => handleDownloadPDF(report.report_id)}
+                      disabled={downloadingId === report.report_id}
+                      title="Download PDF"
+                    >
+                      {downloadingId === report.report_id
+                        ? <Spinner size="sm" animation="border" />
+                        : <><FileEarmarkPdf size={14} /><span>PDF</span></>
+                      }
+                    </button>
+                    <button
+                      className="rl-btn rl-btn--solid"
+                      onClick={() => navigate('/report-viewer', {
+                        state: {
+                          reportId: report.report_id,
+                          evaluationId: report.evaluation?.evaluation_id,
+                          classId: report.evaluation?.className?.class_id,
+                          isReadOnly: true,
+                        },
+                      })}
+                      title="View Report"
+                    >
+                      <Eye size={14} /><span>View</span>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

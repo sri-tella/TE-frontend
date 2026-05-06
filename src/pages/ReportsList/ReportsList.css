@@ -1,178 +1,332 @@
 #reports-page-scoped {
-  background: linear-gradient(rgba(21, 71, 52, 0.6), rgba(21, 71, 52, 0.4)), url('../../assets/bgimg.avif');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+  background:
+    linear-gradient(rgba(21, 71, 52, 0.62), rgba(21, 71, 52, 0.42)),
+    url('../../assets/bgimg.avif') center / cover fixed;
   min-height: calc(100vh - 80px);
-  padding: 60px 0;
   font-family: 'Inter', sans-serif;
+  padding-bottom: 60px;
 }
 
-#reports-page-scoped .reports-main-title {
+/* ── HERO ── */
+.rl-hero {
+  text-align: center;
+  padding: 56px 24px 40px;
+}
+
+.rl-hero-title {
   color: #ffffff;
   font-weight: 800;
-  font-size: 3rem;
-  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  margin-bottom: 10px;
+  font-size: 2.8rem;
+  letter-spacing: -0.5px;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  margin: 0 0 10px;
 }
 
-#reports-page-scoped .reports-sub-title {
+.rl-hero-sub {
   color: #FFB81C;
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 600;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   text-transform: uppercase;
+  margin: 0 0 32px;
 }
 
-#reports-page-scoped .reports-main-card {
-  border-radius: 24px !important;
-  background: #ffffff !important;
-}
-
-/* Toolbar & Search */
-#reports-page-scoped .reports-toolbar {
-  border-bottom: 1px solid #f1f5f9;
-}
-
-#reports-page-scoped .reports-count {
-  font-weight: 700;
-  color: #64748b;
-  font-size: 0.95rem;
-}
-
-#reports-page-scoped .baylor-badge {
-  background-color: #003015 !important;
-  padding: 6px 12px;
+.rl-stats-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.2);
   border-radius: 50px;
-  margin-right: 8px;
+  padding: 12px 32px;
+  gap: 24px;
 }
 
-#reports-page-scoped .reports-search-box {
-  width: 100%;
-  max-width: 350px;
+.rl-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
 }
 
-#reports-page-scoped .search-icon {
+.rl-stat-num {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.rl-stat-label {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.65);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.rl-stat-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(255,255,255,0.2);
+}
+
+/* ── CONTENT ── */
+.rl-content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ── TOOLBAR ── */
+.rl-toolbar {
+  margin-bottom: 20px;
+}
+
+.rl-search-wrap {
+  position: relative;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.rl-search-icon {
   position: absolute;
-  left: 15px;
+  left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: #94a3b8;
-  z-index: 10;
+  color: rgba(255,255,255,0.6);
+  pointer-events: none;
 }
 
-#reports-page-scoped .search-input {
-  padding-left: 45px !important;
-  border-radius: 50px !important;
-  border: 2px solid #f1f5f9 !important;
-  font-size: 0.9rem !important;
-  height: 45px !important;
-  background-color: #f8fafc !important;
+.rl-search-input {
+  width: 100%;
+  padding: 13px 44px;
+  background: rgba(255,255,255,0.14);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.25);
+  border-radius: 50px;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: all 0.2s;
+  box-sizing: border-box;
 }
 
-#reports-page-scoped .search-input:focus {
-  border-color: #003015 !important;
-  background-color: #fff !important;
+.rl-search-input::placeholder { color: rgba(255,255,255,0.5); }
+
+.rl-search-input:focus {
+  outline: none;
+  background: rgba(255,255,255,0.2);
+  border-color: #FFB81C;
+  box-shadow: 0 0 0 3px rgba(255,184,28,0.15);
 }
 
-#reports-page-scoped .search-input:focus::placeholder {
-  color: transparent;
+.rl-search-clear {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s;
 }
 
-/* Table Styling */
-#reports-page-scoped .custom-baylor-table thead th {
-  background-color: #f8fafc;
-  color: #475569;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 1px;
-  padding: 20px 15px;
-  border-bottom: 2px solid #f1f5f9;
+.rl-search-clear:hover { color: #ffffff; }
+
+/* ── CARDS LIST ── */
+.rl-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-#reports-page-scoped .custom-baylor-table tbody td {
-  padding: 20px 15px;
-  vertical-align: middle;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 0.95rem;
+.rl-card {
+  background: rgba(255,255,255,0.97);
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-left: 4px solid transparent;
 }
 
-#reports-page-scoped .instructor-avatar {
-  width: 36px;
-  height: 36px;
-  background-color: #f0fdf4;
-  color: #003015;
-  border-radius: 50%;
+.rl-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1), 0 12px 32px rgba(0,0,0,0.08);
+}
+
+.rl-card--latest {
+  border-left-color: #FFB81C;
+  background: #fffdf5;
+}
+
+/* Avatar */
+.rl-card-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #ffffff;
   font-weight: 800;
-  font-size: 0.9rem;
-  border: 1px solid #dcfce7;
-  margin-right: 12px;
+  font-size: 1rem;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
 }
 
-#reports-page-scoped .instructor-name {
+/* Body */
+.rl-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.rl-card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.rl-course-name {
   font-weight: 700;
-  color: #1e293b;
+  font-size: 0.975rem;
+  color: #0f2e1e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
 }
 
-#reports-page-scoped .table-success-light {
-  background-color: rgba(21, 71, 52, 0.03) !important;
+.rl-latest-pill {
+  background: #FFB81C;
+  color: #0f2e1e;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 2px 9px;
+  border-radius: 20px;
+  flex-shrink: 0;
 }
 
-#reports-page-scoped .course-title-text {
-  color: #475569;
+.rl-report-id {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.rl-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.rl-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  color: #64748b;
   font-weight: 500;
 }
 
-/* Action Buttons */
-#reports-page-scoped .btn-action-baylor {
-  border: 2px solid #003015 !important;
-  color: #003015 !important;
-  background: transparent !important;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px !important;
-  padding: 0 !important;
+.rl-meta-item svg { flex-shrink: 0; color: #94a3b8; }
+
+.rl-meta-sep { color: #cbd5e1; font-size: 0.8rem; }
+
+/* Actions */
+.rl-card-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.rl-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  white-space: nowrap;
+}
+
+.rl-btn--outline {
+  background: transparent;
+  border: 1.5px solid #154734;
+  color: #154734;
+}
+
+.rl-btn--outline:hover:not(:disabled) {
+  background: #154734;
+  color: #FFB81C;
+  transform: translateY(-1px);
+}
+
+.rl-btn--solid {
+  background: #154734;
+  color: #FFB81C;
+  box-shadow: 0 2px 8px rgba(21,71,52,0.25);
+}
+
+.rl-btn--solid:hover {
+  background: #0a2e1e;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(21,71,52,0.35);
+}
+
+.rl-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none !important; }
+
+/* State boxes */
+.rl-state-box {
+  text-align: center;
+  padding: 60px 24px;
+  background: rgba(255,255,255,0.92);
+  border-radius: 20px;
+  color: #64748b;
+}
+
+.rl-state-box p { margin: 12px 0 0; font-size: 0.95rem; }
+
+.rl-state-icon { color: #cbd5e1; margin-bottom: 4px; }
+.rl-state-icon.error { color: #fca5a5; }
+
+.rl-clear-btn {
+  margin-top: 12px;
+  background: none;
+  border: 1.5px solid #154734;
+  color: #154734;
+  border-radius: 8px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
   transition: all 0.2s;
 }
 
-#reports-page-scoped .btn-action-baylor:hover {
-  background-color: #003015 !important;
-  color: #ffffff !important;
-}
+.rl-clear-btn:hover { background: #154734; color: white; }
 
-#reports-page-scoped .btn-action-baylor-solid {
-  background-color: #003015 !important;
-  border: 2px solid #003015 !important;
-  color: #ffffff !important;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px !important;
-  padding: 0 !important;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-#reports-page-scoped .btn-action-baylor-solid:hover {
-  background-color: #154734 !important;
-  transform: scale(1.05);
-}
-
-@media (max-width: 768px) {
-  #reports-page-scoped .reports-toolbar {
-    flex-direction: column;
-    gap: 15px;
-    align-items: flex-start !important;
-  }
-  #reports-page-scoped .reports-search-box {
-    max-width: 100%;
-  }
+/* Mobile */
+@media (max-width: 640px) {
+  .rl-hero-title { font-size: 2rem; }
+  .rl-stats-row  { padding: 10px 20px; gap: 16px; }
+  .rl-card { flex-wrap: wrap; }
+  .rl-card-actions { width: 100%; justify-content: flex-end; }
+  .rl-meta-item:nth-child(5),
+  .rl-meta-sep:nth-child(4) { display: none; }
 }
