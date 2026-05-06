@@ -45,7 +45,7 @@ const Login = () => {
             <ul className="auth-feature-list">
               {FEATURES.map(f => (
                 <li key={f}>
-                  <CheckCircleFill size={14} className="auth-feature-icon" />
+                  <CheckCircleFill size={18} className="auth-feature-icon" />
                   {f}
                 </li>
               ))}

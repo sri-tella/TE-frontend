@@ -46,6 +46,7 @@
   max-width: 100%;
   object-fit: contain;
   display: block;
+  margin-top: 24px;
   filter: drop-shadow(0 2px 8px rgba(0,0,0,0.25));
 }
 
@@ -71,21 +72,24 @@
   margin: 8px 0 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 18px;
 }
 
 .auth-feature-list li {
   display: flex;
   align-items: center;
-  gap: 10px;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.875rem;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9rem;
   font-weight: 500;
+  line-height: 1.6;
 }
 
 .auth-feature-icon {
   color: #FFB81C;
   flex-shrink: 0;
+  width: 18px;
+  height: 18px;
 }
 
 /* Decorative circles */
@@ -182,9 +186,10 @@
 .auth-form-box {
   background: #ffffff;
   border-radius: 20px;
-  padding: 44px 40px;
+  padding: 48px;
   width: 100%;
   max-width: 400px;
+  margin: auto;
   box-shadow: 0 8px 48px rgba(0, 0, 0, 0.18);
   animation: authBoxIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -249,7 +254,7 @@
   width: 100%;
   padding: 11px 14px;
   font-size: 0.9rem;
-  border: 1.5px solid #e2e8f0;
+  border: 1.5px solid #d1d5db;
   border-radius: 10px;
   background: #ffffff;
   color: #1e293b;
@@ -299,15 +304,15 @@
 /* SUBMIT */
 .auth-submit-btn {
   width: 100%;
-  padding: 13px;
+  padding: 15px 24px;
   background: #154734;
   color: #FFB81C;
   border: none;
   border-radius: 50px;
-  font-size: 0.92rem;
-  font-weight: 800;
+  font-size: 0.95rem;
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
   cursor: pointer;
   transition: all 0.25s;
   display: flex;
