@@ -4,6 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { authApi } from '../../api/authApi';
 import { toast } from 'react-toastify';
 import { Eye, EyeSlash, CheckCircleFill, EyeFill, MortarboardFill, ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
+import InlineEdit from '../../components/InlineEdit/InlineEdit';
 import logo from '../../assets/logo.png';
 import './Register.css';
 
@@ -81,12 +82,25 @@ const Register = () => {
         <div className={`auth-left${leftOpen ? '' : ' auth-left--collapsed'}`}>
           <div className="auth-left-inner">
             <img src={logo} alt="Baylor University" className="auth-left-logo" />
-            <h1 className="auth-left-title">Join the Platform</h1>
-            <p className="auth-left-sub">Create your account and start using the Teaching Evaluation system today</p>
+            <h1 className="auth-left-title">
+              <InlineEdit pageKey="register-left-title" defaultValue="Join the Platform" canEdit={false} />
+            </h1>
+            <p className="auth-left-sub">
+              <InlineEdit pageKey="register-left-sub" defaultValue="Create your account and start using the Teaching Evaluation system today" canEdit={false} />
+            </p>
             <ul className="auth-feature-list">
-              <li><CheckCircleFill size={14} className="auth-feature-icon" /> Free to use for Baylor staff</li>
-              <li><CheckCircleFill size={14} className="auth-feature-icon" /> Secure role-based access</li>
-              <li><CheckCircleFill size={14} className="auth-feature-icon" /> Ready in under a minute</li>
+              <li>
+                <CheckCircleFill size={14} className="auth-feature-icon" />
+                <InlineEdit pageKey="register-feature-1" defaultValue="Free to use for Baylor staff" canEdit={false} />
+              </li>
+              <li>
+                <CheckCircleFill size={14} className="auth-feature-icon" />
+                <InlineEdit pageKey="register-feature-2" defaultValue="Secure role-based access" canEdit={false} />
+              </li>
+              <li>
+                <CheckCircleFill size={14} className="auth-feature-icon" />
+                <InlineEdit pageKey="register-feature-3" defaultValue="Ready in under a minute" canEdit={false} />
+              </li>
             </ul>
           </div>
           <div className="auth-deco-circle auth-deco-1" />

@@ -318,3 +318,56 @@
 }
 
 .tiptap-editor-active .ProseMirror-focused { outline: none; }
+
+/* Auth Pages Content Editor */
+.help-auth-editor {
+  border: 1.5px solid rgba(21, 71, 52, 0.15);
+  border-radius: 12px;
+  padding: 16px 20px;
+  background: #f8fdf9;
+}
+
+.auth-editor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-top: 4px;
+}
+
+@media (max-width: 700px) {
+  .auth-editor-grid { grid-template-columns: 1fr; }
+}
+
+.auth-editor-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auth-editor-panel-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #154734;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 4px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(21, 71, 52, 0.12);
+}
+
+.auth-editor-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+}
+
+.auth-editor-field label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  width: 58px;
+  flex-shrink: 0;
+}

@@ -5,14 +5,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema } from '../../schemas/authSchema';
 import { useAuth } from '../../hooks/useAuth';
 import { Eye, EyeSlash, CheckCircleFill, ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
+import InlineEdit from '../../components/InlineEdit/InlineEdit';
 import logo from "../../assets/logo.png";
 import './Login.css';
-
-const FEATURES = [
-  '44 structured evaluation criteria',
-  'AI-powered recommendations',
-  'Instant PDF report generation',
-];
 
 const Login = () => {
   const { login, isLoading, error: loginError } = useAuth();
@@ -40,15 +35,25 @@ const Login = () => {
         <div className={`auth-left${leftOpen ? '' : ' auth-left--collapsed'}`}>
           <div className="auth-left-inner">
             <img src={logo} alt="Baylor University" className="auth-left-logo" />
-            <h1 className="auth-left-title">Teaching Evaluation</h1>
-            <p className="auth-left-sub">Baylor University — structured classroom observation platform</p>
+            <h1 className="auth-left-title">
+              <InlineEdit pageKey="login-left-title" defaultValue="Teaching Evaluation" canEdit={false} />
+            </h1>
+            <p className="auth-left-sub">
+              <InlineEdit pageKey="login-left-sub" defaultValue="Baylor University — structured classroom observation platform" canEdit={false} />
+            </p>
             <ul className="auth-feature-list">
-              {FEATURES.map(f => (
-                <li key={f}>
-                  <CheckCircleFill size={18} className="auth-feature-icon" />
-                  {f}
-                </li>
-              ))}
+              <li>
+                <CheckCircleFill size={18} className="auth-feature-icon" />
+                <InlineEdit pageKey="login-feature-1" defaultValue="44 structured evaluation criteria" canEdit={false} />
+              </li>
+              <li>
+                <CheckCircleFill size={18} className="auth-feature-icon" />
+                <InlineEdit pageKey="login-feature-2" defaultValue="AI-powered recommendations" canEdit={false} />
+              </li>
+              <li>
+                <CheckCircleFill size={18} className="auth-feature-icon" />
+                <InlineEdit pageKey="login-feature-3" defaultValue="Instant PDF report generation" canEdit={false} />
+              </li>
             </ul>
           </div>
           <div className="auth-deco-circle auth-deco-1" />

@@ -244,6 +244,63 @@ const Help = () => {
               isAdmin={canEdit}
             />
           )}
+
+          {isAdmin && (
+            <div className="help-compact-section help-auth-editor">
+              <div className="help-section-header">
+                <h3><ShieldLock /> Auth Pages Content</h3>
+              </div>
+              <div className="auth-editor-grid">
+                <div className="auth-editor-panel">
+                  <h4 className="auth-editor-panel-title">Login Page — Left Panel</h4>
+                  <div className="auth-editor-field">
+                    <label>Title</label>
+                    <InlineEdit pageKey="login-left-title" defaultValue="Teaching Evaluation" canEdit={canEdit} />
+                  </div>
+                  <div className="auth-editor-field">
+                    <label>Subtitle</label>
+                    <InlineEdit pageKey="login-left-sub" defaultValue="Baylor University — structured classroom observation platform" canEdit={canEdit} />
+                  </div>
+                  <div className="auth-editor-field">
+                    <label>Feature 1</label>
+                    <InlineEdit pageKey="login-feature-1" defaultValue="44 structured evaluation criteria" canEdit={canEdit} />
+                  </div>
+                  <div className="auth-editor-field">
+                    <label>Feature 2</label>
+                    <InlineEdit pageKey="login-feature-2" defaultValue="AI-powered recommendations" canEdit={canEdit} />
+                  </div>
+                  <div className="auth-editor-field">
+                    <label>Feature 3</label>
+                    <InlineEdit pageKey="login-feature-3" defaultValue="Instant PDF report generation" canEdit={canEdit} />
+                  </div>
+                </div>
+
+                <div className="auth-editor-panel">
+                  <h4 className="auth-editor-panel-title">Register Page — Left Panel</h4>
+                  <div className="auth-editor-field">
+                    <label>Title</label>
+                    <InlineEdit pageKey="register-left-title" defaultValue="Join the Platform" canEdit={canEdit} />
+                  </div>
+                  <div className="auth-editor-field">
+                    <label>Subtitle</label>
+                    <InlineEdit pageKey="register-left-sub" defaultValue="Create your account and start using the Teaching Evaluation system today" canEdit={canEdit} />
+                  </div>
+                  <div className="auth-editor-field">
+                    <label>Feature 1</label>
+                    <InlineEdit pageKey="register-feature-1" defaultValue="Free to use for Baylor staff" canEdit={canEdit} />
+                  </div>
+                  <div className="auth-editor-field">
+                    <label>Feature 2</label>
+                    <InlineEdit pageKey="register-feature-2" defaultValue="Secure role-based access" canEdit={canEdit} />
+                  </div>
+                  <div className="auth-editor-field">
+                    <label>Feature 3</label>
+                    <InlineEdit pageKey="register-feature-3" defaultValue="Ready in under a minute" canEdit={canEdit} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <footer className="help-footer-simple">
