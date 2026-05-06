@@ -57,10 +57,6 @@ const Login = () => {
                 <InlineEdit pageKey="login-feature-3" defaultValue="Instant PDF report generation" canEdit={false} />
               </li>
             </ul>
-            <div className="auth-left-stat">
-              <span className="auth-stat-num">500+</span>
-              <span className="auth-stat-label">Evaluations completed</span>
-            </div>
           </div>
           <div className="auth-deco-circle auth-deco-1" />
           <div className="auth-deco-circle auth-deco-2" />

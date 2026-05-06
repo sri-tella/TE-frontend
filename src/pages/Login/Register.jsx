@@ -104,13 +104,6 @@ const Register = () => {
                 <InlineEdit pageKey="register-feature-3" defaultValue="Ready in under a minute" canEdit={false} />
               </li>
             </ul>
-            <div className="auth-left-stat">
-              <span className="auth-stat-num">2</span>
-              <span className="auth-stat-label">Roles available</span>
-              <span className="auth-stat-sep">·</span>
-              <span className="auth-stat-num">Free</span>
-              <span className="auth-stat-label">for Baylor staff</span>
-            </div>
           </div>
           <div className="auth-deco-circle auth-deco-1" />
           <div className="auth-deco-circle auth-deco-2" />
