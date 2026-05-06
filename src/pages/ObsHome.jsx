@@ -235,96 +235,104 @@ const ObsHome = () => {
 
   return (
     <div className="obs-container">
+      <div className="obs-mesh" />
       {starting && (
         <div className="obs-starting-overlay">
           <div className="spinner-border text-warning obs-starting-spinner" role="status" />
           <span className="obs-starting-label">Starting evaluation...</span>
         </div>
       )}
-      <InlineEdit pageKey="obs-heading" defaultValue="Teaching Evaluation" canEdit={canEdit} tag="h1" className="obs-heading" />
+      <div className="obs-header">
+        <InlineEdit pageKey="obs-heading" defaultValue="Teaching Evaluation" canEdit={canEdit} tag="h1" className="obs-heading" />
+        <p className="obs-subheading">Select a class below and start your observation</p>
+      </div>
       
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="dnd-container">
           
           <div className="dnd-column">
-            <h3>
-              <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                <JournalCheck />
-                <InlineEdit pageKey="obs-col-active" defaultValue="Active Observations" canEdit={canEdit} tag="span" />
-              </div>
-              <span className="column-count">
-                {loading ? '...' : (classSearch.trim() ? `${filteredActiveClasses.length}/${activeClasses.length}` : activeClasses.length)}
-              </span>
-            </h3>
-            <div className="obs-search-wrap">
-              <input
-                className="obs-search-input"
-                type="text"
-                placeholder="Search by class or instructor..."
-                value={classSearch}
-                onChange={e => setClassSearch(e.target.value)}
-              />
-              {classSearch && (
-                <button className="obs-search-clear" onClick={() => setClassSearch('')}>×</button>
-              )}
-            </div>
-            <Droppable droppableId="active">
-              {(provided, snapshot) => (
-                <div
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  className={`class-list ${snapshot.isDraggingOver ? 'dragging-over' : ''}`}
-                >
-                  {loading && <div className="text-center mt-5 text-muted">Loading classes...</div>}
-                  {!loading && filteredActiveClasses.map((info, index) => (
-                    <ClassCard
-                      key={info.classId}
-                      info={info}
-                      index={activeClasses.indexOf(info)}
-                      isSelected={selectedClassId === info.classId}
-                      isDragDisabled={!!classSearch.trim()}
-                    />
-                  ))}
-                  {provided.placeholder}
-                  {!loading && filteredActiveClasses.length === 0 && (
-                    <p className="empty-msg">
-                      {classSearch.trim() ? 'No classes match your search' : 'No active observations available'}
-                    </p>
-                  )}
+            <div className="dnd-column-inner">
+              <h3>
+                <div className="dnd-col-left">
+                  <JournalCheck size={14} />
+                  <InlineEdit pageKey="obs-col-active" defaultValue="Active Observations" canEdit={canEdit} tag="span" />
                 </div>
-              )}
-            </Droppable>
+                <span className="column-count">
+                  {loading ? '…' : (classSearch.trim() ? `${filteredActiveClasses.length}/${activeClasses.length}` : activeClasses.length)}
+                </span>
+              </h3>
+              <div className="obs-search-wrap">
+                <input
+                  className="obs-search-input"
+                  type="text"
+                  placeholder="Search by class or instructor…"
+                  value={classSearch}
+                  onChange={e => setClassSearch(e.target.value)}
+                />
+                {classSearch && (
+                  <button className="obs-search-clear" onClick={() => setClassSearch('')}>×</button>
+                )}
+              </div>
+              <Droppable droppableId="active">
+                {(provided, snapshot) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className={`class-list ${snapshot.isDraggingOver ? 'dragging-over' : ''}`}
+                  >
+                    {loading && <p className="empty-msg">Loading classes…</p>}
+                    {!loading && filteredActiveClasses.map((info) => (
+                      <ClassCard
+                        key={info.classId}
+                        info={info}
+                        index={activeClasses.indexOf(info)}
+                        isSelected={selectedClassId === info.classId}
+                        isDragDisabled={!!classSearch.trim()}
+                      />
+                    ))}
+                    {provided.placeholder}
+                    {!loading && filteredActiveClasses.length === 0 && (
+                      <p className="empty-msg">
+                        {classSearch.trim() ? 'No classes match your search' : 'No active observations available'}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </Droppable>
+            </div>
           </div>
 
           <div className="dnd-column archive-column">
-            <h3>
-              <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-                <Archive />
-                <InlineEdit pageKey="obs-col-archive" defaultValue="Archived Sessions" canEdit={canEdit} tag="span" />
-              </div>
-              <span className="column-count">{loading ? '...' : archivedClasses.length}</span>
-            </h3>
-            <Droppable droppableId="archive">
-              {(provided, snapshot) => (
-                <div
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  className={`class-list archive-list ${snapshot.isDraggingOver ? 'dragging-over-archive' : ''}`}
-                >
-                  {!loading && archivedClasses.map((info, index) => (
-                    <ClassCard 
-                      key={info.classId} 
-                      info={info} 
-                      index={index}
-                      isSelected={false} 
-                      isClickable={false}
-                    />
-                  ))}
-                  {provided.placeholder}
-                  {!loading && archivedClasses.length === 0 && <p className="empty-msg">Drop here to archive</p>}
+            <div className="dnd-column-inner">
+              <h3>
+                <div className="dnd-col-left">
+                  <Archive size={14} />
+                  <InlineEdit pageKey="obs-col-archive" defaultValue="Archived Sessions" canEdit={canEdit} tag="span" />
                 </div>
-              )}
-            </Droppable>
+                <span className="column-count">{loading ? '…' : archivedClasses.length}</span>
+              </h3>
+              <Droppable droppableId="archive">
+                {(provided, snapshot) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className={`class-list archive-list ${snapshot.isDraggingOver ? 'dragging-over-archive' : ''}`}
+                  >
+                    {!loading && archivedClasses.map((info, index) => (
+                      <ClassCard
+                        key={info.classId}
+                        info={info}
+                        index={index}
+                        isSelected={false}
+                        isClickable={false}
+                      />
+                    ))}
+                    {provided.placeholder}
+                    {!loading && archivedClasses.length === 0 && <p className="empty-msg">Drop here to archive</p>}
+                  </div>
+                )}
+              </Droppable>
+            </div>
           </div>
 
         </div>

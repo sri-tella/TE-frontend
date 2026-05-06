@@ -1,96 +1,161 @@
 #evaluation-container-v3 {
-  background: linear-gradient(rgba(21, 71, 52, 0.6), rgba(21, 71, 52, 0.4)), url('../../assets/bgimg.avif');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+  background: linear-gradient(rgba(21, 71, 52, 0.62), rgba(21, 71, 52, 0.42)), url('../../assets/bgimg.avif') center / cover fixed;
   min-height: 100vh;
-  padding: 40px 256px 100px 0;
+  padding: 40px 0 120px 0;
   font-family: 'Inter', sans-serif;
+  position: relative;
 }
 
-@media (max-width: 1100px) {
-  #evaluation-container-v3 {
-    padding-right: 0;
-  }
-}
-
+/* ── HEADER ── */
 .eval-page-heading {
   color: #ffffff;
   font-weight: 800;
-  font-size: 3rem;
-  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  font-size: 2.6rem;
+  letter-spacing: -0.5px;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  margin: 0 0 10px;
 }
 
 .eval-page-subtext {
-  color: var(--color-accent);
-  font-size: 1.25rem;
+  color: #FFB81C;
+  font-size: 0.9rem;
   font-weight: 600;
-  letter-spacing: 2px;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
+  margin: 0;
 }
 
+/* ── SECTION CARD ── */
 .eval-section-card {
-  border-radius: 20px !important;
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.97) !important;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.12),
+    0 4px 16px rgba(0,0,0,0.12) !important;
+  margin-bottom: 16px !important;
+  overflow: hidden !important;
+  position: relative;
+}
+
+/* Gold shimmer stripe */
+.eval-section-card::before {
+  content: '';
+  display: block;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #FFB81C 30%, #ffdd6e 50%, #FFB81C 70%, transparent);
+  flex-shrink: 0;
+}
+
+/* Card header */
+.eval-card-header {
   background: #ffffff !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
-  margin-bottom: 24px;
+  border-bottom: 1px solid #f1f5f9 !important;
+  padding: 16px 22px !important;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-left: none !important;
+}
+
+.eval-card-header:hover {
+  background: #f8fdf9 !important;
 }
 
 .active-header {
-  border-left: 8px solid var(--color-primary) !important;
+  background: #f0fdf4 !important;
+  border-bottom-color: #d1fae5 !important;
 }
 
 .eval-section-title {
-  color: var(--color-primary);
+  color: #0f2e1e !important;
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: 1rem !important;
 }
 
+/* Number badge */
 .section-badge-circle {
-  background: var(--color-primary);
-  color: #ffffff;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  background: #154734;
+  color: #FFB81C;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  margin-right: 15px;
+  font-size: 0.78rem;
+  flex-shrink: 0;
+  margin-right: 4px;
 }
 
-.eval-option-item {
-  background-color: #f8fafc;
-  border: 1px solid #edf2f7;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 15px;
-  transition: border-color 0.2s, background 0.2s;
-}
-
-.eval-option-item.is-selected {
-  background-color: #f0fdf4;
-  border-color: #86efac;
-}
-
+/* "N selected" badge */
 .section-selected-badge {
   background: #154734;
   color: #FFB81C;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  padding: 3px 9px;
+  padding: 3px 10px;
   border-radius: 20px;
   letter-spacing: 0.3px;
   white-space: nowrap;
 }
 
+/* Chevron */
+.chevron-icon {
+  color: #94a3b8;
+  transition: transform 0.25s, color 0.2s;
+  flex-shrink: 0;
+}
+.active-header .chevron-icon { color: #154734; }
+.rotate-180 { transform: rotate(180deg); }
+
+/* Card body */
+.eval-section-body {
+  background: #fafcff;
+}
+
+/* Option item */
+.eval-option-item {
+  background: #ffffff;
+  border: 1.5px solid #f1f5f9;
+  padding: 16px 18px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.eval-option-item:hover {
+  border-color: #d4e8e0;
+  box-shadow: 0 2px 8px rgba(21,71,52,0.06);
+}
+
+.eval-option-item.is-selected {
+  background: #f0fdf4;
+  border-color: #86efac;
+  box-shadow: 0 2px 8px rgba(21,71,52,0.08);
+}
+
+/* Checkbox override */
+.eval-custom-check .form-check-input {
+  width: 18px !important;
+  height: 18px !important;
+  border: 2px solid #cbd5e1 !important;
+  border-radius: 5px !important;
+  cursor: pointer;
+}
+
+.eval-custom-check .form-check-input:checked {
+  background-color: #154734 !important;
+  border-color: #154734 !important;
+}
+
+/* ── FOOTER ── */
 .eval-action-footer-container {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
   height: 100px;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.35));
+  background: linear-gradient(transparent, rgba(0,0,0,0.4));
   display: flex;
   justify-content: center;
   align-items: center;
@@ -106,30 +171,46 @@
 }
 
 .eval-progress-hint {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255,255,255,0.85);
   font-size: 0.8rem;
   font-weight: 600;
+  background: rgba(15,46,30,0.7);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 5px 14px;
+  border-radius: 50px;
   pointer-events: none;
+}
+
+.autosave-indicator {
+  color: rgba(255,255,255,0);
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: color 0.3s;
+  pointer-events: none;
+}
+
+.autosave-indicator.visible {
+  color: rgba(255,255,255,0.75);
 }
 
 .eval-submit-btn-v3 {
   pointer-events: auto;
-  padding: 16px 80px !important;
-  background: var(--color-accent) !important;
-  color: var(--color-primary) !important;
-  border: 3px solid white !important;
+  padding: 13px 52px !important;
+  background: linear-gradient(135deg, #154734 0%, #1a5c40 100%) !important;
+  color: #FFB81C !important;
+  border: none !important;
   border-radius: 50px !important;
-  font-size: 1.2rem !important;
+  font-size: 0.95rem !important;
   font-weight: 800 !important;
   text-transform: uppercase !important;
-  letter-spacing: 1.5px !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  letter-spacing: 1.2px !important;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.35) !important;
+  transition: all 0.25s !important;
+  font-family: 'Inter', sans-serif !important;
 }
 
 .eval-submit-btn-v3:hover {
-  background: var(--color-primary) !important;
-  color: var(--color-accent) !important;
-  transform: translateY(-5px) scale(1.03);
-  box-shadow: 0 15px 40px rgba(21, 71, 52, 0.5) !important;
+  background: linear-gradient(135deg, #0a2e1e 0%, #154734 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 32px rgba(0,0,0,0.45) !important;
 }
