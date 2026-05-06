@@ -41,7 +41,12 @@ const Recommendations = () => {
 
   const [responses, setResponses] = useState(() => {
     if (!evaluationId) return [];
-    const storedData = JSON.parse(localStorage.getItem(storageKeys.recsData(evaluationId)) || '[]');
+    // If arriving fresh from Evaluate (stateObs provided), ignore stale recs cache
+    // so newly checked observations are always reflected.
+    const freshFromEvaluate = stateObs && stateObs.length > 0;
+    const storedData = freshFromEvaluate
+      ? []
+      : JSON.parse(localStorage.getItem(storageKeys.recsData(evaluationId)) || '[]');
 
     const initial = Object.entries(recommendationsMapping).map(([sectionTitle, recGroups]) => {
       const normalized = normalizeTitle(sectionTitle);

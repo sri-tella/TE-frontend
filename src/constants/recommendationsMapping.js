@@ -25,7 +25,7 @@ const recommendationsMapping = {
     "Learning activities had unclear or tenuous connection to learning objectives": ["Align activities with learning objective"],
     "Most instructor questions are fact focused": ["Ask students higher-order thinking questions"],
     "Students confused or uncooperative or an activity is abrupt or novel": ["Explain to students reasons for activity"],
-    "Instructor identifies correct and incorrect answers but offer little help for improvement": ["Give specific suggestions for improvement"],
+    "Instructor identifies correct and incorrect answers but offers little help for improvement": ["Give specific suggestions for improvement"],
     "Class ends abruptly, class ends early, class session incorporated many disparate ideas": ["Include a summary"],
     "Class session rife with facts, disconnected, meaning or import of material not explicit": ["Make materials relatable or contextualized"]
   },
