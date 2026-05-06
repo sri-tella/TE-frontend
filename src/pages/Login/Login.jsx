@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema } from '../../schemas/authSchema';
 import { useAuth } from '../../hooks/useAuth';
-import { useRoles } from '../../hooks/useRoles';
 import { Eye, EyeSlash, CheckCircleFill, ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
-import InlineEdit from '../../components/InlineEdit/InlineEdit';
 import logo from "../../assets/logo.png";
 import './Login.css';
 
+const FEATURES = [
+  '44 structured evaluation criteria',
+  'AI-powered recommendations',
+  'Instant PDF report generation',
+];
+
 const Login = () => {
   const { login, isLoading, error: loginError } = useAuth();
-  const { canEdit, hasRole } = useRoles();
-  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [leftOpen, setLeftOpen] = useState(() => {
     const saved = localStorage.getItem('auth-panel-open');
@@ -32,37 +34,21 @@ const Login = () => {
 
   return (
     <div id="auth-page-scoped">
-      {canEdit && (
-        <div className="auth-admin-bar">
-          <span className="auth-admin-label">Admin edit mode — click pencil icons to edit text</span>
-          <button className="auth-admin-back" onClick={() => navigate('/obs-home')}>← Back to dashboard</button>
-        </div>
-      )}
       <div className="auth-split">
 
         {/* LEFT PANEL */}
         <div className={`auth-left${leftOpen ? '' : ' auth-left--collapsed'}`}>
           <div className="auth-left-inner">
             <img src={logo} alt="Baylor University" className="auth-left-logo" />
-            <h1 className="auth-left-title">
-              <InlineEdit pageKey="login-left-title" defaultValue="Teaching Evaluation" canEdit={canEdit} />
-            </h1>
-            <p className="auth-left-sub">
-              <InlineEdit pageKey="login-left-sub" defaultValue="Baylor University — structured classroom observation platform" canEdit={canEdit} />
-            </p>
+            <h1 className="auth-left-title">Teaching Evaluation</h1>
+            <p className="auth-left-sub">Baylor University — structured classroom observation platform</p>
             <ul className="auth-feature-list">
-              <li>
-                <CheckCircleFill size={18} className="auth-feature-icon" />
-                <InlineEdit pageKey="login-feature-1" defaultValue="44 structured evaluation criteria" canEdit={canEdit} />
-              </li>
-              <li>
-                <CheckCircleFill size={18} className="auth-feature-icon" />
-                <InlineEdit pageKey="login-feature-2" defaultValue="AI-powered recommendations" canEdit={canEdit} />
-              </li>
-              <li>
-                <CheckCircleFill size={18} className="auth-feature-icon" />
-                <InlineEdit pageKey="login-feature-3" defaultValue="Instant PDF report generation" canEdit={canEdit} />
-              </li>
+              {FEATURES.map(f => (
+                <li key={f}>
+                  <CheckCircleFill size={18} className="auth-feature-icon" />
+                  {f}
+                </li>
+              ))}
             </ul>
           </div>
           <div className="auth-deco-circle auth-deco-1" />
