@@ -195,7 +195,7 @@ const ReportViewer = () => {
     if (!genAI) { toast.error("AI not configured. Add VITE_GEMINI_API_KEY."); return; }
     setLoading(prev => ({ ...prev, ai: true }));
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
       const aiFeedbacks = {};
       for (const sectionName of canonicalSections) {
         const obs = state.allObservations || [];
