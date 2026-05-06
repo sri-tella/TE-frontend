@@ -126,7 +126,15 @@ const Evaluate = () => {
                         );
                       })()}
                     </div>
-                    <ChevronDown className={`chevron-icon ${isExpanded ? 'rotate-180' : ''}`} />
+                    <div className="d-flex align-items-center gap-2">
+                      {!isAdditional && (() => {
+                        const count = responses[sIdx]?.options.filter(o => o.selected).length || 0;
+                        return count > 0 ? (
+                          <span className="section-selected-badge">{count} selected</span>
+                        ) : null;
+                      })()}
+                      <ChevronDown className={`chevron-icon ${isExpanded ? 'rotate-180' : ''}`} />
+                    </div>
                   </Card.Header>
                   <Collapse in={isExpanded}>
                     <div>
@@ -139,7 +147,7 @@ const Evaluate = () => {
                             : option.description;
 
                           return (
-                            <div key={option.description} className="eval-option-item mt-3">
+                            <div key={option.description} className={`eval-option-item mt-3${responses[sIdx]?.options[oIdx]?.selected ? ' is-selected' : ''}`}>
                               {!isAdditional ? (
                                 <div className="d-flex align-items-center gap-2">
                                   <Form.Check
@@ -200,8 +208,17 @@ const Evaluate = () => {
             )}
           </div>
           <div className="eval-action-footer-container">
-            <span className={`autosave-indicator ${saved ? 'visible' : ''}`}>✓ Draft saved</span>
-            <EditableButton pageKey="evaluate-btn-submit" defaultValue="SAVE AND CONTINUE" canEdit={canEdit} type="submit" className="eval-submit-btn-v3" />
+            <div className="eval-footer-inner">
+              {(() => {
+                const total = responses.flatMap(s => s.options).filter(o => !responses.find(sec => normalizeTitle(sec.title) === 'Additional Feedback')?.options.includes(o)).length;
+                const selected = responses.flatMap((s, i) => normalizeTitle(s.title) === 'Additional Feedback' ? [] : s.options).filter(o => o.selected).length;
+                return selected > 0 ? (
+                  <span className="eval-progress-hint">{selected} criteria selected</span>
+                ) : null;
+              })()}
+              <span className={`autosave-indicator ${saved ? 'visible' : ''}`}>✓ Draft saved</span>
+              <EditableButton pageKey="evaluate-btn-submit" defaultValue="SAVE AND CONTINUE" canEdit={canEdit} type="submit" className="eval-submit-btn-v3" />
+            </div>
           </div>
         </Form>
       </div>

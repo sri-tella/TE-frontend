@@ -46,13 +46,20 @@
   background: var(--color-accent);
   border-color: var(--color-accent);
   color: var(--color-primary);
-  box-shadow: 0 0 22px rgba(255, 184, 28, 0.5);
+  box-shadow: 0 0 0 4px rgba(255, 184, 28, 0.2);
+  animation: stepper-pulse 2s ease-in-out infinite;
+}
+
+@keyframes stepper-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(255, 184, 28, 0.2); }
+  50%       { box-shadow: 0 0 0 8px rgba(255, 184, 28, 0.08); }
 }
 
 .stepper-circle.completed {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   border-color: var(--color-accent);
   color: var(--color-accent);
+  transform: scale(1.05);
 }
 
 .stepper-label {

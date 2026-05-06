@@ -81,20 +81,117 @@
 .class-card {
   background: #ffffff;
   border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 20px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
   cursor: grab !important;
   border: 1px solid #edf2f7;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-left: 4px solid transparent;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   position: relative;
   transition: all 0.15s ease-out;
   user-select: none;
 }
 
 .class-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 20px rgba(21, 71, 52, 0.1);
-  border-color: #cbd5e0;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(21, 71, 52, 0.1);
+  border-left-color: #154734;
+  border-color: #d4e8e0;
+  border-left-color: #154734;
+}
+
+/* Card internals */
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.course-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #f0fdf4;
+  color: #154734;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.course-title-area {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.course-title-text {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.course-id-label {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.card-mid {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 10px;
+}
+
+.instructor-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge-icon {
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.instructor-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.instructor-name-text {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.instructor-email-text {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-footer-desc {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.card-footer-desc p {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
 }
 
 .dragging-now {
@@ -111,8 +208,10 @@
 }
 
 .selected-card {
-  border: 2px solid #154734 !important;
+  border: 1px solid #86efac !important;
+  border-left: 4px solid #154734 !important;
   background-color: #f0fdf4 !important;
+  box-shadow: 0 4px 16px rgba(21, 71, 52, 0.12) !important;
 }
 
 /* КНОПКА STICKY */
@@ -162,9 +261,16 @@
 
 .empty-msg {
   text-align: center;
-  color: #a0aec0;
-  margin-top: 30px;
-  font-style: italic;
+  color: #94a3b8;
+  margin-top: 40px;
+  font-size: 0.88rem;
+  padding: 0 20px;
+  line-height: 1.5;
+}
+
+.dragging-card {
+  opacity: 0.4;
+  transform: scale(0.97);
 }
 
 @media (max-width: 800px) {

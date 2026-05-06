@@ -20,6 +20,15 @@ import {
 } from 'react-bootstrap-icons';
 import './header.css';
 
+const timeAgo = (dateStr) => {
+  if (!dateStr) return '';
+  const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+};
+
 const Header = () => {
   const { user, logout, isAuthenticated } = useAuthStore();
   const { roles, hasRole } = useRoles();
@@ -115,18 +124,33 @@ const Header = () => {
               
               {showDropdown && (
                 <div className="notification-dropdown">
-                  <div className="dropdown-header">Notifications</div>
+                  <div className="dropdown-header">
+                    <span>Notifications</span>
+                    {notifications.length > 0 && (
+                      <span className="notif-count-pill">{notifications.length}</span>
+                    )}
+                  </div>
                   <div className="notification-list-container">
                     {notifications.length === 0 ? (
-                      <div className="no-notifications">No new notifications</div>
+                      <div className="no-notifications">
+                        <Bell size={28} style={{ opacity: 0.25, marginBottom: 8, display: 'block', margin: '0 auto 8px' }} />
+                        All caught up
+                      </div>
                     ) : (
                       notifications.map(n => (
                         <div key={n.id} className="notification-item">
-                          <span className="notif-message">{n.message}</span>
-                          <button 
-                            onClick={(e) => handleMarkAsRead(e, n.id)} 
+                          <span className="notif-dot" />
+                          <div className="notif-body">
+                            <span className="notif-message">{n.message}</span>
+                            {n.createdAt && (
+                              <span className="notif-time">{timeAgo(n.createdAt)}</span>
+                            )}
+                          </div>
+                          <button
+                            onClick={(e) => handleMarkAsRead(e, n.id)}
                             className="btn-close-notif"
                             disabled={markAsReadMutation.isPending}
+                            title="Mark as read"
                           >
                             &times;
                           </button>

@@ -8,7 +8,6 @@ const ActivityLog = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleTimeChange = (index, value) => {
-    // Basic auto-colon formatting for HH:MM
     let formatted = value.replace(/\D/g, '');
     if (formatted.length > 2) {
       formatted = formatted.slice(0, 2) + ':' + formatted.slice(2, 4);
@@ -28,79 +27,71 @@ const ActivityLog = () => {
     }
   };
 
-  const handleAddClick = () => {
-    addLogEntry();
-  };
-
   if (isCollapsed) {
     return (
-      <div className="activity-log-sticky collapsed" onClick={() => setIsCollapsed(false)} title="Open Activity Log">
-        <List size={24} />
+      <div
+        className="activity-log-sticky collapsed"
+        onClick={() => setIsCollapsed(false)}
+        title="Open Activity Log"
+      >
+        <List size={18} />
       </div>
     );
   }
 
   return (
-    <div className="activity-log-sticky shadow">
+    <div className="activity-log-sticky">
       <div className="log-header">
-        <h6>Activity Log</h6>
-        <button className="btn btn-sm text-white border-0" onClick={() => setIsCollapsed(true)}>
-          <ChevronRight />
+        <div className="log-header-left">
+          <h6>Activity Log</h6>
+          <span className="log-count-badge">{activityLog.length}</span>
+        </div>
+        <button className="log-collapse-btn" onClick={() => setIsCollapsed(true)} title="Collapse">
+          <ChevronRight size={13} />
         </button>
       </div>
+
       <div className="log-content">
-        <table className="log-table">
-          <thead>
-            <tr>
-              <th style={{ width: '40%' }}>Time</th>
-              <th>Activity</th>
-              <th style={{ width: '20px' }}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {activityLog.map((entry, index) => (
-              <tr key={index} className="log-row">
-                <td className="pe-2">
-                  <div className="time-input-container">
-                    <input
-                      type="text"
-                      className="log-input time-input"
-                      placeholder="HH:MM"
-                      value={entry.time}
-                      onChange={(e) => handleTimeChange(index, e.target.value)}
-                      onKeyDown={handleKeyDown}
-                    />
-                    <button 
-                      className={`period-toggle ${entry.period === 'AM' ? 'active' : ''}`}
-                      onClick={() => togglePeriod(index)}
-                    >
-                      {entry.period}
-                    </button>
-                  </div>
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    className="log-input activity-input"
-                    placeholder="Activity..."
-                    value={entry.activity}
-                    onChange={(e) => updateLogEntry(index, 'activity', e.target.value)}
-                    onKeyDown={handleKeyDown}
-                  />
-                </td>
-                <td>
-                  {activityLog.length > 1 && (
-                    <button className="remove-log-btn" onClick={() => removeLogEntry(index)}>
-                      <X />
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <button className="add-log-btn" onClick={handleAddClick}>
-          <Plus /> Add Event
+        <div className="log-entries">
+          {activityLog.map((entry, index) => (
+            <div key={index} className="log-entry">
+              <div className="time-group">
+                <input
+                  type="text"
+                  className="log-input time-input"
+                  placeholder="HH:MM"
+                  value={entry.time}
+                  onChange={(e) => handleTimeChange(index, e.target.value)}
+                  onKeyDown={handleKeyDown}
+                />
+                <button
+                  className={`period-toggle ${entry.period === 'AM' ? 'active' : ''}`}
+                  onClick={() => togglePeriod(index)}
+                >
+                  {entry.period}
+                </button>
+              </div>
+
+              <input
+                type="text"
+                className="log-input activity-input"
+                placeholder="Activity..."
+                value={entry.activity}
+                onChange={(e) => updateLogEntry(index, 'activity', e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+
+              {activityLog.length > 1 && (
+                <button className="remove-log-btn" onClick={() => removeLogEntry(index)} title="Remove">
+                  <X size={13} />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <button className="add-log-btn" onClick={addLogEntry}>
+          <Plus size={14} /> Add Event
         </button>
       </div>
     </div>
