@@ -83,10 +83,16 @@ const Register = () => {
           <div className="auth-deco-circle auth-deco-1" />
           <div className="auth-deco-circle auth-deco-2" />
           <div className="auth-deco-circle auth-deco-3" />
-          <button className="auth-panel-toggle" onClick={() => setLeftOpen(v => !v)} title={leftOpen ? 'Hide panel' : 'Show panel'}>
-            {leftOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
-          </button>
         </div>
+
+        {/* TOGGLE — вне панели, всегда виден */}
+        <button
+          className={`auth-panel-toggle${leftOpen ? '' : ' auth-panel-toggle--closed'}`}
+          onClick={() => setLeftOpen(v => !v)}
+          title={leftOpen ? 'Hide panel' : 'Show panel'}
+        >
+          {leftOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+        </button>
 
         {/* RIGHT PANEL */}
         <div className="auth-right">
