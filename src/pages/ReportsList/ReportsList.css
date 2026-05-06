@@ -1,5 +1,5 @@
 #reports-page-scoped {
-  background: linear-gradient(150deg, #1e6047 0%, #154734 55%, #0d3322 100%);
+  background: linear-gradient(rgba(21, 71, 52, 0.62), rgba(21, 71, 52, 0.42)), url('../../assets/bgimg.avif') center / cover fixed;
   min-height: calc(100vh - 80px);
   font-family: 'Inter', sans-serif;
   padding: 52px 24px 60px;
