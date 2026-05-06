@@ -174,8 +174,8 @@
 }
 
 .rl-table thead th {
-  padding: 14px 20px;
-  font-size: 0.7rem;
+  padding: 16px 24px;
+  font-size: 0.75rem;
   font-weight: 800;
   color: #475569;
   text-transform: uppercase;
@@ -198,7 +198,7 @@
 .rl-row-latest:hover { background: #fffadf !important; }
 
 .rl-table tbody td {
-  padding: 16px 20px;
+  padding: 20px 24px;
   vertical-align: middle;
 }
 
@@ -210,15 +210,15 @@
 }
 
 .rl-avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   font-weight: 800;
-  font-size: 0.875rem;
+  font-size: 1rem;
   flex-shrink: 0;
   letter-spacing: 0.5px;
 }
@@ -226,16 +226,16 @@
 .rl-person-name {
   font-weight: 700;
   color: #0f2e1e;
-  font-size: 0.9rem;
+  font-size: 0.975rem;
 }
 
 .rl-person-meta {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   color: #94a3b8;
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
 .rl-latest-badge {
@@ -252,9 +252,9 @@
 .rl-meta-line {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: #64748b;
-  font-size: 0.85rem;
+  gap: 7px;
+  color: #475569;
+  font-size: 0.9rem;
 }
 
 .rl-meta-line svg { color: #94a3b8; flex-shrink: 0; }
@@ -262,13 +262,13 @@
 .rl-course {
   font-weight: 600;
   color: #334155;
-  font-size: 0.875rem;
+  font-size: 0.95rem;
 }
 
 .rl-eval-id {
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   color: #94a3b8;
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
 /* Actions */
@@ -279,18 +279,18 @@
 .rl-td-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
-  padding: 16px 20px;
+  padding: 20px 24px;
 }
 
 .rl-btn {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 7px 14px;
-  border-radius: 8px;
-  font-size: 0.78rem;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
