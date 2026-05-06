@@ -31,7 +31,16 @@ const Register = () => {
   });
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [leftOpen, setLeftOpen] = useState(true);
+  const [leftOpen, setLeftOpen] = useState(() => {
+    const saved = localStorage.getItem('auth-panel-open');
+    return saved === null ? true : saved === 'true';
+  });
+
+  const togglePanel = () => setLeftOpen(v => {
+    const next = !v;
+    localStorage.setItem('auth-panel-open', String(next));
+    return next;
+  });
   const navigate = useNavigate();
 
   const signupMutation = useMutation({
@@ -88,7 +97,7 @@ const Register = () => {
         {/* TOGGLE — вне панели, всегда виден */}
         <button
           className={`auth-panel-toggle${leftOpen ? '' : ' auth-panel-toggle--closed'}`}
-          onClick={() => setLeftOpen(v => !v)}
+          onClick={togglePanel}
           title={leftOpen ? 'Hide panel' : 'Show panel'}
         >
           {leftOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
