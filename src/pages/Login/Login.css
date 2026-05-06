@@ -365,6 +365,67 @@
   color: #003015;
 }
 
+/* ADMIN BAR */
+.auth-admin-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  background: #154734;
+  border-bottom: 2px solid #FFB81C;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 8px 20px;
+}
+
+.auth-admin-label {
+  color: #FFB81C;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.auth-admin-back {
+  background: #FFB81C;
+  color: #154734;
+  border: none;
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.auth-admin-back:hover { opacity: 0.85; }
+
+/* InlineEdit overrides for dark left panel */
+.auth-left .btn-inline-edit {
+  color: #FFB81C;
+  opacity: 0.5;
+}
+
+.auth-left .btn-inline-edit:hover { opacity: 1; }
+
+.auth-left .inline-edit-input {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-color: #FFB81C;
+}
+
+.auth-left .ie-btn-save {
+  background: #FFB81C;
+  color: #154734;
+}
+
+.auth-left .ie-btn-cancel {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
 /* MOBILE */
 @media (max-width: 768px) {
   .auth-split {

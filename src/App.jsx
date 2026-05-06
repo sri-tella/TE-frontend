@@ -43,12 +43,12 @@ function App() {
             <Routes>
               <Route
                 path="/login"
-                element={!isAuthenticated ? <Login /> : <Navigate to={getHomePath()} />}
+                element={!isAuthenticated || hasRole('ADMIN') ? <Login /> : <Navigate to={getHomePath()} />}
               />
 
               <Route
                 path="/signup"
-                element={!isAuthenticated ? <Register /> : <Navigate to={getHomePath()} />}
+                element={!isAuthenticated || hasRole('ADMIN') ? <Register /> : <Navigate to={getHomePath()} />}
               />
 
               <Route
