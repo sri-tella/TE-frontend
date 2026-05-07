@@ -1,7 +1,8 @@
-# Environment files
+# Environment files (secrets managed via Netlify dashboard)
 .env
 .env.local
 .env.development
+.env.production
 
 # Logs
 logs
