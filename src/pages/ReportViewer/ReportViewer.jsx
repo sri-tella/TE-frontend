@@ -13,7 +13,6 @@ import TextAlign from '@tiptap/extension-text-align';
 import Link from '@tiptap/extension-link';
 import { Color } from '@tiptap/extension-color';
 import { TextStyle } from '@tiptap/extension-text-style';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { PDFDownloadLink, pdf } from '@react-pdf/renderer';
 import { toast } from 'react-toastify';
 
@@ -99,10 +98,6 @@ const ReportViewer = () => {
     "Visuals & PPT": "Visuals & PPT"
   };
 
-  const genAI = useMemo(() => {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    return apiKey ? new GoogleGenerativeAI(apiKey) : null;
-  }, []);
 
   const editor = useEditor({
     extensions: [StarterKit, Underline, TextAlign.configure({ types: ['heading', 'paragraph'] }), Link.configure({ openOnClick: false }), TextStyle, Color],
@@ -192,22 +187,31 @@ const ReportViewer = () => {
   }, [editor, classData, constructFullReport]);
 
   const handleAiFeedback = useCallback(async () => {
-    if (!genAI) { toast.error("AI not configured. Add VITE_GEMINI_API_KEY."); return; }
     setLoading(prev => ({ ...prev, ai: true }));
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-      const aiFeedbacks = {};
-      for (const sectionName of canonicalSections) {
-        const obs = state.allObservations || [];
-        const recs = state.allRecommendations || [];
+      const obs = state.allObservations || [];
+      const recs = state.allRecommendations || [];
+      const sections = canonicalSections.map(sectionName => {
         const sectionObs = obs.find(s => s.title.replace(/^\d+\.\s*/, '') === sectionName);
         const sectionRecs = recs.find(s => s.title.replace(/^\d+\.\s*/, '') === sectionName);
-        const selected = sectionObs?.options?.filter(o => o.selected).map(o => o.description) || [];
-        const recSelected = sectionRecs?.options?.filter(r => r.selected).map(r => r.description) || [];
-        if (selected.length === 0 && recSelected.length === 0) continue;
-        const prompt = `You are an educational consultant. For the teaching category "${sectionName}", the observer noted: ${selected.join('; ')}. Recommended strategies: ${recSelected.join('; ')}. Provide a brief 2-3 sentence constructive analysis.`;
-        const result = await model.generateContent(prompt);
-        aiFeedbacks[sectionName] = formatAiResponse(result.response.text(), sectionName);
+        return {
+          sectionName,
+          selected: sectionObs?.options?.filter(o => o.selected).map(o => o.description) || [],
+          recSelected: sectionRecs?.options?.filter(r => r.selected).map(r => r.description) || [],
+        };
+      });
+
+      const res = await fetch('/api/ai-feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sections }),
+      });
+      if (!res.ok) throw new Error('AI request failed');
+      const { feedbacks } = await res.json();
+
+      const aiFeedbacks = {};
+      for (const [sectionName, text] of Object.entries(feedbacks)) {
+        aiFeedbacks[sectionName] = formatAiResponse(text, sectionName);
       }
       const newHtml = constructFullReport(classData, aiFeedbacks);
       editor.commands.setContent(newHtml);
@@ -218,7 +222,7 @@ const ReportViewer = () => {
     } finally {
       setLoading(prev => ({ ...prev, ai: false }));
     }
-  }, [genAI, state, classData, editor, constructFullReport, canonicalSections]);
+  }, [state, classData, editor, constructFullReport, canonicalSections]);
 
   // Unified Loader
   useEffect(() => {
