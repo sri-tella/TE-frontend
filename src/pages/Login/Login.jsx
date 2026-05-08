@@ -84,7 +84,7 @@ const Login = () => {
 
             {(loginError || Object.keys(errors).length > 0) && (
               <div className="auth-error">
-                {loginError || 'Invalid email or password'}
+                {loginError?.message || 'Invalid email or password'}
               </div>
             )}
 
