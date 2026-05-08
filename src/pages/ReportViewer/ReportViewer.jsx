@@ -201,7 +201,7 @@ const ReportViewer = () => {
         };
       });
 
-      const res = await fetch('/api/ai-feedback', {
+      const res = await fetch('/.netlify/functions/ai-feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sections }),
