@@ -27,7 +27,7 @@ exports.handler = async (event) => {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const results = {};
     for (const { sectionName, selected, recSelected } of sections) {
