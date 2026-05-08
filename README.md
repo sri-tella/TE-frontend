@@ -2,7 +2,7 @@
 
 A web application for observing and evaluating university teaching sessions. Observers fill out structured evaluation forms during class visits, generate PDF/DOCX reports, and provide recommendations to instructors.
 
-**Live site:** https://teachingeval.netlify.app
+**Live site:** https://teaching-evaluation.netlify.app/
 
 ---
 
