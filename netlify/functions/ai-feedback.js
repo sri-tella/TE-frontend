@@ -43,6 +43,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({ feedbacks: results }),
     };
   } catch (err) {
+    console.error('ai-feedback error:', err);
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
