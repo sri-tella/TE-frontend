@@ -25,6 +25,7 @@ import { useAuthStore } from '../../store/authStore';
 import { classApi } from '../../api/classApi';
 import { reportApi } from '../../api/reportApi';
 import { evaluationApi } from '../../api/evaluationApi';
+import { storageKeys } from '../../utils/storageKeys';
 import './ReportViewer.css';
 
 const MenuBar = ({ editor, onRefresh }) => {
@@ -189,8 +190,12 @@ const ReportViewer = () => {
   const handleAiFeedback = useCallback(async () => {
     setLoading(prev => ({ ...prev, ai: true }));
     try {
-      const obs = state.allObservations || [];
-      const recs = state.allRecommendations || [];
+      const obs = state.allObservations?.length
+        ? state.allObservations
+        : JSON.parse(localStorage.getItem(storageKeys.evalResponses(evaluationId)) || '[]');
+      const recs = state.allRecommendations?.length
+        ? state.allRecommendations
+        : JSON.parse(localStorage.getItem(storageKeys.recsData(evaluationId)) || '[]');
       const sections = canonicalSections.map(sectionName => {
         const sectionObs = obs.find(s => s.title.replace(/^\d+\.\s*/, '') === sectionName);
         const sectionRecs = recs.find(s => s.title.replace(/^\d+\.\s*/, '') === sectionName);
