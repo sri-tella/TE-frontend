@@ -25,6 +25,21 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: JSON.stringify({ error: 'sections must be an array' }) };
   }
 
+  const generateWithRetry = async (model, prompt, retries = 3) => {
+    for (let attempt = 0; attempt < retries; attempt++) {
+      try {
+        const result = await model.generateContent(prompt);
+        return result;
+      } catch (err) {
+        if (attempt < retries - 1 && err.status === 503) {
+          await new Promise(res => setTimeout(res, 1000 * 2 ** attempt));
+          continue;
+        }
+        throw err;
+      }
+    }
+  };
+
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
@@ -33,7 +48,8 @@ exports.handler = async (event) => {
     for (const { sectionName, selected, recSelected } of sections) {
       if (!selected?.length && !recSelected?.length) continue;
       const prompt = `You are an educational consultant. For the teaching category "${sectionName}", the observer noted: ${selected.join('; ')}. Recommended strategies: ${recSelected.join('; ')}. Provide a brief 2-3 sentence constructive analysis.`;
-      const result = await model.generateContent(prompt);
+      console.log(`[ai-feedback] section="${sectionName}" prompt_length=${prompt.length}`);
+      const result = await generateWithRetry(model, prompt);
       results[sectionName] = result.response.text();
     }
 
