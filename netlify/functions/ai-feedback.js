@@ -44,14 +44,18 @@ exports.handler = async (event) => {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-    const results = {};
-    for (const { sectionName, selected, recSelected } of sections) {
-      if (!selected?.length && !recSelected?.length) continue;
-      const prompt = `You are an educational consultant. For the teaching category "${sectionName}", the observer noted: ${selected.join('; ')}. Recommended strategies: ${recSelected.join('; ')}. Provide a brief 2-3 sentence constructive analysis.`;
-      console.log(`[ai-feedback] section="${sectionName}" prompt_length=${prompt.length}`);
-      const result = await generateWithRetry(model, prompt);
-      results[sectionName] = result.response.text();
-    }
+    const activeSections = sections.filter(({ selected, recSelected }) => selected?.length || recSelected?.length);
+
+    const entries = await Promise.all(
+      activeSections.map(async ({ sectionName, selected, recSelected }) => {
+        const prompt = `You are an educational consultant. For the teaching category "${sectionName}", the observer noted: ${selected.join('; ')}. Recommended strategies: ${recSelected.join('; ')}. Provide a brief 2-3 sentence constructive analysis.`;
+        console.log(`[ai-feedback] section="${sectionName}" prompt_length=${prompt.length}`);
+        const result = await generateWithRetry(model, prompt);
+        return [sectionName, result.response.text()];
+      })
+    );
+
+    const results = Object.fromEntries(entries);
 
     return {
       statusCode: 200,
