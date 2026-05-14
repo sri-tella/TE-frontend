@@ -1,5 +1,5 @@
 #recommendations-container-v3 {
-  background: linear-gradient(rgba(21, 71, 52, 0.62), rgba(21, 71, 52, 0.42)), url('../../assets/bgimg.avif') center / cover fixed;
+  background: linear-gradient(rgba(21, 71, 52, 0.62), rgba(21, 71, 52, 0.42)), url('../../assets/bgimg.avif') center / cover;
   min-height: 100vh;
   padding: 40px 0 120px 0;
   font-family: 'Inter', sans-serif;
@@ -183,22 +183,23 @@
 .eval-btn-secondary-v3 {
   pointer-events: auto;
   padding: 12px 28px !important;
-  background: rgba(255,255,255,0.1) !important;
-  border: 1.5px solid rgba(255,255,255,0.35) !important;
-  color: #ffffff !important;
+  background: #ffffff !important;
+  border: 1.5px solid #154734 !important;
+  color: #154734 !important;
   border-radius: 50px !important;
   font-size: 0.85rem !important;
   font-weight: 700 !important;
   transition: all 0.2s !important;
-  box-shadow: none !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2) !important;
   font-family: 'Inter', sans-serif !important;
   letter-spacing: 0.5px !important;
 }
 
 .eval-btn-secondary-v3:hover {
-  background: rgba(255,255,255,0.2) !important;
-  border-color: rgba(255,255,255,0.6) !important;
+  background: #f0fdf4 !important;
+  border-color: #154734 !important;
   transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
 }
 
 /* Submit button */
@@ -225,7 +226,20 @@
 }
 
 @media (max-width: 768px) {
-  .eval-action-footer-container { gap: 10px; padding: 0 12px; }
+  .eval-page-heading { font-size: 1.8rem; }
+  .eval-page-subtext { font-size: 0.78rem; letter-spacing: 1.5px; }
+  .eval-action-footer-container { gap: 10px; padding: 0 12px; height: 80px; }
   .eval-submit-btn-v3 { padding: 12px 28px !important; font-size: 0.85rem !important; }
   .eval-btn-secondary-v3 { padding: 12px 20px !important; }
+  #recommendations-container-v3 { padding: 24px 0 100px; }
+}
+
+@media (max-width: 480px) {
+  .eval-page-heading { font-size: 1.4rem; }
+  .eval-submit-btn-v3 { padding: 10px 20px !important; font-size: 0.82rem !important; }
+  .eval-btn-secondary-v3 { padding: 10px 16px !important; font-size: 0.82rem !important; }
+}
+
+@supports (-webkit-touch-callout: none) {
+  #recommendations-container-v3 { background-attachment: scroll; }
 }

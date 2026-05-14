@@ -202,7 +202,7 @@ const InstructorIntro = () => {
 
           {/* Sticky Footer */}
           <div className="intro-footer-sticky">
-            <button type="submit" className="btn-baylor-submit">
+            <button type="submit" className="btn-atl-submit">
               <CheckCircle className="me-3" /> Submit Session Details
             </button>
           </div>

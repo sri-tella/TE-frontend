@@ -78,16 +78,16 @@ const ReportViewer = () => {
   const hasSetInitialContent = React.useRef(false);
 
   const canonicalSections = [
-    "Specific Activities", 
-    "Student-Instructor Interactions", 
-    "Content Focused Instructor Choices", 
-    "Expectations for Student Behavior", 
-    "Pacing", 
-    "Affect", 
-    "Speech & Delivery", 
+    "Specific Activities",
+    "Student-Instructor Interactions",
+    "Content Focused Instructor Choices",
+    "Expectations for Student Behavior",
+    "Pacing",
+    "Affect",
+    "Speech & Delivery",
     "Visuals & PPT"
   ];
-  
+
   const sectionMapping = {
     "Specific Activities": "Specific Activities",
     "Student-Instructor Interactions": "Student-Instructor Interactions",
@@ -122,7 +122,7 @@ const ReportViewer = () => {
 
     const groupedData = {};
     canonicalSections.forEach(s => groupedData[s] = { observations: [], recommendations: [] });
-    
+
     const obs = state.allObservations || [];
     const recs = state.allRecommendations || [];
 
@@ -171,7 +171,7 @@ const ReportViewer = () => {
     const additional = addRecs || addObs;
     html += `<h3 style="color: #154734;">Additional Feedback</h3>`;
     ["Did the class session meet the instructor's goal or objective?", "Other Comments or Recommendations"].forEach(qText => {
-      const opt = additional?.options?.find(o => o.description.includes(qText.split(' ')[0])); 
+      const opt = additional?.options?.find(o => o.description.includes(qText.split(' ')[0]));
       const answer = opt?.feedbackText?.trim();
       html += `<h4>${qText}</h4>`;
       html += answer ? `<p style="color: #374151; line-height: 1.6; padding-left: 5px; margin-bottom: 20px;">${answer}</p>` : `<p style="color: #6b7280; font-style: italic; padding-left: 5px; margin-bottom: 20px;">No additional feedback provided.</p>`;

@@ -6,7 +6,7 @@ import { loginSchema } from '../../schemas/authSchema';
 import { useAuth } from '../../hooks/useAuth';
 import { Eye, EyeSlash, CheckCircleFill, ChevronLeft, ChevronRight, EnvelopeFill, LockFill, ArrowRightShort } from 'react-bootstrap-icons';
 import InlineEdit from '../../components/InlineEdit/InlineEdit';
-import logo from "../../assets/logo.png";
+import logo from "../../assets/logo.svg";
 import './Login.css';
 
 const Login = () => {
@@ -35,13 +35,13 @@ const Login = () => {
         <div className={`auth-left${leftOpen ? '' : ' auth-left--collapsed'}`}>
           <div className="auth-left-inner">
             <div className="auth-logo-wrap">
-              <img src={logo} alt="Baylor University" className="auth-left-logo" />
+              <img src={logo} alt="Academy for Teaching and Learning" className="auth-left-logo" />
             </div>
             <h1 className="auth-left-title">
               <InlineEdit pageKey="login-left-title" defaultValue="Teaching Evaluation" canEdit={false} />
             </h1>
             <p className="auth-left-sub">
-              <InlineEdit pageKey="login-left-sub" defaultValue="Baylor University — structured classroom observation platform" canEdit={false} />
+              <InlineEdit pageKey="login-left-sub" defaultValue="Academy for Teaching and Learning — structured classroom observation platform" canEdit={false} />
             </p>
             <ul className="auth-feature-list">
               <li>
@@ -77,7 +77,7 @@ const Login = () => {
         <div className="auth-right">
           <div className="auth-form-box">
             <div className="auth-form-header">
-              <div className="auth-badge">Baylor University</div>
+              <div className="auth-badge">Academy for Teaching and Learning</div>
               <h2 className="auth-heading">Welcome back</h2>
               <p className="auth-subtext">Sign in to your account to continue</p>
             </div>
@@ -95,7 +95,7 @@ const Login = () => {
                   <span className="auth-input-icon"><EnvelopeFill size={14} /></span>
                   <input
                     type="email"
-                    placeholder="you@baylor.edu"
+                    placeholder="you@atl.edu"
                     className="auth-input"
                     {...register('email')}
                   />

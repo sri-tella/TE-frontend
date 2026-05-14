@@ -25,6 +25,11 @@
   width: 100%;
 }
 
+/* iOS Safari fix: background-attachment: fixed is broken on iOS */
+@supports (-webkit-touch-callout: none) {
+  .app-main-layout { background-attachment: scroll; }
+}
+
 /* SIMPLEBAR MODERN THIN SCROLLBAR */
 .simplebar-scrollbar::before {
   background: #FFB81C !important;
@@ -56,6 +61,15 @@ body {
   min-width: 320px;
   min-height: 100vh;
   overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  body { overflow-x: hidden; overflow-y: auto; }
+
+  /* Ensure SimpleBar container fills viewport on mobile */
+  .simplebar-content-wrapper {
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 @media (prefers-color-scheme: light) {

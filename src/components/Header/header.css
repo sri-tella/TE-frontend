@@ -9,7 +9,6 @@
   display: flex;
   align-items: center;
   box-shadow: 0 4px 24px rgba(0,0,0,0.35);
-  overflow: hidden;
 }
 
 /* Dot mesh overlay */
@@ -333,5 +332,12 @@
 
   .nav-item-link { width: 100%; }
   .logout-btn { width: 100%; justify-content: center; margin-left: 0; margin-top: 4px; }
-  .notification-dropdown { right: auto; left: 0; width: 300px; }
+  .notification-dropdown { right: 0; left: auto; width: 300px; }
+  .welcome-text { font-size: 0.78rem; padding: 4px 10px; }
+}
+
+@media (max-width: 480px) {
+  .custom-navbar { min-height: 60px; }
+  .logo-img { height: 38px; }
+  .notification-dropdown { width: calc(100vw - 24px); right: 0; left: auto; }
 }

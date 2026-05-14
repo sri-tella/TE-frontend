@@ -6,8 +6,8 @@ export const generateWordReport = async (htmlContent) => {
     const docHtml = parser.parseFromString(htmlContent, 'text/html');
     const nodes = Array.from(docHtml.body.childNodes);
 
-    const BAYLOR_GREEN = "003015";
-    const BAYLOR_GOLD = "FFB81C";
+    const ATL_GREEN = "003015";
+    const ATL_GOLD = "FFB81C";
 
     const processTextNode = (node) => {
         const textRuns = [];
@@ -40,20 +40,20 @@ export const generateWordReport = async (htmlContent) => {
             docChildren.push(new Paragraph({
                 heading: HeadingLevel.HEADING_1,
                 spacing: { before: 400, after: 200 },
-                border: { bottom: { color: BAYLOR_GOLD, space: 1, style: BorderStyle.SINGLE, size: 12 } },
-                children: [new TextRun({ text: text, color: BAYLOR_GREEN, bold: true, size: 32 })]
+                border: { bottom: { color: ATL_GOLD, space: 1, style: BorderStyle.SINGLE, size: 12 } },
+                children: [new TextRun({ text: text, color: ATL_GREEN, bold: true, size: 32 })]
             }));
         } else if (tag === 'h3') {
             docChildren.push(new Paragraph({
                 heading: HeadingLevel.HEADING_2,
                 spacing: { before: 300, after: 150 },
-                children: [new TextRun({ text: text, color: BAYLOR_GREEN, bold: true, size: 28 })]
+                children: [new TextRun({ text: text, color: ATL_GREEN, bold: true, size: 28 })]
             }));
         } else if (tag === 'h4') {
             docChildren.push(new Paragraph({
                 heading: HeadingLevel.HEADING_3,
                 spacing: { before: 200, after: 100 },
-                children: [new TextRun({ text: text, color: BAYLOR_GREEN, bold: true, size: 24 })]
+                children: [new TextRun({ text: text, color: ATL_GREEN, bold: true, size: 24 })]
             }));
         } else if (tag === 'p') {
             docChildren.push(new Paragraph({

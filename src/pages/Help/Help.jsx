@@ -191,7 +191,7 @@ const FooterButton = ({ canEdit }) => {
 
 const LOGIN_FIELDS = [
   { key: 'login-left-title',   label: 'Title',     placeholder: 'Teaching Evaluation' },
-  { key: 'login-left-sub',     label: 'Subtitle',  placeholder: 'Baylor University — structured classroom observation platform' },
+  { key: 'login-left-sub',     label: 'Subtitle',  placeholder: 'Academy for Teaching and Learning — structured classroom observation platform' },
   { key: 'login-feature-1',    label: 'Feature 1', placeholder: '44 structured evaluation criteria' },
   { key: 'login-feature-2',    label: 'Feature 2', placeholder: 'AI-powered recommendations' },
   { key: 'login-feature-3',    label: 'Feature 3', placeholder: 'Instant PDF report generation' },
@@ -200,7 +200,7 @@ const LOGIN_FIELDS = [
 const REGISTER_FIELDS = [
   { key: 'register-left-title', label: 'Title',     placeholder: 'Join the Platform' },
   { key: 'register-left-sub',   label: 'Subtitle',  placeholder: 'Create your account and start using the Teaching Evaluation system today' },
-  { key: 'register-feature-1',  label: 'Feature 1', placeholder: 'Free to use for Baylor staff' },
+  { key: 'register-feature-1',  label: 'Feature 1', placeholder: 'Free to use for ATL staff' },
   { key: 'register-feature-2',  label: 'Feature 2', placeholder: 'Secure role-based access' },
   { key: 'register-feature-3',  label: 'Feature 3', placeholder: 'Ready in under a minute' },
 ];

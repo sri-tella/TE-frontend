@@ -8,7 +8,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useRoles } from '../../hooks/useRoles';
 import { useClickOutside } from '../../hooks/useClickOutside';
 import { notificationApi } from '../../api/notificationApi';
-import logo from '../../assets/logo.png';
+import logo from '../../assets/logo.svg';
 import { 
   House, 
   FileText, 
@@ -83,7 +83,7 @@ const Header = () => {
         <Navbar.Brand as={Link} to="/" className="brand-logo-container">
           <img
             src={logo}
-            alt="Baylor University"
+            alt="Academy for Teaching and Learning"
             className="logo-img"
           />
         </Navbar.Brand>

@@ -21,7 +21,7 @@ const ReportPdfDocument = ({ htmlContent }) => {
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = html;
     const elements = Array.from(tempDiv.childNodes);
-    
+
     return elements.map((node, index) => {
       if (node.nodeType !== Node.ELEMENT_NODE) return null;
       const tag = node.nodeName.toLowerCase();
@@ -31,7 +31,7 @@ const ReportPdfDocument = ({ htmlContent }) => {
       if (tag === 'h3') return <Text key={index} style={styles.h3}>{text}</Text>;
       if (tag === 'h4') return <Text key={index} style={styles.h4}>{text}</Text>;
       if (tag === 'hr') return <View key={index} style={styles.hr} />;
-      
+
       if (tag === 'p') {
         return (
           <Text key={index} style={styles.p}>

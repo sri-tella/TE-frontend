@@ -1,5 +1,5 @@
 #reports-page-scoped {
-  background: linear-gradient(rgba(21, 71, 52, 0.62), rgba(21, 71, 52, 0.42)), url('../../assets/bgimg.avif') center / cover fixed;
+  background: linear-gradient(rgba(21, 71, 52, 0.62), rgba(21, 71, 52, 0.42)), url('../../assets/bgimg.avif') center / cover;
   min-height: calc(100vh - 80px);
   font-family: 'Inter', sans-serif;
   padding: 52px 24px 60px;
@@ -359,4 +359,16 @@
   .rl-title { font-size: 2rem; }
   .rl-toolbar { flex-direction: column; align-items: stretch; }
   .rl-search-wrap { max-width: 100%; }
+  #reports-page-scoped { padding: 36px 16px 60px; }
+  .rl-table thead th { padding: 12px 16px; }
+  .rl-table tbody td { padding: 14px 16px; }
+}
+
+@media (max-width: 480px) {
+  .rl-title { font-size: 1.5rem; }
+  .rl-table thead th:nth-child(2),
+  .rl-table tbody td:nth-child(2) { display: none; }
+  .rl-btn { padding: 7px 12px; font-size: 0.78rem; }
+  .rl-avatar { width: 36px; height: 36px; font-size: 0.85rem; border-radius: 8px; }
+  .rl-td-actions { padding: 14px 16px; flex-wrap: wrap; gap: 6px; }
 }

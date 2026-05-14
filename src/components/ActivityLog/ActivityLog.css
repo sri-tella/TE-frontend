@@ -12,6 +12,7 @@
   color: #1e293b;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: calc(100vw - 24px);
 }
 
 .activity-log-sticky.collapsed {
@@ -243,4 +244,26 @@
   border-color: #154734;
   color: #154734;
   background: #f0fdf4;
+}
+
+@media (max-width: 768px) {
+  .activity-log-sticky {
+    top: auto;
+    bottom: 100px;
+    transform: none;
+    right: 12px;
+    width: 200px;
+  }
+
+  .activity-log-sticky.collapsed {
+    bottom: 100px;
+    top: auto;
+    transform: none;
+  }
+
+  .activity-log-sticky.collapsed:hover {
+    transform: scale(1.08);
+  }
+
+  .log-content { max-height: 280px; }
 }

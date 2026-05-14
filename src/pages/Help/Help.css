@@ -334,8 +334,21 @@
   margin-top: 16px;
 }
 
+@media (max-width: 768px) {
+  .help-main-card { padding: 24px 20px; }
+  .help-heading { font-size: 1.6rem; }
+  .help-steps-grid { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 680px) {
   .ace-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .help-main-card { padding: 18px 14px; }
+  .help-heading { font-size: 1.3rem; }
+  .help-page-container { padding: 12px; }
+  .help-footer-simple { flex-direction: column; align-items: flex-start; }
 }
 
 .ace-panel {

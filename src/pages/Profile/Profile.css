@@ -1,5 +1,5 @@
 #profile-page-scoped {
-  background: linear-gradient(rgba(21, 71, 52, 0.62), rgba(21, 71, 52, 0.42)), url('../../assets/bgimg.avif') center / cover fixed;
+  background: linear-gradient(rgba(21, 71, 52, 0.62), rgba(21, 71, 52, 0.42)), url('../../assets/bgimg.avif') center / cover;
   min-height: calc(100vh - 80px);
   font-family: 'Inter', sans-serif;
   padding: 52px 24px 60px;
@@ -377,4 +377,11 @@
 @media (max-width: 768px) {
   .prof-title { font-size: 2rem; }
   .prof-grid { grid-template-columns: 1fr; }
+  #profile-page-scoped { padding: 36px 16px 60px; }
+}
+
+@media (max-width: 480px) {
+  .prof-title { font-size: 1.5rem; }
+  .prof-info-val { white-space: normal; word-break: break-word; }
+  .prof-card { padding: 20px; }
 }

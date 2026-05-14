@@ -19,6 +19,9 @@ dist-ssr
 build
 *.local
 
+# Documents
+*.docx
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

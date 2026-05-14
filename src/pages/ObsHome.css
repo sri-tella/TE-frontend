@@ -1,7 +1,7 @@
 .obs-container {
   min-height: 100vh;
   padding: 52px 24px 100px;
-  background: linear-gradient(rgba(21, 71, 52, 0.62), rgba(21, 71, 52, 0.42)), url('../assets/bgimg.avif') center / cover fixed;
+  background: linear-gradient(rgba(21, 71, 52, 0.62), rgba(21, 71, 52, 0.42)), url('../assets/bgimg.avif') center / cover;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -432,4 +432,21 @@
 @media (max-width: 800px) {
   .obs-heading { font-size: 2rem; }
   .dnd-container { flex-direction: column; }
+  .obs-container { padding: 32px 16px 120px; }
+  .obs-button { padding: 12px 32px !important; font-size: 0.9rem !important; }
+  .selected-class-preview { max-width: 100%; font-size: 0.8rem; padding: 8px 14px; }
+}
+
+@media (max-width: 480px) {
+  .obs-heading { font-size: 1.6rem; }
+  .obs-subheading { font-size: 0.78rem; letter-spacing: 1.5px; }
+  .obs-container { padding: 24px 12px 120px; }
+  .obs-button { padding: 12px 24px !important; font-size: 0.85rem !important; width: 100%; }
+  .obs-btn-wrap, .obs-btn-edit-wrap { width: 100%; flex-direction: column; }
+  .actions-area { padding: 0 12px; }
+  .dnd-column-inner { padding: 16px; }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .obs-container { background-attachment: scroll; }
 }

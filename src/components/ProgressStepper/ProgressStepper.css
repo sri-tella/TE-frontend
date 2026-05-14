@@ -78,3 +78,15 @@
 .stepper-label.completed {
   color: rgba(255, 255, 255, 0.65);
 }
+
+@media (max-width: 600px) {
+  .stepper-label { font-size: 0.62rem; letter-spacing: 0.3px; }
+  .stepper-circle { width: 28px; height: 28px; font-size: 0.78rem; }
+  .stepper-line { min-width: 24px; margin: 14px 6px 0; }
+  .progress-stepper { padding: 0 8px; }
+}
+
+@media (max-width: 400px) {
+  .stepper-label { display: none; }
+  .stepper-line { min-width: 16px; margin: 14px 4px 0; }
+}

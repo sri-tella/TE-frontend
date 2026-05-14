@@ -1,5 +1,5 @@
 #inshome-page-scoped {
-  background: linear-gradient(rgba(21, 71, 52, 0.62), rgba(21, 71, 52, 0.42)), url('../../assets/bgimg.avif') center / cover fixed;
+  background: linear-gradient(rgba(21, 71, 52, 0.62), rgba(21, 71, 52, 0.42)), url('../../assets/bgimg.avif') center / cover;
   min-height: calc(100vh - 80px);
   padding: 52px 24px 60px;
   display: flex;
@@ -158,4 +158,11 @@
 @media (max-width: 768px) {
   .ins-title { font-size: 2rem; }
   .ins-card { padding: 32px 24px; }
+  #inshome-page-scoped { padding: 36px 16px 60px; }
+}
+
+@media (max-width: 480px) {
+  .ins-title { font-size: 1.5rem; }
+  .ins-card { padding: 24px 18px; }
+  .ins-btn { padding: 11px 24px; font-size: 0.875rem; }
 }

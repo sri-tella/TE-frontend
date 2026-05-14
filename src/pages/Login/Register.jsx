@@ -5,7 +5,7 @@ import { authApi } from '../../api/authApi';
 import { toast } from 'react-toastify';
 import { Eye, EyeSlash, CheckCircleFill, EyeFill, MortarboardFill, ChevronLeft, ChevronRight, EnvelopeFill, LockFill, PersonFill, ArrowRightShort } from 'react-bootstrap-icons';
 import InlineEdit from '../../components/InlineEdit/InlineEdit';
-import logo from '../../assets/logo.png';
+import logo from '../../assets/logo.svg';
 import './Register.css';
 
 const ROLES = [
@@ -82,7 +82,7 @@ const Register = () => {
         <div className={`auth-left${leftOpen ? '' : ' auth-left--collapsed'}`}>
           <div className="auth-left-inner">
             <div className="auth-logo-wrap">
-              <img src={logo} alt="Baylor University" className="auth-left-logo" />
+              <img src={logo} alt="Academy for Teaching and Learning" className="auth-left-logo" />
             </div>
             <h1 className="auth-left-title">
               <InlineEdit pageKey="register-left-title" defaultValue="Join the Platform" canEdit={false} />
@@ -93,7 +93,7 @@ const Register = () => {
             <ul className="auth-feature-list">
               <li>
                 <CheckCircleFill size={15} className="auth-feature-icon" />
-                <InlineEdit pageKey="register-feature-1" defaultValue="Free to use for Baylor staff" canEdit={false} />
+                <InlineEdit pageKey="register-feature-1" defaultValue="Free to use for ATL staff" canEdit={false} />
               </li>
               <li>
                 <CheckCircleFill size={15} className="auth-feature-icon" />
@@ -124,7 +124,7 @@ const Register = () => {
         <div className="auth-right">
           <div className="auth-form-box auth-form-box--wide">
             <div className="auth-form-header">
-              <div className="auth-badge">Baylor University</div>
+              <div className="auth-badge">Academy for Teaching and Learning</div>
               <h2 className="auth-heading">Create account</h2>
               <p className="auth-subtext">Fill in your details below to get started</p>
             </div>
@@ -157,7 +157,7 @@ const Register = () => {
                   <label>Email address</label>
                   <div className="auth-input-group">
                     <span className="auth-input-icon"><EnvelopeFill size={13} /></span>
-                    <input type="email" name="email" placeholder="you@baylor.edu" className="auth-input"
+                    <input type="email" name="email" placeholder="you@atl.edu" className="auth-input"
                       value={formData.email} onChange={handleChange} required />
                   </div>
                 </div>
