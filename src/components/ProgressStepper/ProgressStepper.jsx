@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import './ProgressStepper.css';
 
-const STEPS = ['Evaluate', 'Recommendations', 'Report'];
+const STEPS = ['Observation', 'Recommendations', 'Report'];
 
 const ProgressStepper = ({ currentStep }) => (
   <div className="progress-stepper">

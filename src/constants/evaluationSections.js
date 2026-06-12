@@ -19,7 +19,9 @@ export const EVALUATION_SECTIONS = [
       { section_id: 18, description: "Instructor moves on after single response" },
       { section_id: 19, description: "Little indication of student understanding with a few bright students dominating" },
       { section_id: 20, description: "Students offered unsupported or erroneous claims"},
-      { section_id: 21, description: "Instructor answers his/her own question, gives students many hints to get correct answer"}
+      { section_id: 21, description: "Instructor answers his/her own question, gives students many hints to get correct answer"},
+      { section_id: 61, description: "Instructor quickly affirmed or corrected student responses" },
+      { section_id: 62, description: "Little or no time spent correcting errors or misunderstandings" }
   ] },
   { title: "3. Content Focused Instructor Choices", options: [
     { section_id: 22, description: "Learning activities had unclear or tenuous connection to learning objectives"},
@@ -27,7 +29,8 @@ export const EVALUATION_SECTIONS = [
     { section_id: 26, description: "Students confused or uncooperative or an activity is abrupt or novel" },
     { section_id: 27, description: "Instructor identifies correct and incorrect answers but offers little help for improvement" },
     { section_id: 28, description: "Class ends abruptly, class ends early, class session incorporated many disparate ideas" },
-    { section_id: 30, description: "Class session rife with facts, disconnected, meaning or import of material not explicit" }
+    { section_id: 30, description: "Class session rife with facts, disconnected, meaning or import of material not explicit" },
+    { section_id: 60, description: "Instructor presents crucial information only once, without repeating or rephrasing" }
   ] },
   { title: "4. Expectations for Student Behavior", options: [
     { section_id: 31, description: "Students packing up before class end"},
@@ -58,12 +61,13 @@ export const EVALUATION_SECTIONS = [
     { section_id: 51, description: "Instructor speaks in monotone"}
   ] },
   { title: "8. Visuals & PPT", options: [
-   { section_id: 52, description: "PowerPoints slides begin with subject matter content"},
+   { section_id: 52, description: "PowerPoints slides begin with course logistics or content"},
    { section_id: 54, description: "PowerPoint slides are text and graphic only; lecture using PowerPoint is long (more than 15 minutes)"},
    { section_id: 55, description: "PowerPoint slides often have more than 20 words per slide; or significant extraneous information"},
    { section_id: 56, description: "Images and texts are overlapping, making it hard to see or read"},
    { section_id: 57, description: "Slides use “traditional” method: a Title/topic heading with elaboration details in body"},
-   { section_id: 58, description: "For visual aids, instructor uses only PowerPoint"},
-   { section_id: 59, description: "Visual presentation of material is confusing or indiscriminate"}
+   { section_id: 58, description: "Instructor does not use projector, white board, handouts, or doc cam when these tools could help present or organize material"},
+   { section_id: 59, description: "Visual presentation of material is confusing or indiscriminate"},
+   { section_id: 63, description: "Students struggle to take notes based on PowerPoint, or students write only verbatim" }
   ] }
 ];

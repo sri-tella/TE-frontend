@@ -6,8 +6,8 @@ import './InlineEdit.css';
 
 const InlineEdit = ({ pageKey, defaultValue, canEdit, tag: Tag = 'span', className }) => {
   const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState('');
-  const [saved, setSaved] = useState('');
+  const [value, setValue] = useState(defaultValue);
+  const [saved, setSaved] = useState(defaultValue);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {

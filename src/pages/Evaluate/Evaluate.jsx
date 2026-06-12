@@ -3,8 +3,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import ProgressStepper from '../../components/ProgressStepper/ProgressStepper.jsx';
 import { useSaveIndicator } from '../../hooks/useSaveIndicator';
 import { Card, Button, Form, Collapse } from 'react-bootstrap';
-import { ChevronDown } from 'react-bootstrap-icons';
+import { ChevronDown, Eye, Check2Square, GearFill } from 'react-bootstrap-icons';
 import SearchBar from '../../components/SearchBar/SearchBar.jsx';
+import AccordionControls from '../../components/AccordionControls/AccordionControls.jsx';
 import TextArea from '../../components/TextArea/TextArea.jsx';
 import ActivityLog from '../../components/ActivityLog/ActivityLog.jsx';
 import SectionText from '../../components/SectionText/SectionText.jsx';
@@ -60,7 +61,7 @@ const Evaluate = () => {
 
   const { saved, flash } = useSaveIndicator();
 
-  const { searchQuery, setSearchQuery, openSections, toggleSection, filteredData } = useEvalPageState({
+  const { searchQuery, setSearchQuery, openSections, toggleSection, expandAll, collapseAll, filteredData } = useEvalPageState({
     evaluationId,
     responses,
     storagePrefix: 'eval',
@@ -81,9 +82,37 @@ const Evaluate = () => {
       <ActivityLog />
       <div className="container py-5">
         <ProgressStepper currentStep={1} />
-        <div className="text-center mb-5">
+        <div className="text-center mb-4">
           <InlineEdit pageKey="evaluate-title" defaultValue="Teaching Evaluation Form" canEdit={canEdit} tag="h1" className="eval-page-heading" />
-          <InlineEdit pageKey="evaluate-subtitle" defaultValue="Search by criteria or your notes" canEdit={canEdit} tag="p" className="eval-page-subtext" />
+          <InlineEdit pageKey="evaluate-subtitle" defaultValue="Select applicable criteria and add your observations below" canEdit={canEdit} tag="p" className="eval-page-subtext" />
+        </div>
+        <div className="guide-cards mb-4">
+          <div className="guide-card">
+            <Eye className="guide-card-icon guide-card-icon--pulse" />
+            <InlineEdit pageKey="eval-guide-card1-label" defaultValue="Overview" canEdit={canEdit} tag="p" className="guide-card-label" />
+            <InlineEdit pageKey="eval-guide-p1" defaultValue="The observer arrives here after starting a new evaluation from the home page." canEdit={canEdit} tag="p" className="guide-para" />
+            <InlineEdit pageKey="eval-guide-p2" defaultValue="The page shows a list of collapsible sections — each containing short descriptive phrases that the observer may have noticed in the classroom." canEdit={canEdit} tag="p" className="guide-para" />
+          </div>
+          <div className="guide-card">
+            <Check2Square className="guide-card-icon guide-card-icon--bounce" />
+            <InlineEdit pageKey="eval-guide-what-head" defaultValue="What the observer does:" canEdit={canEdit} tag="p" className="guide-card-label" />
+            <ul className="guide-list">
+              <li><InlineEdit pageKey="eval-guide-what-1" defaultValue="Clicks a section header to expand it." canEdit={canEdit} /></li>
+              <li><InlineEdit pageKey="eval-guide-what-2" defaultValue="Checks the boxes next to every phrase that describes what they actually observed." canEdit={canEdit} /></li>
+              <li><InlineEdit pageKey="eval-guide-what-3" defaultValue="Whenever they check something, a text box appears to add notes or examples." canEdit={canEdit} /></li>
+              <li><InlineEdit pageKey="eval-guide-what-4" defaultValue="The Additional Feedback section at the bottom only has open text boxes — no checkboxes — for free-form comments." canEdit={canEdit} /></li>
+              <li><InlineEdit pageKey="eval-guide-what-5" defaultValue="A search bar at the top lets the observer search across all sections at once." canEdit={canEdit} /></li>
+            </ul>
+          </div>
+          <div className="guide-card">
+            <GearFill className="guide-card-icon guide-card-icon--spin" />
+            <InlineEdit pageKey="eval-guide-behind-head" defaultValue="Behind the scenes:" canEdit={canEdit} tag="p" className="guide-card-label" />
+            <ul className="guide-list">
+              <li><InlineEdit pageKey="eval-guide-behind-1" defaultValue="Every change is saved automatically — a ✓ Draft saved message flashes. Work is not lost if the tab is closed." canEdit={canEdit} /></li>
+              <li><InlineEdit pageKey="eval-guide-behind-2" defaultValue="A floating Activity Log panel lets the observer add timestamped notes during the class." canEdit={canEdit} /></li>
+              <li><InlineEdit pageKey="eval-guide-behind-3" defaultValue="When finished, clicking Save and Continue passes all selections to Step 2." canEdit={canEdit} /></li>
+            </ul>
+          </div>
         </div>
         <div className="search-container-v3 mb-4 mx-auto" style={{ maxWidth: '600px' }}>
           <SearchBar searchQuery={searchQuery} handleSearchChange={setSearchQuery} />
@@ -92,6 +121,15 @@ const Evaluate = () => {
           e.preventDefault();
           navigate('/recommendations', { state: { evaluationId, observerId, instructorId, classId, allObservations: responses } });
         }}>
+          <AccordionControls
+            onExpandAll={() => expandAll(filteredData.map((s, i) => s.originalIdx !== undefined ? s.originalIdx : responses.findIndex(r => r.title === s.title)))}
+            onCollapseAll={collapseAll}
+            allExpanded={filteredData.every(s => {
+              const idx = s.originalIdx !== undefined ? s.originalIdx : responses.findIndex(r => r.title === s.title);
+              return openSections.includes(String(idx));
+            })}
+            allCollapsed={openSections.length === 0}
+          />
           <div className="eval-sections-wrapper" style={{ minHeight: '400px' }}>
             {filteredData.map((section) => {
               const sIdx = section.originalIdx !== undefined

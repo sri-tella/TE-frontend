@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useEvaluationStore } from '../../store/evaluationStore';
 import { Plus, X, List, ChevronRight } from 'react-bootstrap-icons';
 import './ActivityLog.css';
 
 const ActivityLog = () => {
-  const { activityLog, addLogEntry, updateLogEntry, removeLogEntry } = useEvaluationStore();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { 
+    activityLog, addLogEntry, updateLogEntry, removeLogEntry,
+    isLogCollapsed, setLogCollapsed 
+  } = useEvaluationStore();
 
   const handleTimeChange = (index, value) => {
     let formatted = value.replace(/\D/g, '');
@@ -27,11 +29,11 @@ const ActivityLog = () => {
     }
   };
 
-  if (isCollapsed) {
+  if (isLogCollapsed) {
     return (
       <div
         className="activity-log-sticky collapsed"
-        onClick={() => setIsCollapsed(false)}
+        onClick={() => setLogCollapsed(false)}
         title="Open Activity Log"
       >
         <List size={18} />
@@ -46,7 +48,7 @@ const ActivityLog = () => {
           <h6>Activity Log</h6>
           <span className="log-count-badge">{activityLog.length}</span>
         </div>
-        <button className="log-collapse-btn" onClick={() => setIsCollapsed(true)} title="Collapse">
+        <button className="log-collapse-btn" onClick={() => setLogCollapsed(true)} title="Collapse">
           <ChevronRight size={13} />
         </button>
       </div>

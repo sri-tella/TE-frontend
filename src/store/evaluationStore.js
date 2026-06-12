@@ -6,8 +6,10 @@ export const useEvaluationStore = create(
     (set) => ({
       activityLog: [{ time: '', activity: '', period: 'AM' }],
       logVersion: 0,
+      isLogCollapsed: false,
       
       setActivityLog: (log) => set({ activityLog: log, logVersion: Date.now() }),
+      setLogCollapsed: (collapsed) => set({ isLogCollapsed: collapsed }),
       
       addLogEntry: () => set((state) => ({
         activityLog: [...state.activityLog, { time: '', activity: '', period: 'AM' }],

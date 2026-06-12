@@ -3,8 +3,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import ProgressStepper from '../../components/ProgressStepper/ProgressStepper.jsx';
 import { useSaveIndicator } from '../../hooks/useSaveIndicator';
 import { Card, Button, Form, Collapse } from 'react-bootstrap';
-import { ChevronDown } from 'react-bootstrap-icons';
+import { ChevronDown, LightbulbFill, Check2Square, InfoCircle } from 'react-bootstrap-icons';
 import SearchBar from '../../components/SearchBar/SearchBar.jsx';
+import AccordionControls from '../../components/AccordionControls/AccordionControls.jsx';
 import TextArea from '../../components/TextArea/TextArea.jsx';
 import ActivityLog from '../../components/ActivityLog/ActivityLog.jsx';
 import SectionText from '../../components/SectionText/SectionText.jsx';
@@ -87,7 +88,7 @@ const Recommendations = () => {
 
   const { saved, flash } = useSaveIndicator();
 
-  const { searchQuery, setSearchQuery, openSections, toggleSection, filteredData } = useEvalPageState({
+  const { searchQuery, setSearchQuery, openSections, toggleSection, expandAll, collapseAll, filteredData } = useEvalPageState({
     evaluationId,
     responses,
     storagePrefix: 'recs',
@@ -108,9 +109,34 @@ const Recommendations = () => {
       <ActivityLog />
       <div className="container py-5">
         <ProgressStepper currentStep={2} />
-        <div className="text-center mb-5">
+        <div className="text-center mb-4">
           <InlineEdit pageKey="recommendations-title" defaultValue="Possible Recommendations" canEdit={canEdit} tag="h1" className="eval-page-heading" />
           <InlineEdit pageKey="recommendations-subtitle" defaultValue="Review and select based on observations" canEdit={canEdit} tag="p" className="eval-page-subtext" />
+        </div>
+        <div className="guide-cards mb-4">
+          <div className="guide-card">
+            <LightbulbFill className="guide-card-icon guide-card-icon--glow" />
+            <InlineEdit pageKey="rec-guide-card1-label" defaultValue="Overview" canEdit={canEdit} tag="p" className="guide-card-label" />
+            <InlineEdit pageKey="rec-guide-p1" defaultValue="The page opens with a set of suggested recommendations that were pre-matched to what the observer checked in Step 1." canEdit={canEdit} tag="p" className="guide-para" />
+            <InlineEdit pageKey="rec-guide-p2" defaultValue='If an observer checked "Students seemed disengaged", they will automatically see a recommendation like "Consider adding more interactive activities."' canEdit={canEdit} tag="p" className="guide-para" />
+          </div>
+          <div className="guide-card">
+            <Check2Square className="guide-card-icon guide-card-icon--bounce" />
+            <InlineEdit pageKey="rec-guide-what-head" defaultValue="What the observer does:" canEdit={canEdit} tag="p" className="guide-card-label" />
+            <ul className="guide-list">
+              <li><InlineEdit pageKey="rec-guide-what-1" defaultValue="Reviews each recommended item — those triggered by their observations are already pre-checked." canEdit={canEdit} /></li>
+              <li><InlineEdit pageKey="rec-guide-what-2" defaultValue="Unchecks anything that doesn't feel appropriate for this particular instructor." canEdit={canEdit} /></li>
+              <li><InlineEdit pageKey="rec-guide-what-3" defaultValue="Adds a personal comment to any recommendation if they want to explain their reasoning." canEdit={canEdit} /></li>
+              <li><InlineEdit pageKey="rec-guide-what-4" defaultValue="Uses the search bar the same way as in Step 1." canEdit={canEdit} /></li>
+            </ul>
+          </div>
+          <div className="guide-card">
+            <InfoCircle className="guide-card-icon guide-card-icon--wobble" />
+            <InlineEdit pageKey="rec-guide-card3-label" defaultValue="Also note:" canEdit={canEdit} tag="p" className="guide-card-label" />
+            <InlineEdit pageKey="rec-guide-p3" defaultValue="The page is organized into the same category sections as Step 1. Each recommendation shows which observation triggered it as a subtitle above the text." canEdit={canEdit} tag="p" className="guide-para" />
+            <InlineEdit pageKey="rec-guide-p4" defaultValue="The Additional Feedback section from Step 1 also appears here and carries over automatically." canEdit={canEdit} tag="p" className="guide-para" />
+            <InlineEdit pageKey="rec-guide-p5" defaultValue="When done, the observer clicks Save and View Report to move to Step 3." canEdit={canEdit} tag="p" className="guide-para" />
+          </div>
         </div>
         <div className="search-container-v3 mb-4 mx-auto" style={{ maxWidth: '600px' }}>
           <SearchBar searchQuery={searchQuery} handleSearchChange={setSearchQuery} />
@@ -119,6 +145,15 @@ const Recommendations = () => {
           e.preventDefault();
           navigate('/report-viewer', { state: { evaluationId, observerId, instructorId, classId, allObservations, allRecommendations: responses } });
         }}>
+          <AccordionControls
+            onExpandAll={() => expandAll(filteredData.map((s, i) => s.originalIdx !== undefined ? s.originalIdx : responses.findIndex(r => r.title === s.title)))}
+            onCollapseAll={collapseAll}
+            allExpanded={filteredData.every(s => {
+              const idx = s.originalIdx !== undefined ? s.originalIdx : responses.findIndex(r => r.title === s.title);
+              return openSections.includes(String(idx));
+            })}
+            allCollapsed={openSections.length === 0}
+          />
           <div className="eval-sections-wrapper" style={{ minHeight: '400px' }}>
             {filteredData.map((section) => {
               const sIdx = section.originalIdx !== undefined

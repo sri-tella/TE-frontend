@@ -200,10 +200,7 @@ const ObsHome = () => {
           {...provided.dragHandleProps}
           className={`class-card ${isSelected ? 'selected-card' : ''} ${snapshot.isDragging ? 'dragging-card' : ''}`}
           onClick={() => isClickable && handleClassSelect(info)}
-          style={{
-            ...provided.draggableProps.style,
-            cursor: isClickable ? 'grab' : 'default'
-          }}
+          style={provided.draggableProps.style}
         >
           {isSelected && <CheckCircleFill className="selection-badge" />}
           

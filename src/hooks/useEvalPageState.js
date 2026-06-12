@@ -35,6 +35,12 @@ export const useEvalPageState = ({ evaluationId, responses, storagePrefix }) => 
     );
   };
 
+  const expandAll = (indices) => {
+    setOpenSections(indices.map(String));
+  };
+
+  const collapseAll = () => setOpenSections([]);
+
   const filteredData = useMemo(() => {
     if (!searchQuery.trim()) return responses;
     const lowerQuery = searchQuery.toLowerCase();
@@ -67,5 +73,5 @@ export const useEvalPageState = ({ evaluationId, responses, storagePrefix }) => 
     if (indicesToOpen.length > 0) setOpenSections(prev => Array.from(new Set([...prev, ...indicesToOpen])));
   }, [searchQuery, responses]);
 
-  return { searchQuery, setSearchQuery, openSections, toggleSection, filteredData };
+  return { searchQuery, setSearchQuery, openSections, toggleSection, expandAll, collapseAll, filteredData };
 };
