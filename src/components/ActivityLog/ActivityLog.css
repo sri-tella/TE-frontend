@@ -1,4 +1,4 @@
-.activity-log-sticky {
+﻿.activity-log-sticky {
   position: fixed;
   top: 50%;
   right: 12px;
@@ -7,7 +7,7 @@
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(21, 71, 52, 0.13);
+  box-shadow: 0 4px 24px rgba(26, 37, 53, 0.13);
   z-index: 999;
   color: #1e293b;
   overflow: hidden;
@@ -23,20 +23,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #154734;
-  color: #FFB81C;
+  background: #1a2535;
+  color: #2dd4bf;
   border: none;
-  box-shadow: 0 4px 16px rgba(21, 71, 52, 0.25);
+  box-shadow: 0 4px 16px rgba(26, 37, 53, 0.25);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .activity-log-sticky.collapsed:hover {
-  background: #003015;
+  background: #091220;
   transform: translateY(-50%) scale(1.08);
 }
 
 .log-header {
-  background: #154734;
+  background: #1a2535;
   padding: 11px 14px;
   display: flex;
   justify-content: space-between;
@@ -53,20 +53,20 @@
 .log-header h6 {
   margin: 0;
   font-weight: 700;
-  color: #FFB81C;
+  color: #2dd4bf;
   font-size: 0.78rem;
   letter-spacing: 0.8px;
   text-transform: uppercase;
 }
 
 .log-count-badge {
-  background: rgba(255, 184, 28, 0.2);
-  color: #FFB81C;
+  background: rgba(45, 212, 191, 0.2);
+  color: #2dd4bf;
   font-size: 0.65rem;
   font-weight: 700;
   padding: 1px 6px;
   border-radius: 20px;
-  border: 1px solid rgba(255, 184, 28, 0.35);
+  border: 1px solid rgba(45, 212, 191, 0.35);
 }
 
 .log-collapse-btn {
@@ -127,8 +127,8 @@
 }
 
 .log-entry:focus-within {
-  border-color: #154734;
-  background: #f0fdf4;
+  border-color: #1a2535;
+  background: #f0f7ff;
 }
 
 .time-group {
@@ -153,8 +153,8 @@
 
 .log-input:focus {
   outline: none;
-  border-color: #154734;
-  box-shadow: 0 0 0 2px rgba(21, 71, 52, 0.1);
+  border-color: #1a2535;
+  box-shadow: 0 0 0 2px rgba(26, 37, 53, 0.1);
 }
 
 .log-input::placeholder {
@@ -193,8 +193,8 @@
 }
 
 .period-toggle.active {
-  background: #154734;
-  color: #FFB81C;
+  background: #1a2535;
+  color: #2dd4bf;
 }
 
 .period-toggle:not(.active):hover {
@@ -241,9 +241,9 @@
 }
 
 .add-log-btn:hover {
-  border-color: #154734;
-  color: #154734;
-  background: #f0fdf4;
+  border-color: #1a2535;
+  color: #1a2535;
+  background: #f0f7ff;
 }
 
 @media (max-width: 768px) {

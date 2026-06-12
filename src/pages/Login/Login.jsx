@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,13 +35,13 @@ const Login = () => {
         <div className={`auth-left${leftOpen ? '' : ' auth-left--collapsed'}`}>
           <div className="auth-left-inner">
             <div className="auth-logo-wrap">
-              <img src={logo} alt="Academy for Teaching and Learning" className="auth-left-logo" />
+              <img src={logo} alt="Peer Lens" className="auth-left-logo" />
             </div>
             <h1 className="auth-left-title">
               <InlineEdit pageKey="login-left-title" defaultValue="Teaching Evaluation" canEdit={false} />
             </h1>
             <p className="auth-left-sub">
-              <InlineEdit pageKey="login-left-sub" defaultValue="Academy for Teaching and Learning — structured classroom observation platform" canEdit={false} />
+              <InlineEdit pageKey="login-left-sub" defaultValue="Peer Lens — structured peer teaching evaluation platform" canEdit={false} />
             </p>
             <ul className="auth-feature-list">
               <li>
@@ -77,7 +77,7 @@ const Login = () => {
         <div className="auth-right">
           <div className="auth-form-box">
             <div className="auth-form-header">
-              <div className="auth-badge">Academy for Teaching and Learning</div>
+              <div className="auth-badge">Peer Lens</div>
               <h2 className="auth-heading">Welcome back</h2>
               <p className="auth-subtext">Sign in to your account to continue</p>
             </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { authApi } from '../../api/authApi';
@@ -82,7 +82,7 @@ const Register = () => {
         <div className={`auth-left${leftOpen ? '' : ' auth-left--collapsed'}`}>
           <div className="auth-left-inner">
             <div className="auth-logo-wrap">
-              <img src={logo} alt="Academy for Teaching and Learning" className="auth-left-logo" />
+              <img src={logo} alt="Peer Lens" className="auth-left-logo" />
             </div>
             <h1 className="auth-left-title">
               <InlineEdit pageKey="register-left-title" defaultValue="Join the Platform" canEdit={false} />
@@ -124,7 +124,7 @@ const Register = () => {
         <div className="auth-right">
           <div className="auth-form-box auth-form-box--wide">
             <div className="auth-form-header">
-              <div className="auth-badge">Academy for Teaching and Learning</div>
+              <div className="auth-badge">Peer Lens</div>
               <h2 className="auth-heading">Create account</h2>
               <p className="auth-subtext">Fill in your details below to get started</p>
             </div>

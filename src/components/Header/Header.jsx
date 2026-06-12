@@ -83,7 +83,7 @@ const Header = () => {
         <Navbar.Brand as={Link} to="/" className="brand-logo-container">
           <img
             src={logo}
-            alt="Academy for Teaching and Learning"
+            alt="Peer Lens"
             className="logo-img"
           />
         </Navbar.Brand>

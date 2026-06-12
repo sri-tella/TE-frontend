@@ -1,4 +1,4 @@
-import { Component } from 'react';
+﻿import { Component } from 'react';
 
 class ErrorBoundary extends Component {
   constructor(props) {
@@ -41,8 +41,8 @@ class ErrorBoundary extends Component {
             style={{
               padding: '14px 40px',
               borderRadius: '50px',
-              background: '#FFB81C',
-              color: '#154734',
+              background: '#2dd4bf',
+              color: '#1a2535',
               border: 'none',
               fontWeight: 800,
               fontSize: '1rem',

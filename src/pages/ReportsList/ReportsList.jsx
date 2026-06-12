@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import { Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 import InlineEdit from '../../components/InlineEdit/InlineEdit';
 import './ReportsList.css';
 
-const AVATAR_COLORS = ['#154734','#1a5c40','#0a7c4f','#2d6a4f','#1b6ca8','#7b2d8b','#b5451b','#0d6e4a'];
+const AVATAR_COLORS = ['#1a2535','#2a3d68','#0e7490','#1d4ed8','#1b6ca8','#7b2d8b','#b5451b','#0891b2'];
 const getAvatarColor = (name) => {
   let h = 0;
   for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
@@ -135,7 +135,7 @@ const ReportsList = () => {
           {/* TABLE */}
           {isLoading ? (
             <div className="rl-state">
-              <Spinner animation="border" style={{ color: '#154734', width: 32, height: 32 }} />
+              <Spinner animation="border" style={{ color: '#1a2535', width: 32, height: 32 }} />
               <p>Loading reports…</p>
             </div>
           ) : isError ? (

@@ -25,14 +25,70 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: JSON.stringify({ error: 'sections must be an array' }) };
   }
 
-  const generateWithRetry = async (model, prompt, retries = 3) => {
+  // Only sections with at least one selected item
+  const activeSections = sections.filter(
+    ({ selected, recSelected }) => selected?.length || recSelected?.length
+  );
+
+  if (activeSections.length === 0) {
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feedbacks: {}, obsAnalysis: {}, recAnalysis: {} }),
+    };
+  }
+
+  // Format a single item: "Description [Note: observer comment]" or just "Description"
+  const formatItem = (item) => {
+    const note = item.note?.trim();
+    return note ? `${item.description} [Note: ${note}]` : item.description;
+  };
+
+  // Build ONE combined prompt covering all three analyses per section
+  const sectionBlocks = activeSections
+    .map(({ sectionName, selected, recSelected }) => {
+      const obs = (selected || []).map(formatItem);
+      const recs = (recSelected || []).map(formatItem);
+      return [
+        `### ${sectionName}`,
+        `Observations: ${obs.length ? obs.join('; ') : 'none'}`,
+        `Recommendations: ${recs.length ? recs.join('; ') : 'none'}`,
+      ].join('\n');
+    })
+    .join('\n\n');
+
+  const sectionNames = activeSections.map(s => s.sectionName);
+
+  const prompt = `You are an educational consultant writing a formal peer observation report. For each teaching category below, provide three separate analyses:
+
+1. "main" — A brief 2-3 sentence overall analysis combining observations and recommendations.
+2. "obsAI" — A 1-2 sentence analysis focused specifically on what was observed (and any observer notes). Omit if no observations.
+3. "recAI" — A 1-2 sentence analysis focused specifically on the recommended strategies (and any observer notes). Omit if no recommendations.
+
+Categories:
+
+${sectionBlocks}
+
+Return ONLY a valid JSON object. Top-level keys are section names. Each value is an object with "main", "obsAI", and "recAI" string fields (omit a field if there is no data for it). No markdown, no code fences — pure JSON only.
+
+Example shape:
+{"Introduction": {"main": "...", "obsAI": "...", "recAI": "..."}, "Organization": {"main": "..."}}`;
+
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+  const RETRYABLE = new Set([429, 503]);
+
+  const callWithRetry = async (retries = 3) => {
     for (let attempt = 0; attempt < retries; attempt++) {
       try {
-        const result = await model.generateContent(prompt);
-        return result;
+        return await model.generateContent(prompt);
       } catch (err) {
-        if (attempt < retries - 1 && err.status === 503) {
-          await new Promise(res => setTimeout(res, 1000 * 2 ** attempt));
+        const status = err.status ?? err.statusCode;
+        if (attempt < retries - 1 && RETRYABLE.has(status)) {
+          const delay = 1000 * Math.pow(2, attempt);
+          console.log(`[ai-feedback] retry ${attempt + 1} after ${delay}ms (status=${status})`);
+          await new Promise(res => setTimeout(res, delay));
           continue;
         }
         throw err;
@@ -41,33 +97,63 @@ exports.handler = async (event) => {
   };
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const result = await callWithRetry();
+    let rawText = result.response.text().trim();
 
-    const activeSections = sections.filter(({ selected, recSelected }) => selected?.length || recSelected?.length);
+    // Strip markdown code fences if present
+    const fenceMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (fenceMatch) rawText = fenceMatch[1].trim();
 
-    const entries = await Promise.all(
-      activeSections.map(async ({ sectionName, selected, recSelected }) => {
-        const prompt = `You are an educational consultant. For the teaching category "${sectionName}", the observer noted: ${selected.join('; ')}. Recommended strategies: ${recSelected.join('; ')}. Provide a brief 2-3 sentence constructive analysis.`;
-        console.log(`[ai-feedback] section="${sectionName}" prompt_length=${prompt.length}`);
-        const result = await generateWithRetry(model, prompt);
-        return [sectionName, result.response.text()];
-      })
-    );
+    // Strip anything before the first '{' and after the last '}'
+    const start = rawText.indexOf('{');
+    const end = rawText.lastIndexOf('}');
+    if (start !== -1 && end !== -1) rawText = rawText.slice(start, end + 1);
 
-    const results = Object.fromEntries(entries);
+    let parsed;
+    try {
+      parsed = JSON.parse(rawText);
+    } catch (parseErr) {
+      console.warn('[ai-feedback] JSON parse failed, using regex fallback:', parseErr.message);
+      // Fallback: try to extract at least "main" per section via regex
+      parsed = {};
+      for (const name of sectionNames) {
+        const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const match = rawText.match(new RegExp(`"${escaped}"\\s*:\\s*\\{([^}]+)\\}`));
+        if (match) {
+          const inner = match[1];
+          const mainMatch = inner.match(/"main"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+          parsed[name] = { main: mainMatch ? mainMatch[1].replace(/\\n/g, ' ') : '' };
+        }
+      }
+    }
+
+    // Split into three flat maps for the frontend
+    const feedbacks = {};
+    const obsAnalysis = {};
+    const recAnalysis = {};
+
+    for (const [name, val] of Object.entries(parsed)) {
+      if (typeof val === 'string') {
+        // Backward compat if Gemini ignores instructions and returns a string
+        feedbacks[name] = val;
+      } else if (val && typeof val === 'object') {
+        if (val.main)   feedbacks[name]    = val.main;
+        if (val.obsAI)  obsAnalysis[name]  = val.obsAI;
+        if (val.recAI)  recAnalysis[name]  = val.recAI;
+      }
+    }
 
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ feedbacks: results }),
+      body: JSON.stringify({ feedbacks, obsAnalysis, recAnalysis }),
     };
   } catch (err) {
-    console.error('ai-feedback error:', err);
+    console.error('[ai-feedback] fatal error:', err);
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: err.message }),
+      body: JSON.stringify({ error: err.message || 'Internal server error' }),
     };
   }
 };

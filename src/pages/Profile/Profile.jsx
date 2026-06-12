@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import './Profile.css';
 import { authApi } from '../../api/authApi';
@@ -7,7 +7,7 @@ import { ShieldLock, EnvelopeFill, PersonFill, Eye, EyeSlash, KeyFill, ArrowRigh
 import { toast } from 'react-toastify';
 import { useAuthStore } from '../../store/authStore';
 
-const AVATAR_COLORS = ['#154734','#1a5c40','#0a7c4f','#2d6a4f','#1b6ca8','#7b2d8b','#b5451b','#0d6e4a'];
+const AVATAR_COLORS = ['#1a2535','#2a3d68','#0e7490','#1d4ed8','#1b6ca8','#7b2d8b','#b5451b','#0891b2'];
 const getAvatarColor = (name) => {
   let h = 0;
   for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);

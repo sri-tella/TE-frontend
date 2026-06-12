@@ -1,12 +1,13 @@
-:root {
-  --color-primary: #154734;
-  --color-primary-dark: #003015;
-  --color-accent: #FFB81C;
+﻿:root {
+  --color-primary: #1a2535;
+  --color-primary-dark: #091220;
+  --color-accent: #2dd4bf;
+
+  color-scheme: light;
 
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
   font-synthesis: none;
@@ -17,7 +18,7 @@
 
 /* GLOBAL SHARED BACKGROUND - PREVENTS BLINKING */
 .app-main-layout {
-  background: linear-gradient(rgba(21, 71, 52, 0.6), rgba(21, 71, 52, 0.4)), url('./assets/bgimg.avif');
+  background: linear-gradient(rgba(26, 37, 53, 0.6), rgba(26, 37, 53, 0.4)), url('./assets/bgimg.avif');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -32,7 +33,7 @@
 
 /* SIMPLEBAR MODERN THIN SCROLLBAR */
 .simplebar-scrollbar::before {
-  background: #FFB81C !important;
+  background: #2dd4bf !important;
   border-radius: 10px !important;
   opacity: 0.5 !important;
   left: 4px !important;
@@ -42,7 +43,7 @@
 
 .simplebar-scrollbar.simplebar-visible::before {
   opacity: 0.8 !important;
-  box-shadow: 0 0 10px rgba(255, 184, 28, 0.3);
+  box-shadow: 0 0 10px rgba(45, 212, 191, 0.3);
 }
 
 .simplebar-track:hover .simplebar-scrollbar::before {
@@ -55,6 +56,11 @@
   width: 12px !important;
 }
 
+/* Override @hello-pangea/dnd globally injected cursor:grab — prevents white hand cursor on all pages */
+[data-rfd-drag-handle-context-id] {
+  cursor: default !important;
+}
+
 body {
   margin: 0;
   display: block;
@@ -62,6 +68,7 @@ body {
   min-height: 100vh;
   overflow: hidden;
 }
+
 
 @media (max-width: 768px) {
   body { overflow-x: hidden; overflow-y: auto; }
@@ -88,7 +95,7 @@ body {
   position: fixed;
   bottom: 120px;
   right: 24px;
-  background: rgba(21, 71, 52, 0.92);
+  background: rgba(26, 37, 53, 0.92);
   color: var(--color-accent);
   padding: 7px 16px;
   border-radius: 20px;

@@ -1,4 +1,4 @@
-.custom-textarea {
+﻿.custom-textarea {
   border-radius: 12px;
   border: 1px solid #e2e8f0;
   padding: 15px;
@@ -6,7 +6,10 @@
   font-size: 0.95rem;
   resize: vertical;
   transition: all 0.2s ease;
-  color: #334155; /* Darker color for user input */
+  color: #334155;
+  background-color: #ffffff;
+  color-scheme: light;
+  caret-color: #334155;
 }
 
 .custom-textarea::placeholder {
@@ -16,6 +19,6 @@
 }
 
 .custom-textarea:focus {
-  border-color: #154734;
-  box-shadow: 0 0 0 4px rgba(21, 71, 52, 0.1) !important;
+  border-color: #1a2535;
+  box-shadow: 0 0 0 4px rgba(26, 37, 53, 0.1) !important;
 }

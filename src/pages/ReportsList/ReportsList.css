@@ -1,5 +1,5 @@
-#reports-page-scoped {
-  background: linear-gradient(rgba(21, 71, 52, 0.62), rgba(21, 71, 52, 0.42)), url('../../assets/bgimg.avif') center / cover;
+﻿#reports-page-scoped {
+  background: linear-gradient(rgba(26, 37, 53, 0.62), rgba(26, 37, 53, 0.42)), url('../../assets/bgimg.avif') center / cover;
   min-height: calc(100vh - 80px);
   font-family: 'Inter', sans-serif;
   padding: 52px 24px 60px;
@@ -35,7 +35,7 @@
 }
 
 .rl-subtitle {
-  color: #FFB81C;
+  color: #2dd4bf;
   font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 2.5px;
@@ -66,7 +66,7 @@
   content: '';
   display: block;
   height: 3px;
-  background: linear-gradient(90deg, transparent, #FFB81C 30%, #ffdd6e 50%, #FFB81C 70%, transparent);
+  background: linear-gradient(90deg, transparent, #2dd4bf 30%, #7eeee4 50%, #2dd4bf 70%, transparent);
 }
 
 /* ── TOOLBAR ── */
@@ -84,8 +84,8 @@
   display: flex;
   align-items: baseline;
   gap: 6px;
-  background: #f0fdf4;
-  border: 1px solid rgba(21,71,52,0.12);
+  background: #f0f7ff;
+  border: 1px solid rgba(26,37,53,0.12);
   border-radius: 50px;
   padding: 5px 16px;
   flex-shrink: 0;
@@ -94,7 +94,7 @@
 .rl-count-num {
   font-size: 1.15rem;
   font-weight: 900;
-  color: #154734;
+  color: #1a2535;
 }
 
 .rl-count-label {
@@ -137,9 +137,9 @@
 
 .rl-search-input:focus {
   outline: none;
-  border-color: #154734;
+  border-color: #1a2535;
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(21,71,52,0.08);
+  box-shadow: 0 0 0 3px rgba(26,37,53,0.08);
 }
 
 .rl-search-clear {
@@ -157,7 +157,7 @@
   transition: color 0.15s;
 }
 
-.rl-search-clear:hover { color: #154734; }
+.rl-search-clear:hover { color: #1a2535; }
 
 /* ── TABLE ── */
 .rl-table-wrap { overflow-x: auto; }
@@ -192,7 +192,7 @@
 
 .rl-table tbody tr:last-child { border-bottom: none; }
 
-.rl-table tbody tr:hover { background: #f8fdf9; }
+.rl-table tbody tr:hover { background: #f5f9ff; }
 
 .rl-row-latest { background: #fffdf0 !important; }
 .rl-row-latest:hover { background: #fffadf !important; }
@@ -225,7 +225,7 @@
 
 .rl-person-name {
   font-weight: 700;
-  color: #0f2e1e;
+  color: #0e1825;
   font-size: 0.975rem;
 }
 
@@ -239,8 +239,8 @@
 }
 
 .rl-latest-badge {
-  background: #FFB81C;
-  color: #0f2e1e;
+  background: #2dd4bf;
+  color: #0e1825;
   font-size: 0.6rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -301,27 +301,27 @@
 
 .rl-btn--ghost {
   background: transparent;
-  border: 1.5px solid #154734;
-  color: #154734;
+  border: 1.5px solid #1a2535;
+  color: #1a2535;
 }
 
 .rl-btn--ghost:hover:not(:disabled) {
-  background: #154734;
-  color: #FFB81C;
+  background: #1a2535;
+  color: #2dd4bf;
   transform: translateY(-1px);
-  box-shadow: 0 3px 10px rgba(21,71,52,0.2);
+  box-shadow: 0 3px 10px rgba(26,37,53,0.2);
 }
 
 .rl-btn--solid {
-  background: #154734;
-  color: #FFB81C;
-  box-shadow: 0 2px 8px rgba(21,71,52,0.2);
+  background: #1a2535;
+  color: #2dd4bf;
+  box-shadow: 0 2px 8px rgba(26,37,53,0.2);
 }
 
 .rl-btn--solid:hover {
-  background: #0a2e1e;
+  background: #0e1825;
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(21,71,52,0.35);
+  box-shadow: 0 4px 14px rgba(26,37,53,0.35);
 }
 
 .rl-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
@@ -341,8 +341,8 @@
 
 .rl-clear-btn {
   background: none;
-  border: 1.5px solid #154734;
-  color: #154734;
+  border: 1.5px solid #1a2535;
+  color: #1a2535;
   border-radius: 8px;
   padding: 6px 16px;
   font-size: 0.82rem;
@@ -352,7 +352,7 @@
   font-family: inherit;
 }
 
-.rl-clear-btn:hover { background: #154734; color: #FFB81C; }
+.rl-clear-btn:hover { background: #1a2535; color: #2dd4bf; }
 
 /* Mobile */
 @media (max-width: 768px) {

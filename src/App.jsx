@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+﻿import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { useRoles } from './hooks/useRoles';
@@ -39,7 +39,7 @@ function App() {
         {showHeader && <Header />}
 
         <main className={showHeader ? 'main-content-padded' : ''}>
-          <Suspense fallback={<div className="page-loading"><div className="spinner-border text-warning page-loading-spinner" role="status" /></div>}>
+          <Suspense fallback={<div className="page-loading"><div className="spinner-border page-loading-spinner" role="status" /></div>}>
             <Routes>
               <Route
                 path="/login"

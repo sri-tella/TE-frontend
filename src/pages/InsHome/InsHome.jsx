@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { JournalPlus, CheckCircleFill, BookHalf, ArrowRightShort } from 'react-bootstrap-icons';
 import { useAuthStore } from '../../store/authStore';
@@ -45,7 +45,7 @@ const InsHome = () => {
             </>
           ) : (
             <div className="ins-success">
-              <CheckCircleFill size={22} style={{ color: '#154734', flexShrink: 0 }} />
+              <CheckCircleFill size={22} style={{ color: '#1a2535', flexShrink: 0 }} />
               <span>Thank you! Your course details have been successfully submitted.</span>
             </div>
           )}

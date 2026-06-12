@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '../../api/adminApi';
 import { toast } from 'react-toastify';
@@ -18,7 +18,7 @@ import './AdminManagement.css';
 const getInitials = (firstName, lastName) =>
   `${(firstName || '')[0] || ''}${(lastName || '')[0] || ''}`.toUpperCase();
 
-const AVATAR_COLORS = ['#154734', '#1a6348', '#0d4a2e', '#2a7a5a', '#0f5c3a'];
+const AVATAR_COLORS = ['#1a2535', '#1e3a5f', '#0e1825', '#243450', '#1e2d5a'];
 const getAvatarColor = (name = '') =>
   AVATAR_COLORS[(name.charCodeAt(0) || 0) % AVATAR_COLORS.length];
 

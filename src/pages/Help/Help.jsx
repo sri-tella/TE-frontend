@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { Eye, PersonVideo3, ShieldLock, Envelope, ArrowRightCircle, PencilSquare, CheckCircle, XCircle, BoxArrowInRight, PersonPlus } from 'react-bootstrap-icons';
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -191,7 +191,7 @@ const FooterButton = ({ canEdit }) => {
 
 const LOGIN_FIELDS = [
   { key: 'login-left-title',   label: 'Title',     placeholder: 'Teaching Evaluation' },
-  { key: 'login-left-sub',     label: 'Subtitle',  placeholder: 'Academy for Teaching and Learning — structured classroom observation platform' },
+  { key: 'login-left-sub',     label: 'Subtitle',  placeholder: 'Peer Lens — structured peer teaching evaluation platform' },
   { key: 'login-feature-1',    label: 'Feature 1', placeholder: '44 structured evaluation criteria' },
   { key: 'login-feature-2',    label: 'Feature 2', placeholder: 'AI-powered recommendations' },
   { key: 'login-feature-3',    label: 'Feature 3', placeholder: 'Instant PDF report generation' },
@@ -347,7 +347,7 @@ const Help = () => {
 
         <footer className="help-footer-simple">
           <div className="contact-info">
-            <Envelope style={{ color: '#FFB81C' }} />
+            <Envelope style={{ color: '#2dd4bf' }} />
             <InlineEdit
               pageKey="help-footer-contact"
               defaultValue="teachingevaluation@gmail.com"
