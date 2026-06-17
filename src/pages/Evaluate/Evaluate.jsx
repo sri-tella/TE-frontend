@@ -100,7 +100,6 @@ const Evaluate = () => {
               <li><InlineEdit pageKey="eval-guide-what-1" defaultValue="Clicks a section header to expand it." canEdit={canEdit} /></li>
               <li><InlineEdit pageKey="eval-guide-what-2" defaultValue="Checks the boxes next to every phrase that describes what they actually observed." canEdit={canEdit} /></li>
               <li><InlineEdit pageKey="eval-guide-what-3" defaultValue="Whenever they check something, a text box appears to add notes or examples." canEdit={canEdit} /></li>
-              <li><InlineEdit pageKey="eval-guide-what-4" defaultValue="The Additional Feedback section at the bottom only has open text boxes — no checkboxes — for free-form comments." canEdit={canEdit} /></li>
               <li><InlineEdit pageKey="eval-guide-what-5" defaultValue="A search bar at the top lets the observer search across all sections at once." canEdit={canEdit} /></li>
             </ul>
           </div>
@@ -137,6 +136,7 @@ const Evaluate = () => {
                 : responses.findIndex(r => r.title === section.title);
               const isExpanded = openSections.includes(String(sIdx));
               const isAdditional = normalizeTitle(section.title) === 'Additional Feedback';
+              if (isAdditional) return null;
 
               return (
                 <Card key={section.title} className="eval-section-card border-0 mb-4 shadow-sm">

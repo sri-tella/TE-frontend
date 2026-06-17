@@ -72,17 +72,23 @@ const Recommendations = () => {
       };
     });
 
-    const additionalSection = allObservations.find(s => normalizeTitle(s.title) === 'Additional Feedback');
-    if (additionalSection) {
-      initial.push({
-        title: '9. Additional Feedback',
-        options: additionalSection.options.map(opt => ({
-          ...opt,
-          selected: !!opt.feedbackText?.trim(),
-          showFeedback: true
-        }))
-      });
-    }
+    const storedAdditional = storedData.find(res => normalizeTitle(res.title) === 'Additional Feedback');
+    const addFeedbackDefaults = [
+      { description: "Did the class session meet the instructor's goal or objective?" },
+      { description: "Other Comments or Recommendations" }
+    ];
+    initial.push({
+      title: '9. Additional Feedback',
+      options: addFeedbackDefaults.map((defaultOpt, idx) => {
+        const stored = storedAdditional?.options?.[idx];
+        return {
+          description: defaultOpt.description,
+          selected: !!stored?.feedbackText?.trim(),
+          showFeedback: true,
+          feedbackText: stored?.feedbackText || ''
+        };
+      })
+    });
     return initial;
   });
 
@@ -134,7 +140,7 @@ const Recommendations = () => {
             <InfoCircle className="guide-card-icon guide-card-icon--wobble" />
             <InlineEdit pageKey="rec-guide-card3-label" defaultValue="Also note:" canEdit={canEdit} tag="p" className="guide-card-label" />
             <InlineEdit pageKey="rec-guide-p3" defaultValue="The page is organized into the same category sections as Step 1. Each recommendation shows which observation triggered it as a subtitle above the text." canEdit={canEdit} tag="p" className="guide-para" />
-            <InlineEdit pageKey="rec-guide-p4" defaultValue="The Additional Feedback section from Step 1 also appears here and carries over automatically." canEdit={canEdit} tag="p" className="guide-para" />
+            <InlineEdit pageKey="rec-guide-p4" defaultValue="The Additional Feedback section at the bottom is for open-ended comments about the class session." canEdit={canEdit} tag="p" className="guide-para" />
             <InlineEdit pageKey="rec-guide-p5" defaultValue="When done, the observer clicks Save and View Report to move to Step 3." canEdit={canEdit} tag="p" className="guide-para" />
           </div>
         </div>
