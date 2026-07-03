@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teaching Observation Form</title>
+    <style>
+        :root {
+            --baylor-green: #004c4c; /* Приближенный зеленый цвет Baylor */
+            --header-bg: #e2e6e6; /* Серый фон заголовков */
+            --text-color: #000;
+        }
+
+        body {
+            font-family: Cambria, "Times New Roman", serif; /* Шрифт как в Word */
+            background-color: #e6e6e6;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            line-height: 1.3;
+        }
+
+        .document {
+            background-color: #fff;
+            max-width: 800px;
+            width: 100%;
+            padding: 50px 70px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Logo Styling */
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-bu {
+            font-size: 55px;
+            font-weight: bold;
+            color: var(--baylor-green);
+            margin-right: 15px;
+            line-height: 1;
+        }
+
+        .logo-text-container {
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--baylor-green);
+            padding-left: 15px;
+        }
+
+        .logo-title {
+            font-size: 32px;
+            color: var(--baylor-green);
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .logo-subtitle {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--baylor-green);
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        /* Typography */
+        h1 {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .section-header {
+            background-color: var(--header-bg);
+            border: 1px solid #000;
+            padding: 5px 10px;
+            font-weight: bold;
+            font-size: 15px;
+            color: #3b6058; /* Цвет текста в серых блоках на скриншоте немного зеленоватый/серый */
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .instruction-text {
+            font-style: italic;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .normal-italic {
+            font-style: italic;
+            font-size: 14px;
+            margin-bottom: 15px;
+            font-weight: normal;
+        }
+
+        /* Form Layout */
+        .form-row {
+            display: flex;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .form-label {
+            width: 150px;
+        }
+
+        .indent-group {
+            margin-left: 30px;
+        }
+
+        .indent-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .indent-label {
+            width: 300px;
+        }
+
+        /* Lists */
+        ol {
+            padding-left: 20px;
+            margin-top: 0;
+            font-size: 14px;
+        }
+
+        ol > li {
+            margin-bottom: 25px;
+            padding-left: 10px;
+        }
+
+        .question-space {
+            height: 60px; /* Пустое место для ответов */
+        }
+
+        .red-bullets {
+            color: red; /* Красный цвет текста и маркеров */
+            list-style-type: disc;
+            margin-top: 10px;
+            padding-left: 20px;
+            font-size: 13px; /* Чуть меньше основного текста */
+        }
+
+        .red-bullets li {
+            margin-bottom: 3px;
+        }
+        
+        u {
+            text-decoration: underline;
+        }
+
+        @media print {
+            body {
+                background-color: #fff;
+                padding: 0;
+            }
+            .document {
+                box-shadow: none;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="document">
+        
+        <div class="logo-section">
+            <div class="logo-bu">BU</div>
+            <div class="logo-text-container">
+                <h2 class="logo-title">Baylor University</h2>
+                <p class="logo-subtitle">ACADEMY FOR TEACHING & LEARNING</p>
+            </div>
+        </div>
+
+        <h1>Teaching Observation Form</h1>
+
+        <div class="section-header">Observation Information</div>
+        
+        <div class="form-row">
+            <div class="form-label">Instructor:</div>
+        </div>
+        <div class="indent-group">
+            <div class="indent-row">
+                <div class="indent-label">Date of Observation:</div>
+                <div>Time:</div>
+            </div>
+            <div class="indent-row">
+                <div class="indent-label" style="line-height: 1.1;">Class Session Topic or<br>Course Subject:</div>
+            </div>
+        </div>
+        <div class="form-row" style="margin-top: 20px;">
+            <div class="form-label">Observer:</div>
+        </div>
+
+        <div class="section-header">Background Information</div>
+        <div class="instruction-text">To be provided by the instructor for the observer prior to scheduled observation.</div>
+        
+        <ol>
+            <li>What is the learning goal or objective for today’s class session?
+                <div class="question-space"></div>
+            </li>
+            <li>Please provide a brief outline or sketch of how the class session will proceed; for example, “mini-lecture; small group activity; mini-lecture; quiz; review.”
+                <div class="question-space"></div>
+            </li>
+            <li>How might the observer be particularly helpful in the observation process? Are there elements of the class session that might benefit from detailed feedback or focused attention; e.g., class activities, facilitation of discussion, or assessment strategies?
+                <div class="question-space"></div>
+            </li>
+        </ol>
+
+        <div class="section-header" style="page-break-before: always;">Observation</div>
+        <div class="normal-italic" style="font-weight: bold;">Please comment on the instructor’s effectiveness in each of the following eight categories. Use specific examples when possible. Use #10 below to make additional suggestions and additional statements may be attached.</div>
+
+        <ol>
+            <li><u>Introduction:</u> In what ways did the introduction capture your (and students’) interest? How were the first few minutes of class related to the purpose of the class session overall?
+                <ul class="red-bullets">
+                    <li>Instructor not interacting with students before class, focused on preparing and setting up</li>
+                    <li>Class starts with no explicit plan, no hook, no connection to course trajectory</li>
+                </ul>
+            </li>
+
+            <li><u>Organization:</u> How was the class time organized? How were materials used? Were transitions between activities or materials clear and effective?
+                <ul class="red-bullets">
+                    <li>Students confused or uncooperative/an activity is abrupt or novel</li>
+                    <li>Class session incorporated many disparate ideas</li>
+                    <li>Students doing single activity for more than 30 mins</li>
+                    <li>Students appear confused about what is expected of them or why they are being asked to do something</li>
+                </ul>
+            </li>
+
+            <li><u>Content:</u> How well did the instructor demonstrate thorough understanding of the content? Did the instructor support his or her points? How was the instructor’s level of content competence related to students’ learning?
+                <ul class="red-bullets">
+                    <li>Instructor offers little room for student ideas or disagreement, presents information without logic or rationale</li>
+                    <li>Instructor presents crucial information only once, without repeating or rephrasing</li>
+                    <li>Instructor uses unnecessary or excessive technical terms</li>
+                    <li>Instructor speaks in monotone</li>
+                </ul>
+            </li>
+
+            <li><u>Visual Aids and Technology:</u> How were visual aids used? How was technology used? Were the visual aids/technology appropriate for the lesson and context? How did the visual aids/technology enhance or improve the learning process?
+                <ul class="red-bullets">
+                    <li>PowerPoints slides begin with course logistics or content</li>
+                    <li>Students struggle to take notes based on PowerPoint, or students write only verbatim</li>
+                    <li>PowerPoint slides are text and graphic only; lecture using PowerPoint is long (more than 15 minutes)</li>
+                    <li>PowerPoint slides often have more than 20 words per slide; or significant extraneous information</li>
+                    <li>Images and texts are overlapping, making it hard to see or read</li>
+                    <li>Slides use “traditional” method: a Title/topic heading with elaboration details in body</li>
+                    <li>Instructor does not use projector, white board, handouts, or doc cam when these tools could help present or organize material</li>
+                    <li>Visual presentation of material is confusing or indiscriminate</li>
+                </ul>
+            </li>
+
+            <li><u>Delivery:</u> Was the instructor’s teaching persona effective? Consider tone and volume of voice, gestures, posture, and expressions. What strengths of delivery did you observe? Any recommendations in the area of delivery?
+                <ul class="red-bullets">
+                    <li>Instructor and/or students producing a lot of information</li>
+                    <li>Long lecture</li>
+                    <li>Lecture dominates, especially as instructor demonstration of skills</li>
+                    <li>Pace of speech or activities increases</li>
+                    <li>Instructor clearly reading off notes, not speaking extemporaneously</li>
+                    <li>Instructor presentation is unenthusiastic, little variation in tone, gestures, or expressions</li>
+                    <li>Instructor remains in one physical location</li>
+                    <li>Instructor speech is fast, difficult to understand</li>
+                    <li>Instructor speech is hard to hear</li>
+                </ul>
+            </li>
+
+            <li><u>Activities:</u> How did the instructor encourage student participation or create the environment for students to participate? How well did these activities relate to the goal, objective, or purpose of the class session? How well did the instructor direct students’ behavior to promote learning? How did the instructor engage with or respond to student’s contributions?
+                <ul class="red-bullets">
+                    <li>Discussion activities not eliciting robust or critical responses</li>
+                    <li>Instructor asks questions that leave little room for student explanation or error</li>
+                    <li>Instructor moves on after single response</li>
+                    <li>Instructor answers own questions</li>
+                    <li>Instructor quickly affirmed or corrected student responses</li>
+                    <li>Instructor gives students many hints to get correct answer</li>
+                    <li>Learning activities had unclear or tenuous connection to learning objectives</li>
+                    <li>Most questions are fact-focused/memory</li>
+                    <li>Little or no time spent correcting errors or misunderstandings</li>
+                    <li>Instructor disregards or ignores student confusion or struggles</li>
+                    <li>Instructor often responds immediately to students contributions that were complex or hard to hear</li>
+                </ul>
+            </li>
+
+            <li><u>Student Behavior:</u> How engaged were students in the class session? Did students seem to be aware of the learning goal, objective, or purpose of the class session? In what ways did students interact with the professor and each other? How would you describe the attitude of students?
+                <ul class="red-bullets">
+                    <li>Students giving fact responses</li>
+                    <li>Students form their own groups, with some left out, not inclusive or functioning well</li>
+                    <li>Students distracted or off task/</li>
+                    <li>Few students participating</li>
+                    <li>Some students not contributing/some dominating</li>
+                    <li>Students not enjoying</li>
+                    <li>Lack of indication of student understanding</li>
+                    <li>Students offered unsupported or erroneous claims</li>
+                    <li>Students packing up before class end</li>
+                    <li>Students tardy</li>
+                </ul>
+            </li>
+
+            <li><u>Conclusion:</u> Did the instructor end the class session effectively? Did he/she summarize key points? Leave time for questions? Tease the next topic?
+                <ul class="red-bullets">
+                    <li>Class ends w/o recap or reinforcing main points</li>
+                    <li>Class ends abruptly</li>
+                    <li>Class ends early</li>
+                </ul>
+            </li>
+        </ol>
+
+        <div class="section-header">Additional Feedback</div>
+        
+        <ol start="9">
+            <li>Did the class session meet the instructor’s goal or objective (if a goal or objective was identified)? What other responses do you have regarding the class goal or objective?
+                <div class="question-space"></div>
+            </li>
+            <li>Other comments or recommendations:
+                <div class="question-space"></div>
+            </li>
+        </ol>
+
+    </div>
+</body>
+</html>
