@@ -61,28 +61,48 @@ const Div = Node.create({
   renderHTML({ HTMLAttributes }) { return ['div', mergeAttributes(HTMLAttributes), 0]; },
 });
 
-const AI_MESSAGES = [
-  'Analyzing observations...',
-  'Generating insights...',
-  'Processing recommendations...',
-  'Composing feedback...',
-  'Almost there...',
+const AI_STAGES = [
+  { msg: 'Analyzing observations',     target: 18 },
+  { msg: 'Generating insights',        target: 38 },
+  { msg: 'Processing recommendations', target: 60 },
+  { msg: 'Composing feedback',         target: 78 },
+  { msg: 'Almost there',               target: 94 },
 ];
 
 const AiLoadingOverlay = () => {
-  const [msgIdx, setMsgIdx] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [dots, setDots] = useState('');
+
   useEffect(() => {
-    const id = setInterval(() => setMsgIdx(i => (i + 1) % AI_MESSAGES.length), 2500);
-    return () => clearInterval(id);
+    const dotsId = setInterval(() => setDots(d => d.length >= 3 ? '' : d + '.'), 420);
+    const progId = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 94) return prev;
+        const increment = Math.max(0.25, (94 - prev) * 0.03);
+        return Math.min(94, prev + increment);
+      });
+    }, 180);
+    return () => { clearInterval(dotsId); clearInterval(progId); };
   }, []);
+
+  const pct = Math.round(progress);
+  const stageIdx = AI_STAGES.findIndex(s => progress < s.target);
+  const safeIdx = stageIdx === -1 ? AI_STAGES.length - 1 : stageIdx;
+
   return (
     <div className="report-ai-overlay">
-      <div className="ai-analyzing-box">
-        <div className="ai-spinner-v3" />
-        <span className="ai-analyzing-text">{AI_MESSAGES[msgIdx]}</span>
-        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.78rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
-          This may take up to 30 seconds
-        </span>
+      <div className="ai-loading-card">
+        <div className="ai-pulse-ring" />
+        <div className="ai-progress-percent">{pct}<span className="ai-pct-sign">%</span></div>
+        <div className="ai-progress-track">
+          <div className="ai-progress-fill" style={{ width: `${progress}%` }} />
+        </div>
+        <div className="ai-stage-msg">{AI_STAGES[safeIdx].msg}<span className="ai-dots">{dots}</span></div>
+        <div className="ai-stage-pips">
+          {AI_STAGES.map((_, i) => (
+            <div key={i} className={`ai-pip${i <= safeIdx ? ' ai-pip--on' : ''}`} />
+          ))}
+        </div>
       </div>
     </div>
   );
