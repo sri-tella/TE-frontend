@@ -16,6 +16,7 @@ import { useEvalPageState } from '../../hooks/useEvalPageState';
 import { storageKeys } from '../../utils/storageKeys';
 import InlineEdit from '../../components/InlineEdit/InlineEdit.jsx';
 import EditableButton from '../../components/InlineEdit/EditableButton.jsx';
+import { useDevAutofill } from '../../hooks/useDevAutofill';
 import './Evaluate.css';
 
 const Evaluate = () => {
@@ -76,6 +77,25 @@ const Evaluate = () => {
     localStorage.setItem(storageKeys.evalResponses(evaluationId), JSON.stringify(updated));
     flash();
   };
+
+  useDevAutofill(() => {
+    const updated = responses.map(section => {
+      const isAdditional = normalizeTitle(section.title) === 'Additional Feedback';
+      return {
+        ...section,
+        options: section.options.map(opt => ({
+          ...opt,
+          selected: true,
+          showFeedback: true,
+          feedbackText: opt.feedbackText || (isAdditional
+            ? 'Sample additional feedback for this session.'
+            : 'Clearly demonstrated during the observation session.')
+        }))
+      };
+    });
+    updateState(updated);
+    expandAll(responses.map((_, i) => i));
+  });
 
   return (
     <div id="evaluation-container-v3">

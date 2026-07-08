@@ -17,6 +17,7 @@ import { storageKeys } from '../../utils/storageKeys';
 import recommendationsMapping from '../../constants/recommendationsMapping';
 import InlineEdit from '../../components/InlineEdit/InlineEdit.jsx';
 import EditableButton from '../../components/InlineEdit/EditableButton.jsx';
+import { useDevAutofill } from '../../hooks/useDevAutofill';
 import './Recommendations.css';
 
 const Recommendations = () => {
@@ -109,6 +110,25 @@ const Recommendations = () => {
     localStorage.setItem(storageKeys.recsData(evaluationId), JSON.stringify(updated));
     flash();
   };
+
+  useDevAutofill(() => {
+    const updated = responses.map(section => {
+      const isAdditional = normalizeTitle(section.title) === 'Additional Feedback';
+      return {
+        ...section,
+        options: section.options.map(opt => ({
+          ...opt,
+          selected: isAdditional ? opt.selected : true,
+          showFeedback: true,
+          feedbackText: opt.feedbackText || (isAdditional
+            ? 'Yes, the session effectively met the stated objectives.'
+            : 'This strategy would significantly benefit the instructional approach.')
+        }))
+      };
+    });
+    updateState(updated);
+    expandAll(responses.map((_, i) => i));
+  });
 
   return (
     <div id="recommendations-container-v3">
