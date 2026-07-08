@@ -75,7 +75,7 @@ Example shape:
 {"Introduction": {"main": "...", "obsAI": "...", "recAI": "..."}, "Organization": {"main": "..."}}`;
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
   const RETRYABLE = new Set([429, 503]);
 
