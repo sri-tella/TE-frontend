@@ -61,6 +61,33 @@ const Div = Node.create({
   renderHTML({ HTMLAttributes }) { return ['div', mergeAttributes(HTMLAttributes), 0]; },
 });
 
+const AI_MESSAGES = [
+  'Analyzing observations...',
+  'Generating insights...',
+  'Processing recommendations...',
+  'Composing feedback...',
+  'Almost there...',
+];
+
+const AiLoadingOverlay = () => {
+  const [msgIdx, setMsgIdx] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setMsgIdx(i => (i + 1) % AI_MESSAGES.length), 2500);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div className="report-ai-overlay">
+      <div className="ai-analyzing-box">
+        <div className="ai-spinner-v3" />
+        <span className="ai-analyzing-text">{AI_MESSAGES[msgIdx]}</span>
+        <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.78rem', letterSpacing: '1.5px', textTransform: 'uppercase' }}>
+          This may take up to 30 seconds
+        </span>
+      </div>
+    </div>
+  );
+};
+
 import ReportPdfDocument from '../../components/Report/ReportPdfDocument';
 import ProgressStepper from '../../components/ProgressStepper/ProgressStepper';
 import ActivityLog from '../../components/ActivityLog/ActivityLog.jsx';
@@ -536,14 +563,7 @@ const ReportViewer = () => {
           </div>
         </div>
       )}
-      {loading.ai && (
-        <div className="report-ai-overlay">
-          <div className="ai-analyzing-box">
-            <div className="ai-spinner-v3" />
-            <span className="ai-analyzing-text">AI Analysis</span>
-          </div>
-        </div>
-      )}
+      {loading.ai && <AiLoadingOverlay />}
       <ActivityLog />
       <div className="container py-5">
         <ProgressStepper currentStep={3} />
