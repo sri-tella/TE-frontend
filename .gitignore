@@ -21,6 +21,7 @@ build
 
 # Documents
 *.docx
+generate-docs.mjs
 
 # Editor directories and files
 .vscode/*
