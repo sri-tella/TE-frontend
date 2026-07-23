@@ -10,10 +10,8 @@ export const useAuth = () => {
   const loginMutation = useMutation({
     mutationFn: (credentials) => authApi.login(credentials),
     onSuccess: (data) => {
-      // Logic for handling token:
-      // data.token || data.accessToken || data.jwt if present (production)
       const token = data.token || data.accessToken || data.jwt || null;
-      
+
       const userData = {
         firstName: data.firstName,
         lastName: data.lastName,
@@ -23,6 +21,7 @@ export const useAuth = () => {
         observerId: data.observerId,
         userId: data.userId,
         canEditContent: data.canEditContent === 'true',
+        activeRole: data.activeRole || null,
       };
 
       loginStore(userData, token);

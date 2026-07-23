@@ -373,11 +373,127 @@
 
 @keyframes profSpin { to { transform: rotate(360deg); } }
 
+/* ── ROLE SWITCHER CARD ── */
+.prof-card--role {
+  grid-column: 1 / -1;
+}
+
+.prof-role-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 4px;
+  margin-bottom: 18px;
+}
+
+.prof-role-head-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.prof-role-head-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #f0f7ff;
+  border: 1px solid rgba(26,37,53,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1a2535;
+  flex-shrink: 0;
+}
+
+.prof-role-head-title {
+  font-weight: 800;
+  color: #0e1825;
+  font-size: 1rem;
+}
+
+.prof-role-head-sub {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.prof-role-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.prof-role-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 16px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  color: #475569;
+  font-family: inherit;
+}
+
+.prof-role-card:hover:not(.prof-role-card--active) {
+  border-color: #1a2535;
+  background: #f0f7ff;
+  color: #1a2535;
+}
+
+.prof-role-card--active {
+  background: #f0fffe;
+  border-color: #2dd4bf;
+  color: #0e7490;
+  box-shadow: 0 0 0 3px rgba(45,212,191,0.12);
+}
+
+.prof-role-card-icon {
+  color: inherit;
+}
+
+.prof-role-card-label {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.prof-role-card--active .prof-role-card-label {
+  color: #0e7490;
+}
+
+.prof-role-card-desc {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.prof-role-card-check {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #2dd4bf;
+}
+
+.prof-role-saving {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin-top: 10px;
+  text-align: center;
+}
+
 /* Mobile */
 @media (max-width: 768px) {
   .prof-title { font-size: 2rem; }
   .prof-grid { grid-template-columns: 1fr; }
   #profile-page-scoped { padding: 36px 16px 60px; }
+  .prof-card--role { grid-column: auto; }
+  .prof-role-cards { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 480px) {

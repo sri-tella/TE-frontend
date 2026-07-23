@@ -1,4 +1,4 @@
-﻿import { lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import { useRoles } from './hooks/useRoles';
@@ -21,16 +21,20 @@ const AdminManagement = lazy(() => import('./pages/AdminManagement/AdminManageme
 const Help = lazy(() => import('./pages/Help/Help'));
 
 function App() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const { hasRole } = useRoles();
   const location = useLocation();
 
-  const showHeader = isAuthenticated && location.pathname !== '/login' && location.pathname !== '/signup';
+  const showHeader = isAuthenticated
+    && location.pathname !== '/login'
+    && location.pathname !== '/signup';
 
   const getHomePath = () => {
-    if (hasRole('ADMIN') || hasRole('OBSERVER')) return '/obs-home';
-    if (hasRole('INSTRUCTOR')) return '/ins-home';
-    return '/login';
+    if (!isAuthenticated) return '/login';
+    if (hasRole('ADMIN')) return '/obs-home';
+    const activeRole = user?.activeRole;
+    if (!activeRole) return '/profile';
+    return activeRole === 'INSTRUCTOR' ? '/ins-home' : '/obs-home';
   };
 
   return (
@@ -54,7 +58,7 @@ function App() {
               <Route
                 path="/obs-home"
                 element={
-                  isAuthenticated && (hasRole('OBSERVER') || hasRole('ADMIN'))
+                  isAuthenticated
                     ? <ObsHome />
                     : <Navigate to="/login" />
                 }
@@ -63,7 +67,7 @@ function App() {
               <Route
                 path="/ins-home"
                 element={
-                  isAuthenticated && hasRole('INSTRUCTOR')
+                  isAuthenticated
                     ? <InsHome />
                     : <Navigate to="/login" />
                 }
@@ -72,7 +76,7 @@ function App() {
               <Route
                 path="/instructor-intro"
                 element={
-                  isAuthenticated && hasRole('INSTRUCTOR')
+                  isAuthenticated
                     ? <InstructorIntro />
                     : <Navigate to="/login" />
                 }

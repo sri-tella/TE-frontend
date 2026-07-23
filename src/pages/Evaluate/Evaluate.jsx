@@ -4,6 +4,9 @@ import ProgressStepper from '../../components/ProgressStepper/ProgressStepper.js
 import { useSaveIndicator } from '../../hooks/useSaveIndicator';
 import { Card, Button, Form, Collapse } from 'react-bootstrap';
 import { ChevronDown, Eye, Check2Square, GearFill } from 'react-bootstrap-icons';
+import { toast } from 'react-toastify';
+import { apiClient } from '../../api/apiClient.js';
+import { useAuthStore } from '../../store/authStore.js';
 import SearchBar from '../../components/SearchBar/SearchBar.jsx';
 import AccordionControls from '../../components/AccordionControls/AccordionControls.jsx';
 import TextArea from '../../components/TextArea/TextArea.jsx';
@@ -25,6 +28,7 @@ const Evaluate = () => {
   const { clearLog } = useEvaluationStore();
   const { canEdit } = useRoles();
   const { evaluationId, observerId, instructorId, classId } = location.state || {};
+  const { user } = useAuthStore();
 
   const { sections, saveSectionTitle, saveOptionDescription } = useEditableSections();
 
@@ -71,6 +75,16 @@ const Evaluate = () => {
   useEffect(() => {
     if (!evaluationId) navigate('/obs-home');
   }, [evaluationId, navigate]);
+
+  const notifyInstructor = () => {
+    if (!instructorId) return;
+    apiClient('/api/evaluations/notify-instructor', {
+      body: {
+        instructorId: String(instructorId),
+        observerName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
+      },
+    }).then(() => toast.success('Instructor notified!')).catch(() => {});
+  };
 
   const updateState = (updated) => {
     setResponses(updated);
@@ -138,6 +152,7 @@ const Evaluate = () => {
         </div>
         <Form onSubmit={(e) => {
           e.preventDefault();
+          notifyInstructor();
           navigate('/recommendations', { state: { evaluationId, observerId, instructorId, classId, allObservations: responses } });
         }}>
           <AccordionControls

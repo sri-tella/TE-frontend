@@ -1,9 +1,9 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import './Profile.css';
 import { authApi } from '../../api/authApi';
-import { adminApi } from '../../api/adminApi';
-import { ShieldLock, EnvelopeFill, PersonFill, Eye, EyeSlash, KeyFill, ArrowRightShort } from 'react-bootstrap-icons';
+import { ShieldLock, EnvelopeFill, PersonFill, Eye, EyeSlash, KeyFill, ArrowRightShort, EyeFill, MortarboardFill, ArrowLeftRight, CheckCircleFill } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuthStore } from '../../store/authStore';
 
@@ -21,14 +21,32 @@ const getInitials = (name) => {
 
 const ROLE_LABELS = { ADMIN: 'Administrator', OBSERVER: 'Observer', INSTRUCTOR: 'Instructor' };
 
+const ROLE_OPTIONS = [
+  {
+    value: 'OBSERVER',
+    icon: <EyeFill size={22} />,
+    label: 'Observer',
+    desc: 'Conduct evaluations & generate reports',
+  },
+  {
+    value: 'INSTRUCTOR',
+    icon: <MortarboardFill size={22} />,
+    label: 'Instructor',
+    desc: 'Complete questionnaires & view your reports',
+  },
+];
+
 const Profile = () => {
-  const { user, logout } = useAuthStore();
+  const navigate = useNavigate();
+  const { user, logout, setActiveRole } = useAuthStore();
   const firstName = user?.firstName || '';
   const lastName  = user?.lastName  || '';
   const email     = user?.email     || '';
-  const role      = Array.isArray(user?.roles) ? user?.roles[0] : (user?.role || '');
+  const roles     = Array.isArray(user?.roles) ? user.roles : (user?.role ? [user.role] : []);
+  const role      = roles[0] || '';
   const userId    = user?.id || user?.userId;
   const fullName  = `${firstName} ${lastName}`.trim() || 'User';
+  const activeRole = user?.activeRole || '';
 
   const [oldPassword,     setOldPassword]     = useState('');
   const [newPassword,     setNewPassword]     = useState('');
@@ -36,7 +54,7 @@ const Profile = () => {
   const [showOld,         setShowOld]         = useState(false);
   const [showNew,         setShowNew]         = useState(false);
   const [showConfirm,     setShowConfirm]     = useState(false);
-  const [requestSubmitted, setRequestSubmitted] = useState(false);
+  const [roleSaving,      setRoleSaving]      = useState(false);
 
   const changePasswordMutation = useMutation({
     mutationFn: (data) => authApi.changePassword(data),
@@ -52,19 +70,29 @@ const Profile = () => {
     },
   });
 
-  const requestRoleMutation = useMutation({
-    mutationFn: (id) => adminApi.requestDualRole(id),
-    onSuccess: (data) => { toast.success(data || 'Request submitted!'); setRequestSubmitted(true); },
-    onError: () => toast.error('Request error'),
-  });
-
   const handleChangePassword = () => {
     if (!oldPassword || !newPassword || !confirmPassword) return toast.warning('All fields are required.');
     if (newPassword !== confirmPassword) return toast.warning('New passwords do not match.');
     changePasswordMutation.mutate({ email, oldPassword, newPassword, confirmPassword });
   };
 
-  const isLoading = changePasswordMutation.isPending || requestRoleMutation.isPending;
+  const handleRoleSwitch = async (newRole) => {
+    if (newRole === activeRole || roleSaving) return;
+    setRoleSaving(true);
+    try {
+      await authApi.setActiveRole(userId, newRole);
+      setActiveRole(newRole);
+      toast.success(`Switched to ${newRole === 'INSTRUCTOR' ? 'Instructor' : 'Observer'} view`);
+      navigate(newRole === 'INSTRUCTOR' ? '/ins-home' : '/obs-home');
+    } catch {
+      toast.error('Could not switch role. Please try again.');
+    } finally {
+      setRoleSaving(false);
+    }
+  };
+
+  const isAdmin = roles.includes('ADMIN');
+  const showRoleSwitcher = !isAdmin;
 
   return (
     <div id="profile-page-scoped">
@@ -73,11 +101,47 @@ const Profile = () => {
       {/* HEADER */}
       <div className="prof-header">
         <h1 className="prof-title">My Profile</h1>
-        <p className="prof-subtitle">Account information &amp; security</p>
+        <p className="prof-subtitle">Account information &amp; settings</p>
       </div>
 
       <div className="prof-wrap">
         <div className="prof-grid">
+
+          {/* ── ROLE SWITCHER CARD ── */}
+          {showRoleSwitcher && (
+            <div className="prof-card prof-card--role">
+              <div className="prof-role-head">
+                <div className="prof-role-head-left">
+                  <div className="prof-role-head-icon"><ArrowLeftRight size={18} /></div>
+                  <div>
+                    <div className="prof-role-head-title">Active Role</div>
+                    <div className="prof-role-head-sub">Switch between Observer and Instructor view</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="prof-role-cards">
+                {ROLE_OPTIONS.map(r => (
+                  <button
+                    key={r.value}
+                    type="button"
+                    className={`prof-role-card${activeRole === r.value ? ' prof-role-card--active' : ''}`}
+                    onClick={() => handleRoleSwitch(r.value)}
+                    disabled={roleSaving}
+                  >
+                    <div className="prof-role-card-icon">{r.icon}</div>
+                    <div className="prof-role-card-label">{r.label}</div>
+                    <div className="prof-role-card-desc">{r.desc}</div>
+                    {activeRole === r.value && (
+                      <CheckCircleFill size={14} className="prof-role-card-check" />
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {roleSaving && <div className="prof-role-saving">Saving…</div>}
+            </div>
+          )}
 
           {/* ── ACCOUNT CARD ── */}
           <div className="prof-card">
@@ -87,7 +151,7 @@ const Profile = () => {
               </div>
               <div className="prof-avatar-info">
                 <div className="prof-avatar-name">{fullName}</div>
-                <span className="prof-role-badge">{ROLE_LABELS[role] || role}</span>
+                <span className="prof-role-badge">{ROLE_LABELS[activeRole] || ROLE_LABELS[role] || role}</span>
               </div>
             </div>
 
@@ -118,19 +182,6 @@ const Profile = () => {
                 </div>
               </div>
             </div>
-
-            {role === 'INSTRUCTOR' && !requestSubmitted && (
-              <>
-                <div className="prof-divider" />
-                <button
-                  className="prof-btn prof-btn--outline"
-                  onClick={() => requestRoleMutation.mutate(userId)}
-                  disabled={isLoading}
-                >
-                  {requestRoleMutation.isPending ? 'Sending…' : 'Request Observer Access'}
-                </button>
-              </>
-            )}
           </div>
 
           {/* ── SECURITY CARD ── */}
@@ -199,7 +250,7 @@ const Profile = () => {
             <button
               className="prof-btn prof-btn--solid"
               onClick={handleChangePassword}
-              disabled={isLoading}
+              disabled={changePasswordMutation.isPending}
             >
               {changePasswordMutation.isPending
                 ? <span className="prof-spinner" />

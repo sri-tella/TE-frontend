@@ -35,6 +35,10 @@ export const useEvaluationStore = create(
     {
       name: 'evaluation-storage',
       storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        activityLog: state.activityLog,
+        logVersion: state.logVersion,
+      }),
     }
   )
 );

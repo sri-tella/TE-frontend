@@ -10,4 +10,10 @@ export const authApi = {
   changePassword: async (passwordData) => {
     return apiClient('/api/auth/change-password', { body: passwordData });
   },
+  setActiveRole: async (userId, role) => {
+    return apiClient(`/api/auth/users/${userId}/active-role`, {
+      method: 'PATCH',
+      body: { activeRole: role },
+    });
+  },
 };

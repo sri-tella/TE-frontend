@@ -1,34 +1,18 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { authApi } from '../../api/authApi';
 import { toast } from 'react-toastify';
-import { Eye, EyeSlash, CheckCircleFill, EyeFill, MortarboardFill, ChevronLeft, ChevronRight, EnvelopeFill, LockFill, PersonFill, ArrowRightShort } from 'react-bootstrap-icons';
+import { Eye, EyeSlash, CheckCircleFill, ChevronLeft, ChevronRight, EnvelopeFill, LockFill, PersonFill, ArrowRightShort } from 'react-bootstrap-icons';
 import InlineEdit from '../../components/InlineEdit/InlineEdit';
 import logo from '../../assets/logo.svg';
 import './Register.css';
-
-const ROLES = [
-  {
-    value: 'OBSERVER',
-    icon: <EyeFill size={20} />,
-    label: 'Observer',
-    desc: 'Conduct classroom evaluations',
-  },
-  {
-    value: 'INSTRUCTOR',
-    icon: <MortarboardFill size={20} />,
-    label: 'Instructor',
-    desc: 'View your evaluation reports',
-  },
-];
 
 const Register = () => {
   const [formData, setFormData] = useState({
     firstName: '', lastName: '',
     email: '', confirmEmail: '',
     password: '', confirmPassword: '',
-    role: '',
   });
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -64,13 +48,11 @@ const Register = () => {
     e.preventDefault();
     if (formData.email !== formData.confirmEmail) return toast.error('Emails do not match');
     if (formData.password !== formData.confirmPassword) return toast.error('Passwords do not match');
-    if (!formData.role) return toast.error('Please select a role');
     signupMutation.mutate({
       firstName: formData.firstName,
       lastName: formData.lastName,
       email: formData.email,
       password: formData.password,
-      roles: [formData.role],
     });
   };
 
@@ -97,7 +79,7 @@ const Register = () => {
               </li>
               <li>
                 <CheckCircleFill size={15} className="auth-feature-icon" />
-                <InlineEdit pageKey="register-feature-2" defaultValue="Secure role-based access" canEdit={false} />
+                <InlineEdit pageKey="register-feature-2" defaultValue="Observer & Instructor access in one account" canEdit={false} />
               </li>
               <li>
                 <CheckCircleFill size={15} className="auth-feature-icon" />
@@ -196,28 +178,6 @@ const Register = () => {
                       {showConfirm ? <EyeSlash size={14} /> : <Eye size={14} />}
                     </button>
                   </div>
-                </div>
-              </div>
-
-              {/* Role cards */}
-              <div className="auth-field">
-                <label>Select your role</label>
-                <div className="auth-role-cards">
-                  {ROLES.map(r => (
-                    <button
-                      key={r.value}
-                      type="button"
-                      className={`auth-role-card${formData.role === r.value ? ' selected' : ''}`}
-                      onClick={() => setFormData(prev => ({ ...prev, role: r.value }))}
-                    >
-                      <div className="auth-role-icon">{r.icon}</div>
-                      <span className="auth-role-label">{r.label}</span>
-                      <span className="auth-role-desc">{r.desc}</span>
-                      {formData.role === r.value && (
-                        <CheckCircleFill size={14} className="auth-role-check" />
-                      )}
-                    </button>
-                  ))}
                 </div>
               </div>
 
