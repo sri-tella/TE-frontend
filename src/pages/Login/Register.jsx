@@ -3,10 +3,25 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { authApi } from '../../api/authApi';
 import { toast } from 'react-toastify';
-import { Eye, EyeSlash, CheckCircleFill, ChevronLeft, ChevronRight, EnvelopeFill, LockFill, PersonFill, ArrowRightShort } from 'react-bootstrap-icons';
+import { Eye, EyeSlash, CheckCircleFill, ChevronLeft, ChevronRight, EnvelopeFill, LockFill, PersonFill, ArrowRightShort, EyeFill, MortarboardFill } from 'react-bootstrap-icons';
 import InlineEdit from '../../components/InlineEdit/InlineEdit';
 import logo from '../../assets/logo.svg';
 import './Register.css';
+
+const ROLES = [
+  {
+    value: 'OBSERVER',
+    icon: <EyeFill size={20} />,
+    label: 'Observer',
+    desc: 'Conduct classroom evaluations and write reports.',
+  },
+  {
+    value: 'INSTRUCTOR',
+    icon: <MortarboardFill size={20} />,
+    label: 'Instructor',
+    desc: 'Complete questionnaires and view your feedback.',
+  },
+];
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +29,7 @@ const Register = () => {
     email: '', confirmEmail: '',
     password: '', confirmPassword: '',
   });
+  const [role, setRole] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [leftOpen, setLeftOpen] = useState(() => {
@@ -46,6 +62,7 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!role) return toast.error('Please select a role to continue');
     if (formData.email !== formData.confirmEmail) return toast.error('Emails do not match');
     if (formData.password !== formData.confirmPassword) return toast.error('Passwords do not match');
     signupMutation.mutate({
@@ -53,6 +70,7 @@ const Register = () => {
       lastName: formData.lastName,
       email: formData.email,
       password: formData.password,
+      roles: [role],
     });
   };
 
@@ -79,7 +97,7 @@ const Register = () => {
               </li>
               <li>
                 <CheckCircleFill size={15} className="auth-feature-icon" />
-                <InlineEdit pageKey="register-feature-2" defaultValue="Observer & Instructor access in one account" canEdit={false} />
+                <InlineEdit pageKey="register-feature-2" defaultValue="Choose your role: Observer or Instructor" canEdit={false} />
               </li>
               <li>
                 <CheckCircleFill size={15} className="auth-feature-icon" />
@@ -181,7 +199,27 @@ const Register = () => {
                 </div>
               </div>
 
-              <button type="submit" className="auth-submit-btn" disabled={signupMutation.isPending}>
+              {/* Role selection */}
+              <div className="auth-field">
+                <label>I am joining as</label>
+                <div className="auth-role-cards">
+                  {ROLES.map(r => (
+                    <button
+                      key={r.value}
+                      type="button"
+                      className={`auth-role-card${role === r.value ? ' selected' : ''}`}
+                      onClick={() => setRole(r.value)}
+                    >
+                      <span className="auth-role-icon">{r.icon}</span>
+                      <span className="auth-role-label">{r.label}</span>
+                      <span className="auth-role-desc">{r.desc}</span>
+                      {role === r.value && <CheckCircleFill size={14} className="auth-role-check" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button type="submit" className="auth-submit-btn" disabled={signupMutation.isPending || !role}>
                 {signupMutation.isPending
                   ? <span className="auth-spinner" />
                   : <><span>Create Account</span><ArrowRightShort size={22} /></>
