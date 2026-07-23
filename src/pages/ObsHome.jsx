@@ -155,7 +155,7 @@ const ObsHome = () => {
       return;
     }
 
-    const observerId = user.observerId || user.id;
+    const observerId = user.observerId;
     if (!observerId) {
       toast.error("Observer profile not found. Please log in again.");
       return;

@@ -10,7 +10,7 @@ const InsHome = () => {
   const [formFilled, setFormFilled] = useState(false);
 
   useEffect(() => {
-    const hasSubmitted = localStorage.getItem(`instructorFormSubmitted_${user?.id}`) === 'true';
+    const hasSubmitted = localStorage.getItem(`instructorFormSubmitted_${user?.userId}`) === 'true';
     setFormFilled(hasSubmitted);
   }, [user]);
 
