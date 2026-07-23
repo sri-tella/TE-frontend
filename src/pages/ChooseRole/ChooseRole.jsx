@@ -25,22 +25,34 @@ const ROLES = [
 const ChooseRole = () => {
   const navigate = useNavigate();
   const { user, setActiveRole } = useAuthStore();
-  const [selected, setSelected] = useState('');
+  const userRoles = Array.isArray(user?.roles) ? user.roles : [];
+  const availableRoles = ROLES.filter(r => userRoles.includes(r.value));
+  const [selected, setSelected] = useState(() =>
+    availableRoles.length === 1 ? availableRoles[0].value : ''
+  );
   const [saving, setSaving] = useState(false);
 
-  const handleConfirm = async () => {
-    if (!selected) return toast.warning('Please select a role to continue.');
+  const handleConfirm = async (roleOverride) => {
+    const role = roleOverride || selected;
+    if (!role) return toast.warning('Please select a role to continue.');
     setSaving(true);
     try {
-      await authApi.setActiveRole(user?.userId, selected);
-      setActiveRole(selected);
-      navigate(selected === 'INSTRUCTOR' ? '/ins-home' : '/obs-home', { replace: true });
+      await authApi.setActiveRole(user?.userId, role);
+      setActiveRole(role);
+      navigate(role === 'INSTRUCTOR' ? '/ins-home' : '/obs-home', { replace: true });
     } catch {
       toast.error('Could not save role. Please try again.');
     } finally {
       setSaving(false);
     }
   };
+
+  React.useEffect(() => {
+    if (availableRoles.length === 1) {
+      handleConfirm(availableRoles[0].value);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div id="choose-role-page">
@@ -60,7 +72,7 @@ const ChooseRole = () => {
         </p>
 
         <div className="cr-cards">
-          {ROLES.map(r => (
+          {availableRoles.map(r => (
             <button
               key={r.value}
               type="button"
