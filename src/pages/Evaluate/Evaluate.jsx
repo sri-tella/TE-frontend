@@ -83,7 +83,8 @@ const Evaluate = () => {
         instructorId: String(instructorId),
         observerName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
       },
-    }).then(() => toast.success('Instructor notified!')).catch(() => {});
+    }).then(() => toast.success('Instructor notified!'))
+      .catch(() => toast.error('Could not notify the instructor by email.'));
   };
 
   const updateState = (updated) => {
