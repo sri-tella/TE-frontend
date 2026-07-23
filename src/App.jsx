@@ -19,6 +19,7 @@ const ReportViewer = lazy(() => import('./pages/ReportViewer/ReportViewer'));
 const ReportsList = lazy(() => import('./pages/ReportsList/ReportsList'));
 const AdminManagement = lazy(() => import('./pages/AdminManagement/AdminManagement'));
 const Help = lazy(() => import('./pages/Help/Help'));
+const ChooseRole = lazy(() => import('./pages/ChooseRole/ChooseRole'));
 
 function App() {
   const { isAuthenticated, user } = useAuthStore();
@@ -33,7 +34,7 @@ function App() {
     if (!isAuthenticated) return '/login';
     if (hasRole('ADMIN')) return '/obs-home';
     const activeRole = user?.activeRole;
-    if (!activeRole) return '/profile';
+    if (!activeRole) return '/choose-role';
     return activeRole === 'INSTRUCTOR' ? '/ins-home' : '/obs-home';
   };
 
@@ -109,6 +110,11 @@ function App() {
                     ? <AdminManagement />
                     : <Navigate to="/login" />
                 }
+              />
+
+              <Route
+                path="/choose-role"
+                element={isAuthenticated ? <ChooseRole /> : <Navigate to="/login" />}
               />
 
               <Route
