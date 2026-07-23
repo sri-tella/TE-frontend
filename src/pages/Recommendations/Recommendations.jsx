@@ -232,7 +232,15 @@ const Recommendations = () => {
                             )}
                             {opts.map((opt, rIdx) => {
                               const originalOptIdx = responses[sIdx].options.findIndex(o => o.description === opt.description);
-                              const mappingRec = mappingSection?.groups?.[gIdx]?.recommendations?.[rIdx];
+
+                              // Resolve true mapping indices regardless of search filtering.
+                              // gIdx/rIdx from the filtered groups may not match original mapping positions.
+                              const trueMappingGIdx = mappingSection?.groups?.findIndex(g => g.observation === obs) ?? gIdx;
+                              const opsWithSameObs = responses[sIdx].options.filter(o => o.observedDescription === obs);
+                              const trueMappingRIdx = opsWithSameObs.findIndex(o => o.description === opt.description);
+                              const resolvedRIdx = trueMappingRIdx >= 0 ? trueMappingRIdx : rIdx;
+                              const mappingRec = mappingSection?.groups?.[trueMappingGIdx]?.recommendations?.[resolvedRIdx];
+
                               const evalOpt = additionalFeedbackSection?.options?.[rIdx];
                               const recText = isAdditional
                                 ? (evalOpt?.description || opt.description)
@@ -266,7 +274,7 @@ const Recommendations = () => {
                                       <SectionText
                                         key={recText}
                                         value={recText}
-                                        onSave={val => saveRecommendation(sIdx, gIdx, rIdx, val)}
+                                        onSave={val => saveRecommendation(sIdx, trueMappingGIdx, resolvedRIdx, val)}
                                         canEdit={canEdit && !!mappingSection}
                                       />
                                     </div>
