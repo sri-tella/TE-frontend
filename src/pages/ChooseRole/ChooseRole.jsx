@@ -37,8 +37,11 @@ const ChooseRole = () => {
     if (!role) return toast.warning('Please select a role to continue.');
     setSaving(true);
     try {
-      await authApi.setActiveRole(user?.userId, role);
-      setActiveRole(role);
+      const response = await authApi.setActiveRole(user?.userId, role);
+      setActiveRole(role, {
+        observerId: response?.observerId ?? user?.observerId,
+        instructorId: response?.instructorId ?? user?.instructorId,
+      });
       navigate(role === 'INSTRUCTOR' ? '/ins-home' : '/obs-home', { replace: true });
     } catch {
       toast.error('Could not save role. Please try again.');

@@ -25,9 +25,9 @@ export const useAuthStore = create(
         localStorage.removeItem('auth-storage');
       },
 
-      setActiveRole: (role) => {
+      setActiveRole: (role, extra = {}) => {
         set((state) => ({
-          user: state.user ? { ...state.user, activeRole: role } : state.user,
+          user: state.user ? { ...state.user, activeRole: role, ...extra } : state.user,
         }));
       },
     }),

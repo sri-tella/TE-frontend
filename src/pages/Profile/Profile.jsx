@@ -80,8 +80,11 @@ const Profile = () => {
     if (newRole === activeRole || roleSaving) return;
     setRoleSaving(true);
     try {
-      await authApi.setActiveRole(userId, newRole);
-      setActiveRole(newRole);
+      const response = await authApi.setActiveRole(userId, newRole);
+      setActiveRole(newRole, {
+        observerId: response?.observerId ?? user?.observerId,
+        instructorId: response?.instructorId ?? user?.instructorId,
+      });
       toast.success(`Switched to ${newRole === 'INSTRUCTOR' ? 'Instructor' : 'Observer'} view`);
       navigate(newRole === 'INSTRUCTOR' ? '/ins-home' : '/obs-home');
     } catch {
@@ -92,7 +95,8 @@ const Profile = () => {
   };
 
   const isAdmin = roles.includes('ADMIN');
-  const showRoleSwitcher = !isAdmin;
+  const availableRoleOptions = ROLE_OPTIONS.filter(r => roles.includes(r.value));
+  const showRoleSwitcher = !isAdmin && availableRoleOptions.length > 1;
 
   return (
     <div id="profile-page-scoped">
@@ -121,7 +125,7 @@ const Profile = () => {
               </div>
 
               <div className="prof-role-cards">
-                {ROLE_OPTIONS.map(r => (
+                {availableRoleOptions.map(r => (
                   <button
                     key={r.value}
                     type="button"
