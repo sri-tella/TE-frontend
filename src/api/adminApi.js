@@ -17,9 +17,12 @@ export const adminApi = {
   },
 
   fetchObservers: () => apiClient('/api/admins/observers'),
+  fetchAllUsers: () => apiClient('/api/admins/all-users'),
   toggleContentPermission: (userId, canEditContent) =>
     apiClient(`/api/admins/users/${userId}/content-permission`, {
       method: 'PATCH',
       body: { canEditContent }
     }),
+  toggleRoleSwitch: (userId) =>
+    apiClient(`/api/admins/users/${userId}/toggle-role-switch`, { method: 'PATCH' }),
 };

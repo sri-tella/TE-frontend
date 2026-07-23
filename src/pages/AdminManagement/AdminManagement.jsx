@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '../../api/adminApi';
 import { toast } from 'react-toastify';
@@ -12,6 +12,7 @@ import {
   CheckCircleFill,
   PencilFill,
   XCircleFill,
+  ArrowLeftRight,
 } from 'react-bootstrap-icons';
 import './AdminManagement.css';
 
@@ -24,7 +25,7 @@ const getAvatarColor = (name = '') =>
 
 const AdminManagement = () => {
   const queryClient = useQueryClient();
-  const [newAdmin, setNewAdmin] = useState({ firstName: '', lastName: '', email: '' });
+  const [newAdmin, setNewAdmin] = useState({ firstName: '', lastName: '', email: '', role: 'OBSERVER' });
 
   const { data: admins = [], isLoading: isLoadingAdmins } = useQuery({
     queryKey: ['admins'],
@@ -36,17 +37,18 @@ const AdminManagement = () => {
     queryFn: adminApi.fetchRoleRequests,
   });
 
-  const { data: observers = [], isLoading: isLoadingObservers } = useQuery({
-    queryKey: ['observers'],
-    queryFn: adminApi.fetchObservers,
+  const { data: allUsers = [], isLoading: isLoadingUsers } = useQuery({
+    queryKey: ['allUsers'],
+    queryFn: adminApi.fetchAllUsers,
   });
 
   const addAdminMutation = useMutation({
     mutationFn: adminApi.addAdmin,
     onSuccess: () => {
       queryClient.invalidateQueries(['admins']);
-      setNewAdmin({ firstName: '', lastName: '', email: '' });
-      toast.success('Admin added successfully!');
+      queryClient.invalidateQueries(['allUsers']);
+      setNewAdmin({ firstName: '', lastName: '', email: '', role: 'OBSERVER' });
+      toast.success('User added successfully!');
     },
     onError: (err) => toast.error(`Error: ${err.message}`),
   });
@@ -67,14 +69,23 @@ const AdminManagement = () => {
     },
   });
 
-  const togglePermissionMutation = useMutation({
+  const toggleContentPermissionMutation = useMutation({
     mutationFn: ({ userId, canEditContent }) =>
       adminApi.toggleContentPermission(userId, canEditContent),
     onSuccess: () => {
-      queryClient.invalidateQueries(['observers']);
+      queryClient.invalidateQueries(['allUsers']);
       toast.success('Permission updated');
     },
     onError: () => toast.error('Failed to update permission'),
+  });
+
+  const toggleRoleSwitchMutation = useMutation({
+    mutationFn: (userId) => adminApi.toggleRoleSwitch(userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['allUsers']);
+      toast.success('Role access updated');
+    },
+    onError: () => toast.error('Failed to update role access'),
   });
 
   const handleAddAdmin = (e) => {
@@ -92,22 +103,27 @@ const AdminManagement = () => {
     }
   };
 
+  const getRoleLabel = (roles = []) => {
+    if (roles.includes('OBSERVER') && roles.includes('INSTRUCTOR')) return 'Observer + Instructor';
+    if (roles.includes('OBSERVER')) return 'Observer';
+    if (roles.includes('INSTRUCTOR')) return 'Instructor';
+    return roles.join(', ');
+  };
+
   return (
     <div id="admin-management-scoped">
       <div className="am-page-header">
         <h2 className="am-page-title">Account Management</h2>
-        <p className="am-page-subtitle">Manage administrators, permissions, and role requests</p>
+        <p className="am-page-subtitle">Manage users, permissions, and role requests</p>
       </div>
 
       <div className="am-content">
 
-        {/* Add Admin Form */}
+        {/* ── Add User Form ── */}
         <div className="am-card">
           <div className="am-card-header">
-            <div className="am-card-header-icon">
-              <PersonPlusFill size={16} />
-            </div>
-            <h4>Add New Administrator</h4>
+            <div className="am-card-header-icon"><PersonPlusFill size={16} /></div>
+            <h4>Add New User</h4>
           </div>
           <form onSubmit={handleAddAdmin} className="am-form">
             <div className="am-form-row">
@@ -132,28 +148,39 @@ const AdminManagement = () => {
                 />
               </div>
             </div>
-            <div className="am-form-group">
-              <label>Email Address</label>
-              <input
-                type="email"
-                placeholder="john.doe@example.com"
-                value={newAdmin.email}
-                onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })}
-                required
-              />
+            <div className="am-form-row">
+              <div className="am-form-group">
+                <label>Email Address</label>
+                <input
+                  type="email"
+                  placeholder="john.doe@example.com"
+                  value={newAdmin.email}
+                  onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="am-form-group">
+                <label>Role</label>
+                <select
+                  className="am-select"
+                  value={newAdmin.role}
+                  onChange={(e) => setNewAdmin({ ...newAdmin, role: e.target.value })}
+                >
+                  <option value="OBSERVER">Observer</option>
+                  <option value="INSTRUCTOR">Instructor</option>
+                </select>
+              </div>
             </div>
             <button type="submit" className="am-btn-primary" disabled={addAdminMutation.isPending}>
-              {addAdminMutation.isPending ? <Spinner size="sm" /> : <><PersonPlusFill size={14} /> Add Administrator</>}
+              {addAdminMutation.isPending ? <Spinner size="sm" /> : <><PersonPlusFill size={14} /> Add User</>}
             </button>
           </form>
         </div>
 
-        {/* Current Admins */}
+        {/* ── Current Admins ── */}
         <div className="am-card">
           <div className="am-card-header">
-            <div className="am-card-header-icon">
-              <ShieldFillCheck size={16} />
-            </div>
+            <div className="am-card-header-icon"><ShieldFillCheck size={16} /></div>
             <h4>Current Administrators</h4>
             {!isLoadingAdmins && <span className="am-count-badge">{admins.length}</span>}
           </div>
@@ -165,10 +192,7 @@ const AdminManagement = () => {
             <div className="am-user-list">
               {admins.map((admin) => (
                 <div key={admin.id} className="am-user-card">
-                  <div
-                    className="am-avatar"
-                    style={{ background: getAvatarColor(admin.firstName) }}
-                  >
+                  <div className="am-avatar" style={{ background: getAvatarColor(admin.firstName) }}>
                     {getInitials(admin.firstName, admin.lastName)}
                   </div>
                   <div className="am-user-info">
@@ -190,67 +214,70 @@ const AdminManagement = () => {
           )}
         </div>
 
-        {/* Content Edit Permission */}
+        {/* ── User Access Management ── */}
         <div className="am-card">
           <div className="am-card-header">
-            <div className="am-card-header-icon">
-              <PeopleFill size={16} />
-            </div>
-            <h4>Content Edit Permission</h4>
-            {!isLoadingObservers && <span className="am-count-badge">{observers.length}</span>}
+            <div className="am-card-header-icon"><PeopleFill size={16} /></div>
+            <h4>User Access Management</h4>
+            {!isLoadingUsers && <span className="am-count-badge">{allUsers.length}</span>}
           </div>
-          <p className="am-card-desc">Allow observers to edit page content inline.</p>
-          {isLoadingObservers ? (
+          <p className="am-card-desc">
+            Toggle role switching and content editing permissions for each user.
+          </p>
+          {isLoadingUsers ? (
             <div className="am-loading"><Spinner variant="success" /></div>
-          ) : observers.length === 0 ? (
-            <p className="am-empty">No observers found.</p>
+          ) : allUsers.length === 0 ? (
+            <p className="am-empty">No users found.</p>
           ) : (
             <div className="am-user-list">
-              {observers.map((observer) => (
-                <div key={observer.id} className="am-user-card">
-                  <div
-                    className="am-avatar"
-                    style={{ background: getAvatarColor(observer.firstName) }}
-                  >
-                    {getInitials(observer.firstName, observer.lastName)}
+              {allUsers.map((user) => (
+                <div key={user.id} className="am-user-card am-user-card--wide">
+                  <div className="am-avatar" style={{ background: getAvatarColor(user.firstName) }}>
+                    {getInitials(user.firstName, user.lastName)}
                   </div>
                   <div className="am-user-info">
-                    <span className="am-user-name">{observer.firstName} {observer.lastName}</span>
-                    <span className="am-user-email">{observer.email}</span>
+                    <span className="am-user-name">{user.firstName} {user.lastName}</span>
+                    <span className="am-user-email">{user.email}</span>
+                    <span className="am-user-role-hint">{getRoleLabel(user.roles)}</span>
                   </div>
-                  {observer.canEditContent ? (
-                    <span className="am-role-badge am-role-edit">Can Edit</span>
-                  ) : (
-                    <span className="am-role-badge am-role-observer">Observer</span>
-                  )}
-                  <button
-                    className={observer.canEditContent ? 'am-btn-warning' : 'am-btn-success'}
-                    disabled={togglePermissionMutation.isPending}
-                    onClick={() =>
-                      togglePermissionMutation.mutate({
-                        userId: observer.id,
-                        canEditContent: !observer.canEditContent,
-                      })
-                    }
-                  >
-                    {observer.canEditContent ? (
-                      <><XCircleFill size={13} /> Revoke</>
-                    ) : (
-                      <><PencilFill size={13} /> Grant</>
-                    )}
-                  </button>
+
+                  <div className="am-user-actions">
+                    <button
+                      className={user.canSwitchRoles ? 'am-btn-warning' : 'am-btn-role'}
+                      disabled={toggleRoleSwitchMutation.isPending}
+                      onClick={() => toggleRoleSwitchMutation.mutate(user.id)}
+                      title={user.canSwitchRoles ? 'Revoke role switching' : 'Allow role switching'}
+                    >
+                      <ArrowLeftRight size={13} />
+                      {user.canSwitchRoles ? ' Revoke Switch' : ' Allow Switch'}
+                    </button>
+
+                    <button
+                      className={user.canEditContent ? 'am-btn-warning' : 'am-btn-success'}
+                      disabled={toggleContentPermissionMutation.isPending}
+                      onClick={() =>
+                        toggleContentPermissionMutation.mutate({
+                          userId: user.id,
+                          canEditContent: !user.canEditContent,
+                        })
+                      }
+                    >
+                      {user.canEditContent
+                        ? <><XCircleFill size={13} /> Revoke Edit</>
+                        : <><PencilFill size={13} /> Grant Edit</>
+                      }
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* Pending Role Requests */}
+        {/* ── Pending Role Requests ── */}
         <div className="am-card">
           <div className="am-card-header">
-            <div className="am-card-header-icon am-icon-pending">
-              <ClockHistory size={16} />
-            </div>
+            <div className="am-card-header-icon am-icon-pending"><ClockHistory size={16} /></div>
             <h4>Pending Role Requests</h4>
             {!isLoadingRequests && roleRequests.length > 0 && (
               <span className="am-count-badge am-count-pending">{roleRequests.length}</span>
@@ -264,10 +291,7 @@ const AdminManagement = () => {
             <div className="am-user-list">
               {roleRequests.map((request) => (
                 <div key={request.id} className="am-user-card">
-                  <div
-                    className="am-avatar"
-                    style={{ background: getAvatarColor(request.firstName || request.firstname) }}
-                  >
+                  <div className="am-avatar" style={{ background: getAvatarColor(request.firstName || request.firstname) }}>
                     {getInitials(request.firstName || request.firstname, request.lastName || request.lastname)}
                   </div>
                   <div className="am-user-info">
