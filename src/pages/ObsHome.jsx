@@ -85,11 +85,12 @@ const ObsHome = () => {
     import('./Evaluate/Evaluate');
     import('./Recommendations/Recommendations');
     import('./ReportViewer/ReportViewer');
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.observerId]);
 
   const fetchClasses = () => {
     setLoading(true);
-    classApi.fetchClasses()
+    classApi.fetchClasses(user?.observerId)
       .then(data => {
         setActiveClasses(data.filter(item => !item.isArchived));
         setArchivedClasses(data.filter(item => item.isArchived));

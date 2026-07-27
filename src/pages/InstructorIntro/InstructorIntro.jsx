@@ -1,10 +1,77 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { apiClient } from '../../api/apiClient';
-import { PersonBadge, Book, CalendarDate, Clock, JournalText, CheckCircle, EnvelopeFill, Send } from 'react-bootstrap-icons';
+import { PersonBadge, Book, CalendarDate, Clock, JournalText, CheckCircle, EnvelopeFill, Search, ChevronDown } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import './InstructorIntro.css';
+
+const ObserverSelect = ({ observers, value, onChange, hasError }) => {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const wrapRef = useRef(null);
+
+  const sortedObservers = useMemo(() =>
+    [...observers].sort((a, b) =>
+      `${a.firstname} ${a.lastname}`.localeCompare(`${b.firstname} ${b.lastname}`)
+    ), [observers]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return sortedObservers;
+    return sortedObservers.filter(o => `${o.firstname} ${o.lastname}`.toLowerCase().includes(q));
+  }, [sortedObservers, search]);
+
+  const selected = observers.find(o => o.observer_id === value);
+
+  useEffect(() => {
+    const onClickOutside = (e) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
+  }, []);
+
+  return (
+    <div className="intro-observer-select" ref={wrapRef}>
+      <button
+        type="button"
+        className={`form-control-v3 intro-observer-trigger ${hasError ? 'is-invalid-v3' : ''}`}
+        onClick={() => setOpen(o => !o)}
+      >
+        <span>{selected ? `${selected.firstname} ${selected.lastname}` : 'Select an observer…'}</span>
+        <ChevronDown size={14} />
+      </button>
+      {open && (
+        <div className="intro-observer-dropdown">
+          <div className="intro-observer-search">
+            <Search size={14} />
+            <input
+              autoFocus
+              type="text"
+              placeholder="Search observers…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className="intro-observer-options">
+            {filtered.length === 0 && <div className="intro-observer-empty">No observers found</div>}
+            {filtered.map(o => (
+              <button
+                type="button"
+                key={o.observer_id}
+                className={`intro-observer-option ${value === o.observer_id ? 'intro-observer-option--selected' : ''}`}
+                onClick={() => { onChange(o.observer_id); setOpen(false); setSearch(''); }}
+              >
+                {o.firstname} {o.lastname}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const InstructorIntro = () => {
   const navigate = useNavigate();
@@ -13,6 +80,7 @@ const InstructorIntro = () => {
     instructorFirstName: '',
     instructorLastName: '',
     instructorEmail: '',
+    observerId: null,
     courseTitle: '',
     courseDescription: '',
     topic: '',
@@ -24,9 +92,9 @@ const InstructorIntro = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
-  const [observerEmail, setObserverEmail] = useState('');
-  const [notifySending, setNotifySending] = useState(false);
-  const [notifySent, setNotifySent] = useState(false);
+  const [observers, setObservers] = useState([]);
+  const [selectedObserverName, setSelectedObserverName] = useState('');
+  const [emailWarning, setEmailWarning] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -39,10 +107,19 @@ const InstructorIntro = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    apiClient('/api/observers').then(setObservers).catch(() => {});
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     setFormErrors(prev => ({ ...prev, [name]: false }));
+  };
+
+  const handleObserverChange = (observerId) => {
+    setFormData(prev => ({ ...prev, observerId }));
+    setFormErrors(prev => ({ ...prev, observerId: false }));
   };
 
   const validateForm = () => {
@@ -51,40 +128,24 @@ const InstructorIntro = () => {
     requiredFields.forEach(field => {
       if (!formData[field] || formData[field].trim() === '') errors[field] = true;
     });
+    if (!formData.observerId) errors.observerId = true;
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateForm()) return toast.warning('Please select an observer and fill in all fields.');
 
     try {
-      await apiClient('/api/form/instructor', { body: formData });
+      const observer = observers.find(o => o.observer_id === formData.observerId);
+      setSelectedObserverName(observer ? `${observer.firstname} ${observer.lastname}` : '');
+      const response = await apiClient('/api/form/instructor', { body: formData });
+      setEmailWarning(response?.emailWarning || '');
       localStorage.setItem(`instructorFormSubmitted_${user?.userId}`, 'true');
       setSubmitted(true);
     } catch (_) {
       alert("Failed to save instructor info. Please try again.");
-    }
-  };
-
-  const handleNotifyObserver = async () => {
-    if (!observerEmail.trim()) return toast.warning('Please enter the observer\'s email.');
-    setNotifySending(true);
-    try {
-      await apiClient('/api/form/instructor/notify-observer', {
-        body: {
-          observerEmail: observerEmail.trim(),
-          instructorEmail: formData.instructorEmail,
-          instructorName: `${formData.instructorFirstName} ${formData.instructorLastName}`.trim(),
-        },
-      });
-      setNotifySent(true);
-      toast.success('Observer notified successfully!');
-    } catch {
-      toast.error('Could not send notification. Please try again.');
-    } finally {
-      setNotifySending(false);
     }
   };
 
@@ -101,40 +162,16 @@ const InstructorIntro = () => {
           <div className="intro-card mb-4 shadow-sm border-0" style={{ maxWidth: 560, margin: '0 auto' }}>
             <div className="intro-card-header d-flex align-items-center mb-4">
               <EnvelopeFill className="header-icon me-3" />
-              <h2 className="mb-0">Notify Your Observer</h2>
+              <h2 className="mb-0">Observer Notified</h2>
             </div>
-            <p className="intro-notify-desc">
-              Let your observer know the questionnaire is ready. Enter their email below to send a notification.
-            </p>
-
-            {notifySent ? (
-              <div className="intro-notify-sent">
-                <CheckCircle size={18} className="me-2" />
-                Notification sent to <strong>{observerEmail}</strong>
+            {emailWarning ? (
+              <div className="intro-notify-sent" style={{ background: 'rgba(220,53,69,0.12)', color: '#dc3545' }}>
+                {emailWarning}
               </div>
             ) : (
-              <div className="intro-notify-form">
-                <label className="intro-label">Observer's email</label>
-                <div className="intro-notify-row">
-                  <input
-                    type="email"
-                    className="form-control-v3"
-                    placeholder="observer@atl.edu"
-                    value={observerEmail}
-                    onChange={e => setObserverEmail(e.target.value)}
-                    disabled={notifySending}
-                  />
-                  <button
-                    className="btn-atl-notify"
-                    onClick={handleNotifyObserver}
-                    disabled={notifySending}
-                  >
-                    {notifySending
-                      ? <span className="intro-spinner" />
-                      : <><Send size={14} className="me-2" />Send</>
-                    }
-                  </button>
-                </div>
+              <div className="intro-notify-sent">
+                <CheckCircle size={18} className="me-2" />
+                {selectedObserverName || 'Your observer'} has been emailed that this session is ready.
               </div>
             )}
           </div>
@@ -181,6 +218,17 @@ const InstructorIntro = () => {
               <div className="col-md-4 mb-3">
                 <label className="intro-label">Email</label>
                 <input type="email" className="form-control-v3 read-only" value={formData.instructorEmail} readOnly />
+              </div>
+            </div>
+            <div className="row">
+              <div className="col-md-6 mb-3">
+                <label className="intro-label">Observer</label>
+                <ObserverSelect
+                  observers={observers}
+                  value={formData.observerId}
+                  onChange={handleObserverChange}
+                  hasError={formErrors.observerId}
+                />
               </div>
             </div>
           </div>

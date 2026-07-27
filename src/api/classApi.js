@@ -1,8 +1,9 @@
 import { apiClient } from './apiClient';
 
 export const classApi = {
-  fetchClasses: async () => {
-    return apiClient('/api/classes/with-instructors');
+  fetchClasses: async (observerId) => {
+    const query = observerId ? `?observerId=${observerId}` : '';
+    return apiClient(`/api/classes/with-instructors${query}`);
   },
   fetchClassDetails: async (classId) => {
     return apiClient(`/api/classes/${classId}`);
