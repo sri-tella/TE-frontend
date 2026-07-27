@@ -82,6 +82,7 @@ const Evaluate = () => {
       body: {
         instructorId: String(instructorId),
         observerId: observerId ? String(observerId) : undefined,
+        classId: classId ? String(classId) : undefined,
         observerName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
       },
     }).then(() => toast.success('Instructor notified!'))

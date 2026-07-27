@@ -18,6 +18,8 @@ import recommendationsMapping from '../../constants/recommendationsMapping';
 import InlineEdit from '../../components/InlineEdit/InlineEdit.jsx';
 import EditableButton from '../../components/InlineEdit/EditableButton.jsx';
 import { useDevAutofill } from '../../hooks/useDevAutofill';
+import { apiClient } from '../../api/apiClient';
+import { toast } from 'react-toastify';
 import './Recommendations.css';
 
 const Recommendations = () => {
@@ -169,6 +171,15 @@ const Recommendations = () => {
         </div>
         <Form onSubmit={(e) => {
           e.preventDefault();
+          if (instructorId && observerId) {
+            apiClient('/api/evaluations/notify-recommendations', {
+              body: {
+                instructorId: String(instructorId),
+                observerId: String(observerId),
+                classId: classId ? String(classId) : undefined,
+              },
+            }).catch(() => toast.error('Could not send the step 2 notification.'));
+          }
           navigate('/report-viewer', { state: { evaluationId, observerId, instructorId, classId, allObservations, allRecommendations: responses } });
         }}>
           <AccordionControls
