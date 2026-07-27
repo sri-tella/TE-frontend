@@ -81,6 +81,7 @@ const Evaluate = () => {
     apiClient('/api/evaluations/notify-instructor', {
       body: {
         instructorId: String(instructorId),
+        observerId: observerId ? String(observerId) : undefined,
         observerName: `${user?.firstName || ''} ${user?.lastName || ''}`.trim(),
       },
     }).then(() => toast.success('Instructor notified!'))

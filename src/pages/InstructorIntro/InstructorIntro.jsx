@@ -75,6 +75,7 @@ const InstructorIntro = () => {
       await apiClient('/api/form/instructor/notify-observer', {
         body: {
           observerEmail: observerEmail.trim(),
+          instructorEmail: formData.instructorEmail,
           instructorName: `${formData.instructorFirstName} ${formData.instructorLastName}`.trim(),
         },
       });
