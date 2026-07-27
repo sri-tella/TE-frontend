@@ -1,5 +1,13 @@
 ﻿import { Component } from 'react';
 
+// New deploys replace JS chunk files with new hashed names, so a tab left
+// open across a deploy fails when it lazy-loads a route whose old chunk no
+// longer exists. A reload picks up the current build's chunk map and fixes
+// it - try that once automatically before showing the error screen.
+const isStaleChunkError = (error) =>
+  /Failed to fetch dynamically imported module|error loading dynamically imported module|Importing a module script failed/i
+    .test(error?.message || '');
+
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
@@ -12,6 +20,11 @@ class ErrorBoundary extends Component {
 
   componentDidCatch(error, info) {
     console.error('ErrorBoundary:', error, info);
+
+    if (isStaleChunkError(error) && !sessionStorage.getItem('chunk-reload-attempted')) {
+      sessionStorage.setItem('chunk-reload-attempted', '1');
+      window.location.reload();
+    }
   }
 
   render() {

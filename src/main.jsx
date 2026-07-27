@@ -18,6 +18,10 @@ const queryClient = new QueryClient({
   },
 })
 
+// We got this far, so the current build's entry chunk loaded fine - allow
+// the stale-chunk auto-reload (see ErrorBoundary) to fire again if needed.
+sessionStorage.removeItem('chunk-reload-attempted')
+
 // Remove StrictMode for proper Drag and Drop functionality
 createRoot(document.getElementById('root')).render(
   <ErrorBoundary>
