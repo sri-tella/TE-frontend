@@ -6,6 +6,7 @@ import { authApi } from '../../api/authApi';
 import { ShieldLock, EnvelopeFill, PersonFill, Eye, EyeSlash, KeyFill, ArrowRightShort, EyeFill, MortarboardFill, ArrowLeftRight, CheckCircleFill } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuthStore } from '../../store/authStore';
+import { useRefreshUser } from '../../hooks/useRefreshUser';
 
 const AVATAR_COLORS = ['#1a2535','#2a3d68','#0e7490','#1d4ed8','#1b6ca8','#7b2d8b','#b5451b','#0891b2'];
 const getAvatarColor = (name) => {
@@ -39,6 +40,7 @@ const ROLE_OPTIONS = [
 const Profile = () => {
   const navigate = useNavigate();
   const { user, logout, setActiveRole } = useAuthStore();
+  useRefreshUser();
   const firstName = user?.firstName || '';
   const lastName  = user?.lastName  || '';
   const email     = user?.email     || '';

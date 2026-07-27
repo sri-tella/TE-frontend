@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
-import { authApi } from '../api/authApi';
+import { authApi, parseUserResponse } from '../api/authApi';
 import { useAuthStore } from '../store/authStore';
 
 export const useAuth = () => {
@@ -11,20 +11,7 @@ export const useAuth = () => {
     mutationFn: (credentials) => authApi.login(credentials),
     onSuccess: (data) => {
       const token = data.token || data.accessToken || data.jwt || null;
-
-      const userData = {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        roles: data.roles ? data.roles.replace(/[\[\]]/g, '').split(', ') : [],
-        instructorId: data.instructorId,
-        observerId: data.observerId,
-        userId: data.userId,
-        canEditContent: data.canEditContent === 'true',
-        activeRole: data.activeRole || null,
-      };
-
-      loginStore(userData, token);
+      loginStore(parseUserResponse(data), token);
       toast.success('Successfully logged in!');
     },
     onError: (error) => {

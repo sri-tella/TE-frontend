@@ -1,5 +1,18 @@
 import { apiClient } from './apiClient';
 
+// Shared shape between /login and /user/{id} responses.
+export const parseUserResponse = (data) => ({
+  firstName: data.firstName,
+  lastName: data.lastName,
+  email: data.email,
+  roles: data.roles ? data.roles.replace(/[\[\]]/g, '').split(', ') : [],
+  instructorId: data.instructorId,
+  observerId: data.observerId,
+  userId: data.userId,
+  canEditContent: data.canEditContent === 'true',
+  activeRole: data.activeRole || null,
+});
+
 export const authApi = {
   login: async (credentials) => {
     return apiClient('/api/auth/login', { body: credentials });
@@ -15,5 +28,8 @@ export const authApi = {
       method: 'PATCH',
       body: { activeRole: role },
     });
+  },
+  getUser: async (userId) => {
+    return apiClient(`/api/auth/user/${userId}`);
   },
 };

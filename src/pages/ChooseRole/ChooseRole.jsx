@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { EyeFill, MortarboardFill, ArrowRightShort, CheckCircleFill } from 'react-bootstrap-icons';
 import { authApi } from '../../api/authApi';
 import { useAuthStore } from '../../store/authStore';
+import { useRefreshUser } from '../../hooks/useRefreshUser';
 import { toast } from 'react-toastify';
 import logo from '../../assets/logo.svg';
 import './ChooseRole.css';
@@ -25,6 +26,7 @@ const ROLES = [
 const ChooseRole = () => {
   const navigate = useNavigate();
   const { user, setActiveRole } = useAuthStore();
+  useRefreshUser();
   const userRoles = Array.isArray(user?.roles) ? user.roles : [];
   const availableRoles = ROLES.filter(r => userRoles.includes(r.value));
   const [selected, setSelected] = useState(() =>
