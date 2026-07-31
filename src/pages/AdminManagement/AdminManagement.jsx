@@ -168,6 +168,7 @@ const AdminManagement = () => {
                 >
                   <option value="OBSERVER">Observer</option>
                   <option value="INSTRUCTOR">Instructor</option>
+                  <option value="ADMIN">Admin</option>
                 </select>
               </div>
             </div>

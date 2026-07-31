@@ -3,7 +3,8 @@ import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import './Profile.css';
 import { authApi } from '../../api/authApi';
-import { ShieldLock, EnvelopeFill, PersonFill, Eye, EyeSlash, KeyFill, ArrowRightShort, EyeFill, MortarboardFill, ArrowLeftRight, CheckCircleFill } from 'react-bootstrap-icons';
+import { adminApi } from '../../api/adminApi';
+import { ShieldLock, EnvelopeFill, PersonFill, Eye, EyeSlash, KeyFill, ArrowRightShort, EyeFill, MortarboardFill, ArrowLeftRight, CheckCircleFill, PersonPlusFill } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuthStore } from '../../store/authStore';
 import { useRefreshUser } from '../../hooks/useRefreshUser';
@@ -57,6 +58,8 @@ const Profile = () => {
   const [showNew,         setShowNew]         = useState(false);
   const [showConfirm,     setShowConfirm]     = useState(false);
   const [roleSaving,      setRoleSaving]      = useState(false);
+  const [requestingRole,  setRequestingRole]  = useState(false);
+  const [roleRequested,   setRoleRequested]   = useState(false);
 
   const changePasswordMutation = useMutation({
     mutationFn: (data) => authApi.changePassword(data),
@@ -99,6 +102,27 @@ const Profile = () => {
   const isAdmin = roles.includes('ADMIN');
   const availableRoleOptions = ROLE_OPTIONS.filter(r => roles.includes(r.value));
   const showRoleSwitcher = !isAdmin && availableRoleOptions.length > 1;
+  const missingRole = !isAdmin && availableRoleOptions.length === 1
+    ? ROLE_OPTIONS.find(r => !roles.includes(r.value))
+    : null;
+
+  const handleRequestRole = async () => {
+    if (!missingRole || requestingRole) return;
+    setRequestingRole(true);
+    try {
+      const result = await adminApi.requestDualRole(userId, missingRole.value);
+      if (typeof result === 'string' && result.includes('already have')) {
+        toast.info(result);
+      } else {
+        toast.success('Request submitted — an admin will review it.');
+      }
+      setRoleRequested(true);
+    } catch {
+      toast.error('Could not submit request. Please try again.');
+    } finally {
+      setRequestingRole(false);
+    }
+  };
 
   return (
     <div id="profile-page-scoped">
@@ -146,6 +170,31 @@ const Profile = () => {
               </div>
 
               {roleSaving && <div className="prof-role-saving">Saving…</div>}
+            </div>
+          )}
+
+          {/* ── REQUEST OTHER ROLE CARD ── */}
+          {missingRole && (
+            <div className="prof-card prof-card--role">
+              <div className="prof-role-head">
+                <div className="prof-role-head-left">
+                  <div className="prof-role-head-icon"><PersonPlusFill size={18} /></div>
+                  <div>
+                    <div className="prof-role-head-title">Also work as {missingRole.label}?</div>
+                    <div className="prof-role-head-sub">An admin will review and approve your request</div>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="prof-btn prof-btn--solid"
+                onClick={handleRequestRole}
+                disabled={requestingRole || roleRequested}
+              >
+                {requestingRole
+                  ? <span className="prof-spinner" />
+                  : roleRequested ? 'Request Sent' : `Request ${missingRole.label} Access`}
+              </button>
             </div>
           )}
 

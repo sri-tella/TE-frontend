@@ -10,9 +10,9 @@ export const adminApi = {
   fetchRoleRequests: () => apiClient('/api/admins/roleRequests'),
   approveRequest: (requestId) => apiClient(`/api/admins/roleRequests/${requestId}/approve`, { method: 'POST' }),
   
-  requestDualRole: async (userId) => {
+  requestDualRole: async (userId, requestedRole) => {
     return apiClient('/api/admins/roleRequests', {
-      body: { id: userId, requestedRole: 'OBSERVER' }
+      body: { id: userId, requestedRole }
     });
   },
 

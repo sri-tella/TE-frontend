@@ -52,14 +52,20 @@ export async function apiClient(endpoint, { body, ...customConfig } = {}) {
   }
 
   if (response.status === 401) {
-    useAuthStore.getState().logout();
-    window.location.href = '/login';
-    throw new Error('Session expired. Please log in again.');
+    // Only treat this as an expired session if we actually had one - a plain
+    // failed login attempt also returns 401 and should show its real error
+    // instead of force-logging-out and reloading the login page.
+    if (useAuthStore.getState().isAuthenticated) {
+      useAuthStore.getState().logout();
+      window.location.href = '/login';
+      throw new Error('Session expired. Please log in again.');
+    }
+    throw new Error(data?.error || data?.message || (typeof data === 'string' ? data : null) || 'Invalid credentials');
   }
 
   if (response.ok) {
     return data;
   }
 
-  throw new Error(data?.message || (typeof data === 'string' ? data : null) || response.statusText);
+  throw new Error(data?.error || data?.message || (typeof data === 'string' ? data : null) || response.statusText);
 }
